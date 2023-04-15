@@ -4,9 +4,7 @@ project (SQLiteWrapperTest)
 set(AWL_ROOT_DIR "${CMAKE_SOURCE_DIR}/lib/Awl")
 set(SQLITE_SRC_DIR $ENV{SQLITE_SRC_DIR})
 
-include(CMake/AwlConfig.cmake)
-
-target_include_directories(${PROJECT_NAME} PRIVATE ${CMAKE_SOURCE_DIR} ${SQLITE_SRC_DIR})
+include(${AWL_ROOT_DIR}/CMake/AwlConfig.cmake)
 
 file(GLOB_RECURSE CPP_FILES 
   ${SQLITE_SRC_DIR}/*.h ${SQLITE_SRC_DIR}/sqlite3.c
@@ -15,4 +13,6 @@ file(GLOB_RECURSE CPP_FILES
 
 add_executable(${PROJECT_NAME} ${CPP_FILES})
 
-include(CMake/AwlLink.cmake)
+target_include_directories(${PROJECT_NAME} PRIVATE ${CMAKE_SOURCE_DIR} ${SQLITE_SRC_DIR})
+
+include(${AWL_ROOT_DIR}/CMake/AwlLink.cmake)
