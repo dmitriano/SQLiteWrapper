@@ -1,5 +1,10 @@
 # SQLiteWrapper
-An experimental C++ wrapper for SQLite
+An experimental C++ wrapper for SQLite or a template metaprogramming-based home made ORM with some kind of a Code-First approach that allows to generate database table definitions from C++ structures, insert/update/delete/query the data without dealing with column names or column indices and iterating over the recordsets with standard C++ iterators.
+
+## Examples
+
+- [BlobTest.cpp](https://github.com/dmitriano/SQLiteWrapper/blob/main/Tests/BlobTest.cpp) is a very simple example of working with a database table as with `std::set`.
+- [SetStorageTest.cpp](https://github.com/dmitriano/SQLiteWrapper/blob/main/Tests/SetStorageTest.cpp) is an example of using composite keys and nested structures.
 
 ## Cloning the repository
 
