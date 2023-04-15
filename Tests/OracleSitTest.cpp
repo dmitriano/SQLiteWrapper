@@ -2,12 +2,36 @@
 #include "SQLiteWrapper/Bind.h"
 #include "SQLiteWrapper/Get.h"
 
-#include "ModelTypes.h"
+#include "Awl/Stringizable.h"
+
+#include <variant>
+#include <string>
+#include <chrono>
+#include <optional>
+#include <array>
+#include <iostream>
 
 using namespace swtest;
 
 namespace
 {
+    using Clock = std::chrono::system_clock;
+
+    using DateType = std::chrono::time_point<Clock, std::chrono::seconds>;
+
+    struct TimestampType
+    {
+        std::chrono::time_point<Clock, std::chrono::nanoseconds> time;
+        int tz_hour;
+        int tz_minute;
+
+        AWL_SERIALIZABLE(time, tz_hour, tz_minute);
+    };
+
+    AWL_MEMBERWISE_EQUATABLE(TimestampType)
+
+    using NumberType = int64_t;
+
     struct CommonHeader
     {
         int64_t BeginSit;
