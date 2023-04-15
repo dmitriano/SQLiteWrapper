@@ -287,16 +287,13 @@ namespace sqlite
             std::any val;
         };
 
+        using AnyList = awl::quick_list<Any>;
+
         template <class T>
         std::unique_ptr<Any> MakeAny(T val)
         {
             return std::make_unique<Any>(std::any(std::move(val)));
         }
-
-        using AnyList = awl::quick_list<Any>;
-
-        AnyList usedValues;
-        AnyList freeValues;
 
         void ClearUsedValues()
         {
@@ -383,5 +380,8 @@ namespace sqlite
         //}
 
         sqlite3_stmt * m_stmt = nullptr;
+
+        AnyList usedValues;
+        AnyList freeValues;
     };
 }
