@@ -58,6 +58,6 @@ or
     cd ~
     mkdir -p build/sw
     cd build/sw
-    cmake ../../repos/ -DCMAKE_BUILD_TYPE=Release
+    cmake ../../repos/SQLiteWrapper -DCMAKE_BUILD_TYPE=Release
     make -j4
     ./SQLiteWrapperTest
