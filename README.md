@@ -49,7 +49,7 @@ or
     export SQLITE_SRC_DIR=$(realpath ~/libs/sqlite-amalgamation-3370000)
     mkdir repos
     cd repos
-    git clone https://git.developernote.com/sqlitewrapper.git
+    git clone https://git.developernote.com/sqlitewrapper.git --recursive
     cd ~
     mkdir -p build/sw
     cd build/sw
