@@ -1,7 +1,13 @@
 # SQLiteWrapper
 An experimental C++ wrapper for SQLite
 
-##Building on Windows with MSVC2022
+## Cloning the repository
+
+git clone https://github.com/dmitriano/SQLiteWrapper.git
+git submodule init
+git submodule update
+
+## Building on Windows with MSVC2022
 
 Assuming that you cloned the repository into D:/dev/repos/SQLiteWrapper, downloaded SQLite sources into D:\dev\libs\sqlite-amalgamation-3390200 and created D:\dev\build\sw directory to build SQLiteWrapper test project in:
 
@@ -20,7 +26,7 @@ msbuild SQLiteWrapperTest.sln /p:Configuration=RelWithDebInfo /p:Platform=x64
 Debug\SQLiteWrapperTest.exe
 RelWithDebInfo\SQLiteWrapperTest.exe
 
-##Building on Linux
+## Building on Linux
 
 cd ~
 mkdir libs
