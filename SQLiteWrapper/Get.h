@@ -35,12 +35,14 @@ namespace sqlite
         val = helpers::MakeUnsigned(signedVal);
     }
 
-    inline void Get(Statement & st, size_t col, int64_t & val)
+    template <class T> requires (!std::is_same_v<T, bool>&& std::is_integral_v<T>&& std::is_signed_v<T> && sizeof(T) == sizeof(sqlite3_int64))
+    void Get(Statement& st, size_t col, T& val)
     {
         val = st.GetInt64(col);
     }
 
-    inline void Get(Statement & st, size_t col, uint64_t & val)
+    template <class T> requires (!std::is_same_v<T, bool>&& std::is_integral_v<T>&& std::is_unsigned_v<T> && sizeof(T) == sizeof(sqlite3_int64))
+    void Get(Statement& st, size_t col, T& val)
     {
         std::make_signed_t<uint64_t> signedVal;
 

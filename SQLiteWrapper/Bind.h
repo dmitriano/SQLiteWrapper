@@ -19,24 +19,26 @@ namespace sqlite
         st.BindInt(col, val ? 1 : 0);
     }
 
-    template <class T> requires (!std::is_same_v<T, bool>&& std::is_integral_v<T>&& std::is_signed_v<T> && sizeof(T) < sizeof(sqlite3_int64))
-    void Bind(Statement & st, size_t col, T val)
+    template <class T> requires (!std::is_same_v<T, bool> && std::is_integral_v<T> && std::is_signed_v<T> && sizeof(T) < sizeof(sqlite3_int64))
+    void Bind(Statement& st, size_t col, T val)
     {
         st.BindInt(col, static_cast<int>(val));
     }
 
-    template <class T> requires (!std::is_same_v<T, bool>&& std::is_integral_v<T>&& std::is_unsigned_v<T> && sizeof(T) < sizeof(sqlite3_int64))
-    void Bind(Statement & st, size_t col, T val)
+    template <class T> requires (!std::is_same_v<T, bool> && std::is_integral_v<T> && std::is_unsigned_v<T> && sizeof(T) < sizeof(sqlite3_int64))
+    void Bind(Statement& st, size_t col, T val)
     {
         st.BindInt(col, static_cast<int>(helpers::MakeSigned(val)));
     }
 
-    inline void Bind(Statement & st, size_t col, int64_t val)
+    template <class T> requires (!std::is_same_v<T, bool> && std::is_integral_v<T> && std::is_signed_v<T> && sizeof(T) == sizeof(sqlite3_int64))
+    void Bind(Statement& st, size_t col, T val)
     {
         st.BindInt64(col, val);
     }
 
-    inline void Bind(Statement & st, size_t col, uint64_t val)
+    template <class T> requires (!std::is_same_v<T, bool> && std::is_integral_v<T> && std::is_unsigned_v<T> && sizeof(T) == sizeof(sqlite3_int64))
+    void Bind(Statement& st, size_t col, T val)
     {
         st.BindInt64(col, helpers::MakeSigned(val));
     }

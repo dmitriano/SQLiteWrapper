@@ -105,7 +105,7 @@ namespace sqlite
             CheckBind(sqlite3_bind_int(m_stmt, From0To1(col), val));
         }
 
-        void BindInt64(size_t col, int64_t val)
+        void BindInt64(size_t col, sqlite3_int64 val)
         {
             CheckBind(sqlite3_bind_int64(m_stmt, From0To1(col), val));
         }
@@ -227,7 +227,7 @@ namespace sqlite
             return sqlite3_column_int(m_stmt, From0To0(col));
         }
 
-        int64_t GetInt64(size_t col) const
+        sqlite3_int64 GetInt64(size_t col) const
         {
             return sqlite3_column_int64(m_stmt, From0To0(col));
         }
