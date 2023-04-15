@@ -3,7 +3,12 @@ An experimental C++ wrapper for SQLite
 
 ## Cloning the repository
 
+git clone https://github.com/dmitriano/SQLiteWrapper.git --recursive
+
+or
+
 git clone https://github.com/dmitriano/SQLiteWrapper.git
+cd SQLiteWrapper
 git submodule init
 git submodule update
 
@@ -21,8 +26,15 @@ set MY_CMAKE_EXE=%MY_DRIVE%\dev\tools\cmake-3.24.2-windows-x86_64\bin\cmake.exe
 set MY_VS_GENERATOR="Visual Studio 17 2022"
 
 %MY_CMAKE_EXE% ..\..\repos\SQLiteWrapper -G %MY_VS_GENERATOR% -A x64
+
+%MY_CMAKE_EXE% --build . --target SQLiteWrapperTest --config Debug
+%MY_CMAKE_EXE% --build . --target SQLiteWrapperTest --config RelWithDebInfo
+
+or
+
 msbuild SQLiteWrapperTest.sln /p:Configuration=Debug /p:Platform=x64
 msbuild SQLiteWrapperTest.sln /p:Configuration=RelWithDebInfo /p:Platform=x64
+
 Debug\SQLiteWrapperTest.exe
 RelWithDebInfo\SQLiteWrapperTest.exe
 
