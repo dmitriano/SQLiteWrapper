@@ -38,7 +38,7 @@ or
     Debug\SQLiteWrapperTest.exe
     RelWithDebInfo\SQLiteWrapperTest.exe
 
-## Building on Linux
+## Building on Linux with GCC11
 
     cd ~
     mkdir libs
@@ -55,3 +55,4 @@ or
     cd build/sw
     cmake ../../repos/ -DCMAKE_BUILD_TYPE=Release
     make -j4
+    ./SQLiteWrapperTest
