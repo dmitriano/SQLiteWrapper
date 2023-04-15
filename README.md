@@ -14,7 +14,7 @@ or
 
 ## Building on Windows with MSVC2022
 
-Assuming that you cloned the repository into D:/dev/repos/SQLiteWrapper, downloaded SQLite sources into D:\dev\libs\sqlite-amalgamation-3390200 and created D:\dev\build\sw directory to build SQLiteWrapper test project in:
+Assuming that you cloned the repository into `D:/dev/repos/SQLiteWrapper`, downloaded SQLite sources into `D:\dev\libs\sqlite-amalgamation-3390200` and created `D:\dev\build\sw` directory to build SQLiteWrapper test project in:
 
     set MY_DRIVE=D:
 
