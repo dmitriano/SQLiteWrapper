@@ -3,7 +3,7 @@ An experimental C++ wrapper for SQLite or a template metaprogramming-based home 
 
 ## Examples
 
-- [BlobTest.cpp](https://github.com/dmitriano/SQLiteWrapper/blob/main/Tests/BlobTest.cpp) is a very simple example of working with a database table as with `std::set`.
+- [BlobTest.cpp](https://github.com/dmitriano/SQLiteWrapper/blob/main/Tests/BlobTest.cpp) is a very simple example of working with a database table as with `std::set` and working with a column of type BLOB.
 - [SetStorageTest.cpp](https://github.com/dmitriano/SQLiteWrapper/blob/main/Tests/SetStorageTest.cpp) is an example of using composite keys and nested structures.
 
 ## Cloning the repository
