@@ -41,7 +41,7 @@ namespace
 
     Statement MakeInsertStatement(Database & db)
     {
-        return std::move(Statement(db, BuildParameterizedInsertQuery<Log>(tableName)));
+        return Statement(db, BuildParameterizedInsertQuery<Log>(tableName));
     }
 
     void firstchar(sqlite3_context* context, int argc, sqlite3_value** argv)

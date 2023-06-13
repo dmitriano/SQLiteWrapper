@@ -76,7 +76,7 @@ namespace
     template <class Price = PricePair>
     Statement MakeInsertStatement(Database & db, std::optional<size_t> i = {})
     {
-        return std::move(Statement(db, BuildParameterizedInsertQuery<Price>(MakeTableName(i))));
+        return Statement(db, BuildParameterizedInsertQuery<Price>(MakeTableName(i)));
     }
 
     size_t GetCount(Database & db, std::optional<size_t> i = {})
