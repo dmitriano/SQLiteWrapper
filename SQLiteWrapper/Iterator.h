@@ -70,7 +70,7 @@ namespace sqlite
                 T val;
                 m_i.Get(val);
 
-                m_v = val;
+                m_v = std::move(val);
 
                 return true;
             }
