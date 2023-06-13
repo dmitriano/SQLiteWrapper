@@ -79,6 +79,20 @@ AWT_TEST(RowIdRowQueries)
     }
 }
 
+AWT_TEST(RowIdRaw)
+{
+    DbContainer c(context);
+
+    c.m_db->Exec("CREATE TABLE raw_bots (name TEXT NOT NULL COLLATE NOCASE, state BLOB);");
+
+    sqlite::Statement insert_statement(*c.m_db, "INSERT INTO raw_bots (name, state) VALUES (?1, ?3);");
+
+    insert_statement.BindText(0, "BTCUSDT");
+    insert_statement.BindBlob(2, { 0, 1, 3 });
+
+    insert_statement.Exec();
+}
+
 AWT_TEST(RowIdSet)
 {
     const std::string table_name = "bots";
