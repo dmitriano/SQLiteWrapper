@@ -36,7 +36,7 @@ namespace
     Bot bot2{ 0, "XRP_USDT", {1u, 2u} };
 }
 
-AWT_TEST(RowIdRowQueries)
+AWT_TEST(RowIdRawQueries)
 {
     const std::string table_name = "bots";
 
@@ -55,7 +55,7 @@ AWT_TEST(RowIdRowQueries)
     }
     
     {
-        sqlite::Statement st(db, "INSERT INTO bots (name, state) VALUES (?2, ?3);");
+        sqlite::Statement st(db, awl::aformat() << "INSERT INTO " << table_name << " (name, state) VALUES (?2, ?3);");
 
         sqlite::Bind(st, 1, bots[1].name);
         sqlite::Bind(st, 2, bots[2].state);
@@ -64,7 +64,7 @@ AWT_TEST(RowIdRowQueries)
     }
 
     {
-        sqlite::Statement st(db, "SELECT rowId, name, state FROM bots;");
+        sqlite::Statement st(db, awl::aformat() << "SELECT rowId, name, state FROM " << table_name << ";");
 
         while (st.Next())
         {
