@@ -108,11 +108,11 @@ namespace sqlite
 {
     inline void Bind(Statement & st, size_t col, const Nc& val)
     {
-        st.BindInt(col, val.value());
+        sqlite::Bind(st, col, val.value());
     }
 }
 
-AWT_TEST(ANonCopyable)
+AWT_TEST(NonCopyable)
 {
     AWT_UNUSED_CONTEXT;
     
@@ -130,7 +130,7 @@ AWT_TEST(ANonCopyable)
     }
 
     {
-        const std::string table_name = "bots1";
+        const std::string table_name = "nc_bots";
         
         DbContainer c(context);
 
