@@ -124,10 +124,10 @@ namespace sqlite
             {
                 if (constraint.empty())
                 {
-                    // if constexpr (!helpers::IsOptionalV<FieldType>)
-                    // {
-                    //     m_out << " NOT NULL";
-                    // }
+                    if constexpr (!helpers::IsOptionalV<FieldType>)
+                    {
+                        m_out << " NOT NULL";
+                    }
                 }
                 else
                 {
