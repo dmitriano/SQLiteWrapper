@@ -82,6 +82,10 @@ namespace sqlite
             m_out << text;
         }
 
+        void AddFilteredParameters(const IndexFilter& filter, awl::aseparator sep = MakeCommaSeparator())
+        {
+        }
+
         void AddParameters(const OptionalIndexFilter& filter = {})
         {
             m_out << " (";
@@ -95,10 +99,19 @@ namespace sqlite
 
             if (filter)
             {
-                for (size_t i : *filter)
+                // We can't simply interate over filter because it is std::unordered_set.
+                helpers::ForEachFieldType<Struct>([this, &f = *filter, &add](std::vector<std::string_view>& prefixes, size_t memberIndex, size_t fieldIndex, auto structTd, auto fieldId)
                 {
-                    add(i);
-                }
+                    static_cast<void>(prefixes);
+                    static_cast<void>(fieldId);
+                    static_cast<void>(structTd);
+                    static_cast<void>(memberIndex);
+
+                    if (f.find(fieldIndex) != f.end())
+                    {
+                        add(fieldIndex);
+                    }
+                });
             }
             else
             {
