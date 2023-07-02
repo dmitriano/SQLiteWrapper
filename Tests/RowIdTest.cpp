@@ -93,7 +93,7 @@ AWT_TEST(RowIdRaw)
     insert_statement.Exec();
 }
 
-AWT_TEST(RowIdSet)
+AWT_TEST(ARowIdSet)
 {
     const std::string table_name = "bots";
     

@@ -11,6 +11,7 @@
 #include <limits>
 #include <chrono>
 #include <any>
+#include <iostream>
 
 namespace sqlite
 {
@@ -72,6 +73,8 @@ namespace sqlite
         
         void Open(Database& db, const char* query)
         {
+            std::cout << "Statement: " << query << std::endl;
+            
             const int rc = sqlite3_prepare(db.m_db, query, -1, &m_stmt, NULL);
 
             if (rc != SQLITE_OK)

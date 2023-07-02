@@ -70,6 +70,9 @@ namespace sqlite
 
                 const std::string query = builder.Build();
 
+                std::cout << "************************* Table ********************** " << std::endl << query << std::endl <<
+                    "*********************************************** " << std::endl;
+
                 m_db->Exec(query);
             }
         }

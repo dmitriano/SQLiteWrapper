@@ -11,6 +11,7 @@
 #include <type_traits>
 #include <limits>
 #include <chrono>
+#include <iostream>
 
 namespace sqlite
 {
@@ -77,6 +78,8 @@ namespace sqlite
 
     inline void Bind(Statement & st, size_t col, const std::string & val)
     {
+        std::cout << "Bind std::string: " << col << std::endl;
+
         st.BindText(col, val.c_str());
     }
 
@@ -132,6 +135,8 @@ namespace sqlite
 
     inline void Bind(Statement& st, size_t col, const std::vector<uint8_t>& val)
     {
+        std::cout << "Bind std::vector: " << col << std::endl;
+        
         st.BindBlob(col, val);
     }
 }

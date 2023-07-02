@@ -76,6 +76,8 @@ namespace sqlite
 
     inline void Get(Statement & st, size_t col, std::string & val)
     {
+        std::cout << "Get std::string: " << col << std::endl;
+
         val = st.GetText(col);
     }
 
@@ -136,6 +138,8 @@ namespace sqlite
 
     inline void Get(Statement& st, size_t col, std::vector<uint8_t>& val)
     {
+        std::cout << "Get std::vector: " << col << std::endl;
+
         val = st.GetBlob(col);
     }
 
