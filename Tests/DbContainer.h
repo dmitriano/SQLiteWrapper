@@ -25,8 +25,10 @@ namespace swtest
     {
     public:
 
-        DbContainer() : m_db(std::make_shared<Database>(fileName))
+        DbContainer()
         {
+            RemoveFile();
+            m_db = std::make_shared<Database>(fileName);
         }
 
         DbContainer(const awl::testing::TestContext & context) : DbContainer()
@@ -37,7 +39,7 @@ namespace swtest
         ~DbContainer()
         {
             m_db->Close();
-            std::filesystem::remove(fileName);
+            RemoveFile();
         }
 
         Database& db()
@@ -57,6 +59,11 @@ namespace swtest
         bool m_insertWithBinding = true;
 
     private:
+
+        void RemoveFile() const
+        {
+            std::filesystem::remove(fileName);
+        }
 
         static constexpr char fileName[] = "test.db";
     };
