@@ -12,6 +12,7 @@
 #include <chrono>
 #include <any>
 #include <iostream>
+#include <cassert>
 
 namespace sqlite
 {
@@ -215,7 +216,7 @@ namespace sqlite
             return GetColumnType(col) == SQLITE_FLOAT;
         }
 
-        bool IsText(int col)
+        bool IsText(int col) const
         {
             return GetColumnType(col) == SQLITE_TEXT;
         }
@@ -242,6 +243,8 @@ namespace sqlite
 
         const char * GetText(size_t col) const
         {
+            assert(IsText(col));
+            
             return reinterpret_cast<const char *>(sqlite3_column_text(m_stmt, From0To0(col)));
         }
 
