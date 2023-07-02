@@ -355,7 +355,9 @@ namespace sqlite
         //The index is zero-based.
         int GetColumnType(int col) const
         {
-            return sqlite3_column_type(m_stmt, col);
+            const int column_type = sqlite3_column_type(m_stmt, col);
+
+            return column_type;
         }
 
         //Bind index is 1-based.

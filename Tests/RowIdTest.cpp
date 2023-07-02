@@ -18,7 +18,8 @@ namespace
         std::string name;
         std::vector<uint8_t> state;
 
-        AWL_STRINGIZABLE(name, rowId, state)
+        AWL_STRINGIZABLE(rowId, name, state)
+        //AWL_STRINGIZABLE(name, rowId, state)
     };
 
     AWL_MEMBERWISE_EQUATABLE(Bot);
