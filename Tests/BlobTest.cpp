@@ -69,13 +69,9 @@ AWT_TEST(Blob)
         AWT_ASSERT(std::ranges::equal(bots, actual_bots));
     }
 
-    //Algo tests
+    //std::ranges tests
 
     AWT_ASSERT(std::ranges::equal(bots, set));
-
-    {
-        //auto r = std::ranges::common_view{ set };
-    }
 
     //Find/Update tests
 
