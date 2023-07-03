@@ -246,6 +246,7 @@ namespace sqlite
 
         const char * GetText(size_t col) const
         {
+            // Empty string is not Null.
             assert(IsText(col));
 
             return reinterpret_cast<const char *>(sqlite3_column_text(m_stmt, From0To0(col)));
