@@ -51,11 +51,10 @@ AWT_TEST(Blob)
         set.Insert(bot);
     }
 
-    if (false)
     {
-        Bot b1 = *set.begin();
+        Bot b0 = *set.begin();
 
-        AWT_ASSERT(b1 == bots[0]);
+        AWT_ASSERT(b0 == bots[0]);
     }
 
     //Range-based loop test
