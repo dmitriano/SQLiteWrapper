@@ -8,7 +8,7 @@
 
 using namespace swtest;
 
-// A test demonstrating that an empty string is not Null, but an empty BLOB is Null.
+// A test demonstrating that an empty string IS NOT NULL, but an empty BLOB IS NULL and NULL is not TEXT or BLOB.
 AWT_TEST(GetBindNull)
 {
     DbContainer c(context);
@@ -40,7 +40,9 @@ AWT_TEST(GetBindNull)
             AWT_ASSERT(select_statement.Next());
 
             AWT_ASSERT(!select_statement.IsNull(0));
+            AWT_ASSERT(select_statement.IsText(0));
             AWT_ASSERT(select_statement.IsNull(1));
+            AWT_ASSERT(!select_statement.IsBlob(1));
 
             {
                 std::string text;
@@ -57,7 +59,9 @@ AWT_TEST(GetBindNull)
             AWT_ASSERT(select_statement.Next());
 
             AWT_ASSERT(select_statement.IsNull(0));
+            AWT_ASSERT(!select_statement.IsText(0));
             AWT_ASSERT(select_statement.IsNull(1));
+            AWT_ASSERT(!select_statement.IsBlob(1));
 
             {
                 std::vector<uint8_t> blob;
