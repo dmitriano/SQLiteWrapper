@@ -286,7 +286,7 @@ AWT_TEST(WhereTest)
         AWT_ASSERT(rs.IsText(0));
         AWT_ASSERT_FALSE(rs.IsNull(0));
 
-        AWT_ASSERT(rs.IsInteger(1));
+        AWT_ASSERT(rs.IsInt(1));
         AWT_ASSERT_FALSE(rs.IsNull(1));
 
         std::string firstName;

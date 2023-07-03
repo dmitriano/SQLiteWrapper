@@ -8,6 +8,7 @@
 
 #include <stdint.h>
 #include <type_traits>
+#include <vector>
 #include <limits>
 #include <chrono>
 #include <any>
@@ -197,53 +198,64 @@ namespace sqlite
             }
         }
 
-        bool IsNull(int col)
+        bool IsNull(int col) const
         {
             return GetColumnType(col) == SQLITE_NULL;
         }
 
-        bool IsInteger(int col)
+        bool IsInt(int col) const
         {
             return GetColumnType(col) == SQLITE_INTEGER;
         }
 
-        bool IsFloat(int col)
+        bool IsFloat(int col) const
         {
             return GetColumnType(col) == SQLITE_FLOAT;
         }
 
-        bool IsText(int col)
+        bool IsText(int col) const
         {
             return GetColumnType(col) == SQLITE_TEXT;
         }
 
-        bool IsBlob(int col)
+        bool IsBlob(int col) const
         {
             return GetColumnType(col) == SQLITE_BLOB;
         }
 
         int GetInt(size_t col) const
         {
+            assert(IsInt(col));
+
             return sqlite3_column_int(m_stmt, From0To0(col));
         }
 
         sqlite3_int64 GetInt64(size_t col) const
         {
+            assert(IsInt(col));
+
             return sqlite3_column_int64(m_stmt, From0To0(col));
         }
 
         double GetDouble(size_t col) const
         {
+            assert(IsFloat(col));
+
             return sqlite3_column_double(m_stmt, From0To0(col));
         }
 
         const char * GetText(size_t col) const
         {
+            assert(IsText(col));
+
             return reinterpret_cast<const char *>(sqlite3_column_text(m_stmt, From0To0(col)));
         }
 
         const std::vector<uint8_t> GetBlob(size_t col) const
         {
+            //When we insert an empty std::vector it becomes Null.
+            assert(IsNull(col) || IsBlob(col));
+
             const size_t size = static_cast<size_t>(sqlite3_column_bytes(m_stmt, From0To0(col)));
             
             const uint8_t* buffer = reinterpret_cast<const uint8_t*>(sqlite3_column_blob(m_stmt, From0To0(col)));
@@ -349,7 +361,9 @@ namespace sqlite
         //The index is zero-based.
         int GetColumnType(int col) const
         {
-            return sqlite3_column_type(m_stmt, col);
+            const int column_type = sqlite3_column_type(m_stmt, col);
+
+            return column_type;
         }
 
         //Bind index is 1-based.
