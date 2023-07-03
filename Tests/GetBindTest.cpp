@@ -8,6 +8,7 @@
 
 using namespace swtest;
 
+// A test demonstrating that an empty string is not Null, but an empty BLOB is Null.
 AWT_TEST(GetBindNull)
 {
     DbContainer c(context);
