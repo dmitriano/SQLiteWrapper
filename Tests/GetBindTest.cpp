@@ -2,10 +2,6 @@
 #include "SQLiteWrapper/Bind.h"
 #include "SQLiteWrapper/Get.h"
 
-#include "Awl/IntRange.h"
-
-#include <string>
-
 using namespace swtest;
 
 // A test demonstrating that an empty string IS NOT NULL, but an empty BLOB IS NULL and NULL is not TEXT or BLOB.
