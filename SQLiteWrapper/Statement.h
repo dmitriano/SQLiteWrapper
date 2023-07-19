@@ -198,27 +198,27 @@ namespace sqlite
             }
         }
 
-        bool IsNull(int col) const
+        bool IsNull(size_t col) const
         {
             return GetColumnType(col) == SQLITE_NULL;
         }
 
-        bool IsInt(int col) const
+        bool IsInt(size_t col) const
         {
             return GetColumnType(col) == SQLITE_INTEGER;
         }
 
-        bool IsFloat(int col) const
+        bool IsFloat(size_t col) const
         {
             return GetColumnType(col) == SQLITE_FLOAT;
         }
 
-        bool IsText(int col) const
+        bool IsText(size_t col) const
         {
             return GetColumnType(col) == SQLITE_TEXT;
         }
 
-        bool IsBlob(int col) const
+        bool IsBlob(size_t col) const
         {
             return GetColumnType(col) == SQLITE_BLOB;
         }
@@ -360,9 +360,9 @@ namespace sqlite
         }
 
         //The index is zero-based.
-        int GetColumnType(int col) const
+        int GetColumnType(size_t col) const
         {
-            const int column_type = sqlite3_column_type(m_stmt, col);
+            const int column_type = sqlite3_column_type(m_stmt, From0To0(col));
 
             return column_type;
         }
