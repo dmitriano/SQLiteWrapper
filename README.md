@@ -26,7 +26,7 @@ Assuming that you cloned the repository into `D:/dev/repos/SQLiteWrapper`, downl
     %MY_DRIVE%
     cd \dev\build\sw
 
-    set SQLITE_SRC_DIR=%MY_DRIVE%/dev/libs/sqlite-amalgamation-3390200
+    set SQLITE_SRC_DIR=%MY_DRIVE%/dev/libs/sqlite-amalgamation-3420000
     set MY_CMAKE_EXE=%MY_DRIVE%\dev\tools\cmake-3.24.2-windows-x86_64\bin\cmake.exe
     set MY_VS_GENERATOR="Visual Studio 17 2022"
 
