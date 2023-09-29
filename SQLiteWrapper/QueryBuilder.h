@@ -84,6 +84,8 @@ namespace sqlite
 
         void AddFilteredParameters(const IndexFilter& filter, awl::aseparator sep = MakeCommaSeparator())
         {
+            static_cast<void>(filter);
+            static_cast<void>(sep);
         }
 
         void AddParameters(const OptionalIndexFilter& filter = {})
