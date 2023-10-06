@@ -61,3 +61,8 @@ or
     cmake ../../repos/SQLiteWrapper -DCMAKE_BUILD_TYPE=Release
     make -j4
     ./SQLiteWrapperTest
+
+## Running the tests on Android device
+
+    adb push SQLiteWrapperTest /data/local/tmp
+    adb shell "cd /data/local/tmp && chmod a+x SQLiteWrapperTest && ./SQLiteWrapperTest"
