@@ -46,20 +46,20 @@ or
 ## Building on Linux with GCC
 
     cd ~
-    mkdir libs
-    cd libs
+    mkdir -p dev/libs
+    cd dev/libs
     wget https://www.sqlite.org/2024/sqlite-amalgamation-3460000.zip
     unzip sqlite-amalgamation-3460000.zip
-    cd ~
-    export SQLITE_SRC_DIR=$(realpath ~/libs/sqlite-amalgamation-3460000)
+    export SQLITE_SRC_DIR=$(realpath sqlite-amalgamation-3460000)
+    cd ~/dev
     mkdir repos
     cd repos
-    git clone https://git.developernote.com/sqlitewrapper.git --recursive
-    cd ~
+    git clone https://github.com/dmitriano/SQLiteWrapper.git --recursive
+    cd ~/dev
     mkdir -p build/sw
     cd build/sw
     cmake ../../repos/SQLiteWrapper -DCMAKE_BUILD_TYPE=Release
-    make -j4
+    cmake --build . --parallel
     ./SQLiteWrapperTest
 
 ## Running the tests on Android device
