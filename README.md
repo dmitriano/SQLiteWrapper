@@ -26,7 +26,7 @@ Assuming that you cloned the repository into `D:/dev/repos/SQLiteWrapper`, downl
     %MY_DRIVE%
     cd \dev\build\sw
 
-    set SQLITE_SRC_DIR=%MY_DRIVE%/dev/libs/sqlite-amalgamation-3420000
+    set SQLITE_SRC_DIR=%MY_DRIVE%/dev/libs/sqlite-amalgamation-3460000
     set MY_CMAKE_EXE=%MY_DRIVE%\dev\tools\cmake-3.24.2-windows-x86_64\bin\cmake.exe
     set MY_VS_GENERATOR="Visual Studio 17 2022"
 
@@ -43,15 +43,15 @@ or
     Debug\SQLiteWrapperTest.exe
     RelWithDebInfo\SQLiteWrapperTest.exe
 
-## Building on Linux with GCC11
+## Building on Linux with GCC
 
     cd ~
     mkdir libs
     cd libs
-    wget https://www.sqlite.org/2021/sqlite-amalgamation-3370000.zip
-    unzip sqlite-amalgamation-3370000.zip
+    wget https://www.sqlite.org/2024/sqlite-amalgamation-3460000.zip
+    unzip sqlite-amalgamation-3460000.zip
     cd ~
-    export SQLITE_SRC_DIR=$(realpath ~/libs/sqlite-amalgamation-3370000)
+    export SQLITE_SRC_DIR=$(realpath ~/libs/sqlite-amalgamation-3460000)
     mkdir repos
     cd repos
     git clone https://git.developernote.com/sqlitewrapper.git --recursive
