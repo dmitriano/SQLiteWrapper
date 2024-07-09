@@ -2,7 +2,7 @@
 #include "SQLiteWrapper/Bind.h"
 #include "SQLiteWrapper/Get.h"
 
-#include "Awl/Stringizable.h"
+#include "Awl/Reflection.h"
 
 #include <variant>
 #include <string>
@@ -25,7 +25,7 @@ namespace
         int tz_hour;
         int tz_minute;
 
-        AWL_SERIALIZABLE(time, tz_hour, tz_minute);
+        AWL_REFLECT(time, tz_hour, tz_minute);
     };
 
     AWL_MEMBERWISE_EQUATABLE(TimestampType)
@@ -37,7 +37,7 @@ namespace
         int64_t BeginSit;
         int64_t EndSit;
 
-        AWL_STRINGIZABLE(BeginSit, EndSit);
+        AWL_REFLECT(BeginSit, EndSit);
     };
     
     struct DbaUser
@@ -68,7 +68,7 @@ namespace
         std::string Username;
         NumberType UserId;
 
-        AWL_STRINGIZABLE(
+        AWL_REFLECT(
             AccountStatus,
             AllShard,
             AuthenticationType,
@@ -101,14 +101,14 @@ namespace
         CommonHeader Header;
         DbaUser User;
 
-        AWL_STRINGIZABLE(Header, User);
+        AWL_REFLECT(Header, User);
     };
 
     struct Other
     {
         int Something;
 
-        AWL_STRINGIZABLE(Something);
+        AWL_REFLECT(Something);
     };
 
     struct UniqueUser1
@@ -120,7 +120,7 @@ namespace
 
         DbaUser User;
 
-        AWL_STRINGIZABLE(It, BeginSit, EndSit, User);
+        AWL_REFLECT(It, BeginSit, EndSit, User);
     };
 
     static_assert(sqlite::helpers::GetFieldCount<DbaUser>() == 24);
@@ -156,7 +156,7 @@ namespace
         std::string Username;
         NumberType UserId;
 
-        AWL_STRINGIZABLE(
+        AWL_REFLECT(
             rowId,
             AccountStatus,
             AllShard,

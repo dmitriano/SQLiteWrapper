@@ -19,7 +19,7 @@ namespace
         uint8_t amount;
         uint8_t price;
 
-        AWL_STRINGIZABLE(base, quote, amount, price)
+        AWL_REFLECT(base, quote, amount, price)
     };
 
     AWL_MEMBERWISE_EQUATABLE(Precision);
@@ -28,7 +28,7 @@ namespace
     {
         Precision precision;
 
-        AWL_STRINGIZABLE(precision)
+        AWL_REFLECT(precision)
     };
 
     AWL_MEMBERWISE_EQUATABLE(MarketInfo)

@@ -24,7 +24,7 @@ namespace exchange
         int min;
         int max;
 
-        AWL_STRINGIZABLE(min, max)
+        AWL_REFLECT(min, max)
     };
 
     AWL_MEMBERWISE_EQUATABLE(Range);
@@ -35,7 +35,7 @@ namespace exchange
         Range price;
         Range cost;
 
-        AWL_STRINGIZABLE(amount, price, cost)
+        AWL_REFLECT(amount, price, cost)
     };
 
     AWL_MEMBERWISE_EQUATABLE(Limits);
@@ -47,7 +47,7 @@ namespace exchange
         uint8_t amount;
         uint8_t price;
 
-        AWL_STRINGIZABLE(base, quote, amount, price)
+        AWL_REFLECT(base, quote, amount, price)
     };
 
     AWL_MEMBERWISE_EQUATABLE(Precision);
@@ -60,7 +60,7 @@ namespace exchange
         
         Precision precision;
 
-        AWL_STRINGIZABLE(limits, id, precision)
+        AWL_REFLECT(limits, id, precision)
     };
 
     AWL_MEMBERWISE_EQUATABLE(Market)
@@ -110,7 +110,7 @@ namespace exchange
         TimePoint createTime;
         TimePoint updateTime;
 
-        AWL_STRINGIZABLE(listId, clientId, marketId, side, type, status, id, price, stopPrice,
+        AWL_REFLECT(listId, clientId, marketId, side, type, status, id, price, stopPrice,
             amount, filled, cost, createTime, updateTime)
     };
 

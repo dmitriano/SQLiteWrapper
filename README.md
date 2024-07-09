@@ -21,7 +21,7 @@ or
 
 Assuming that you cloned the repository into `D:/dev/repos/SQLiteWrapper`, downloaded SQLite sources into `D:\dev\libs\sqlite-amalgamation-3390200` and created `D:\dev\build\sw` directory to build SQLiteWrapper test project in:
 
-    set MY_DRIVE=D:
+    set MY_DRIVE=C:
 
     %MY_DRIVE%
     cd \dev\build\sw

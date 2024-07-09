@@ -26,7 +26,7 @@ namespace sqlite
             Key id;
             Value value;
 
-            AWL_STRINGIZABLE(id, value)
+            AWL_REFLECT(id, value)
         };
 
     public:

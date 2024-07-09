@@ -94,7 +94,7 @@ namespace
         Bot(Bot&&) = default;
         Bot& operator = (Bot&&) = default;
 
-        AWL_STRINGIZABLE(name, rowId, state, nc)
+        AWL_REFLECT(name, rowId, state, nc)
     };
 
     AWL_MEMBERWISE_EQUATABLE(Bot);

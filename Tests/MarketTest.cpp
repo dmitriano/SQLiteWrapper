@@ -22,7 +22,7 @@ namespace
         double buy;
         double sell;
 
-        AWL_STRINGIZABLE(dt, buy, sell)
+        AWL_REFLECT(dt, buy, sell)
     };
 
     struct MarketPricePair
@@ -33,7 +33,7 @@ namespace
         double buy;
         double sell;
 
-        AWL_STRINGIZABLE(dt, exchangeId, marketId, buy, sell)
+        AWL_REFLECT(dt, exchangeId, marketId, buy, sell)
     };
 
     PricePair MakePricePair(size_t i)
@@ -346,7 +346,7 @@ AWT_TEST(MarsMt)
                 }
                 catch (const SQLiteException & e)
                 {
-                    context.out << e.GetMessage() << std::endl;
+                    context.out << e.What() << std::endl;
                     AWT_FAIL;
                 }
             }
@@ -370,7 +370,7 @@ namespace
         uint8_t amount;
         uint8_t price;
 
-        AWL_STRINGIZABLE(base, quote, amount, price)
+        AWL_REFLECT(base, quote, amount, price)
     };
 
     AWL_MEMBERWISE_EQUATABLE(Precision);
@@ -381,7 +381,7 @@ namespace
 
         Precision precision;
 
-        AWL_STRINGIZABLE(id, precision)
+        AWL_REFLECT(id, precision)
     };
 
     AWL_MEMBERWISE_EQUATABLE(MarketInfo);
@@ -518,7 +518,7 @@ AWT_EXAMPLE(Console)
         }
         catch (const SQLiteException & e)
         {
-            context.out << e.GetMessage() << _T(" [") << _T("]") << std::endl;
+            context.out << e.What() << _T(" [") << _T("]") << std::endl;
         }
     }
 }

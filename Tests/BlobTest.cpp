@@ -18,7 +18,7 @@ namespace
         std::string name;
         std::vector<uint8_t> state;
 
-        AWL_STRINGIZABLE(id, name, state)
+        AWL_REFLECT(id, name, state)
     };
 
     AWL_MEMBERWISE_EQUATABLE(Bot);

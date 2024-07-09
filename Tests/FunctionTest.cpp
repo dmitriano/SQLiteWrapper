@@ -21,7 +21,7 @@ namespace
         std::string category;
         std::string message;
 
-        AWL_STRINGIZABLE(dt, category, message)
+        AWL_REFLECT(dt, category, message)
     };
 
     AWL_MEMBERWISE_EQUATABLE(Log);

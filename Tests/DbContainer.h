@@ -5,7 +5,7 @@
 
 #include "Awl/StopWatch.h"
 #include "Awl/Random.h"
-#include "Awl/Stringizable.h"
+#include "Awl/Reflection.h"
 #include "Awl/StringFormat.h"
 
 #include "Awl/Testing/UnitTest.h"

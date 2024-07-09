@@ -231,7 +231,7 @@ AWT_TEST(SetStorageOrder)
     }
     catch (const sqlite::SQLiteException& e)
     {
-        context.out << e.GetMessage() << std::endl;
+        context.out << e.What() << std::endl;
     }
 
     try
@@ -244,7 +244,7 @@ AWT_TEST(SetStorageOrder)
     }
     catch (const sqlite::SQLiteException& e)
     {
-        context.out << e.GetMessage() << std::endl;
+        context.out << e.What() << std::endl;
     }
 
     Order btc_order1_found;

@@ -2,7 +2,7 @@
 
 #include "SQLiteWrapper/Exception.h"
 
-#include "Awl/Stringizable.h"
+#include "Awl/Reflection.h"
 #include "Awl/TupleHelpers.h"
 #include "Awl/StringFormat.h"
 #include "Awl/BitMap.h"
@@ -117,7 +117,7 @@ namespace sqlite::helpers
         {
             using FieldType = std::remove_reference_t<std::tuple_element_t<fieldIndex, Tie>>;
 
-            if constexpr (awl::is_stringizable_v<FieldType>)
+            if constexpr (awl::is_reflectable_v<FieldType>)
             {
                 const auto& member_names = T::get_member_names();
 
@@ -189,7 +189,7 @@ namespace sqlite::helpers
         {
             using FieldType = std::remove_reference_t<std::tuple_element_t<fieldIndex, Tie>>;
 
-            if constexpr (awl::is_stringizable_v<FieldType>)
+            if constexpr (awl::is_reflectable_v<FieldType>)
             {
                 count += GetFieldCount<FieldType>();
             }
@@ -217,7 +217,7 @@ namespace sqlite::helpers
         {
             using FieldType = std::remove_reference_t<decltype(field)>;
 
-            if constexpr (awl::is_stringizable_v<FieldType>)
+            if constexpr (awl::is_reflectable_v<FieldType>)
             {
                 count += GetFieldCount<FieldType>();
             }
@@ -267,7 +267,7 @@ namespace sqlite::helpers
         {
             using FieldType = std::remove_reference_t<std::tuple_element_t<fieldIndex, Tie>>;
 
-            if constexpr (awl::is_stringizable_v<FieldType>)
+            if constexpr (awl::is_reflectable_v<FieldType>)
             {
                 return FindFieldIndex<FieldType, Tuple, level_index>(t);
             }
@@ -292,7 +292,7 @@ namespace sqlite::helpers
         {
             using FieldType = std::remove_reference_t<decltype(field)>;
 
-            if constexpr (awl::is_stringizable_v<FieldType>)
+            if constexpr (awl::is_reflectable_v<FieldType>)
             {
                 count += ForEachFieldValueImpl(field, func, start_index + count);
             }
