@@ -137,6 +137,13 @@ namespace sqlite
             return TableExists(name.c_str());
         }
 
+        void DropTable(const char* name, bool exists = false);
+
+        void DropTable(const std::string& name, bool exists = false)
+        {
+            DropTable(name.c_str(), exists);
+        }
+
         bool IndexExists(const char * name);
 
         bool IndexExists(const std::string & name)

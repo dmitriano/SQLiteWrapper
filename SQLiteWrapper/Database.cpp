@@ -3,6 +3,8 @@
 #include "SQLiteWrapper/Bind.h"
 #include "SQLiteWrapper/Get.h"
 
+#include <sstream>
+
 namespace sqlite
 {
     [[noreturn]] void RaiseError(sqlite3 * db, int code, std::string message)
@@ -39,6 +41,22 @@ bool Database::TableExists(const char * name)
     SelectScalar(rs, exists);
 
     return exists != 0;
+}
+
+void Database::DropTable(const char* name, bool exists)
+{
+    std::ostringstream out;
+
+    out << "DROP TABLE";
+
+    if (!exists)
+    {
+        out << " IF EXISTS";
+    }
+
+    out << " " << name << ";";
+
+    Exec(out.str());
 }
 
 bool Database::IndexExists(const char * name)
