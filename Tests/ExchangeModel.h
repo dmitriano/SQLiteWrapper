@@ -155,6 +155,8 @@ namespace exchange::data
     {
         using AccountType = int;
 
+        constexpr AccountType Spot = 0;
+
         struct Order
         {
             std::string exchangeId;
