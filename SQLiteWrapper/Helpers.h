@@ -27,10 +27,11 @@ namespace sqlite
 
 namespace sqlite::helpers
 {
-    //Functions MakeSigned and MakeUnsigned should satisfy the following criteria:
-    //For a given pair of parameters a, b and return values a1, b1, if a <= b then a1 <= b1.
-    //and for a given unsigned a
-    //MakeUnsigned(MakeSigned(a)) == a
+    // Functions MakeSigned and MakeUnsigned should satisfy the following criteria:
+    // For a given pair of parameters a, b and return values a1, b1, if a <= b then a1 <= b1.
+    // and for a given unsigned a
+    // MakeUnsigned(MakeSigned(a)) == a
+    // For example, MakeSigned(static_cast<unsigned int>(0)) != 0
 
     template <typename T>
     constexpr T FlipSignBit(T val)

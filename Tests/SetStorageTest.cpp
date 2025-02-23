@@ -356,6 +356,14 @@ AWL_TEST(OrderStorageGetBind)
 
     TestOrderKey btc_key(data::AccountType::Spot, btc_market_id, 15);
 
+    {
+        auto val = static_cast<std::underlying_type_t<data::AccountType>>(std::get<0>(btc_key));
+
+        auto signed_val = sqlite::helpers::MakeSigned(val);
+
+        AWL_ASSERT_EQUAL(0u, sqlite::helpers::MakeUnsigned(signed_val));
+    }
+
     const data::Order2 sample_order =
     {
         "binance",
