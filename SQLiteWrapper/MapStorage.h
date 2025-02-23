@@ -55,7 +55,7 @@ namespace sqlite
                 
             for (size_t i = 1; i < sqlite::helpers::GetFieldCount<Record>(); ++i)
             {
-                value_filter.emplace(i);
+                value_filter.insert(i);
             }
 
             insertStatement = sqlite::Statement(m_db, sqlite::BuildParameterizedInsertQuery<Record>(tableName));

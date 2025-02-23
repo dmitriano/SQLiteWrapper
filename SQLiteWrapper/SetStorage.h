@@ -87,12 +87,12 @@ namespace sqlite
             {
                 if (!idIndices.contains(i))
                 {
-                    value_filter.emplace(i);
+                    value_filter.insert(i);
                 }
 
                 if (insertFilter && i != rowIdIndex)
                 {
-                    insertFilter->emplace(i);
+                    insertFilter->insert(i);
                 }
             }
 
