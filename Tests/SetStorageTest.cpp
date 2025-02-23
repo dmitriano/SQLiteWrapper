@@ -352,7 +352,7 @@ AWL_TEST(OrderStorageGetBind)
 
     using TestOrderKey = std::tuple<AccountType, std::string, data::OrderId>;
 
-    TestOrderKey btc_key(data::AccountType::Spot, btc_market_id, -1);
+    TestOrderKey btc_key(data::AccountType::Spot, btc_market_id, 15);
 
     const data::Order2 sample_order =
     {
