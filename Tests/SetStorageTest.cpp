@@ -552,6 +552,36 @@ AWL_TEST(OrderStorageGetBind3a)
     storage.Delete(btc_key);
 }
 
+namespace
+{
+    v3::Order makeSampleOrder3()
+    {
+        return v3::Order
+        {
+            "binance",
+            btc_market_id,
+            15,
+            -1,
+            "dcb1aa07-7448-4e8e-8f88-713dd4feb159",
+
+            v3::Spot,
+
+            data::OrderSide::Sell,
+            data::OrderType::StopLossLimit,
+            data::OrderStatus::Closed,
+            "45441.5"_d,
+            data::Decimal::zero(),
+            "0.0015"_d,
+            data::Decimal::zero(),
+            "68.14884"_d,
+            data::Decimal::zero(),
+
+            data::Clock::now(),
+            {}
+        };
+    }
+}
+
 AWL_TEST(OrderStorageGetBind3b)
 {
     DbContainer c(context);
@@ -565,29 +595,7 @@ AWL_TEST(OrderStorageGetBind3b)
 
     TestOrderKey btc_key(v3::Spot);
 
-    const v3::Order sample_order =
-    {
-        "binance",
-        btc_market_id,
-        15,
-        -1,
-        "dcb1aa07-7448-4e8e-8f88-713dd4feb159",
-
-        v3::Spot,
-
-        data::OrderSide::Sell,
-        data::OrderType::StopLossLimit,
-        data::OrderStatus::Closed,
-        "45441.5"_d,
-        data::Decimal::zero(),
-        "0.0015"_d,
-        data::Decimal::zero(),
-        "68.14884"_d,
-        data::Decimal::zero(),
-
-        data::Clock::now(),
-        {}
-    };
+    const v3::Order sample_order = makeSampleOrder3();
 
     const std::vector<v3::Order> sample_v{ sample_order };
 
@@ -632,29 +640,52 @@ AWL_TEST(OrderStorageGetBind3c)
 
     TestOrderKey btc_key(v3::Spot, btc_market_id);
 
-    const v3::Order sample_order =
+    const v3::Order sample_order = makeSampleOrder3();
+
+    const std::vector<v3::Order> sample_v{ sample_order };
+
+    context.logger.debug(awl::format() << "Inserting order: " << sample_order.id);
+
+    storage.Insert(sample_order);
+
+    const auto count = std::ranges::distance(storage);
+
+    AWL_ASSERT_EQUAL(1u, count);
+
+    AWL_ASSERT(std::ranges::equal(storage, sample_v));
+
+    context.logger.debug(awl::format() << count << " orders:");
+
+    for (const v3::Order& order : storage)
     {
-        "binance",
-        btc_market_id,
-        15,
-        -1,
-        "dcb1aa07-7448-4e8e-8f88-713dd4feb159",
+        context.logger.debug(awl::format() << "Order: " << order.id);
+    }
 
-        v3::Spot,
+    v3::Order found_order;
 
-        data::OrderSide::Sell,
-        data::OrderType::StopLossLimit,
-        data::OrderStatus::Closed,
-        "45441.5"_d,
-        data::Decimal::zero(),
-        "0.0015"_d,
-        data::Decimal::zero(),
-        "68.14884"_d,
-        data::Decimal::zero(),
+    AWL_ASSERT(storage.Find(btc_key, found_order));
 
-        data::Clock::now(),
-        {}
-    };
+    context.logger.debug(awl::format() << "Loaded order: " << awl::format::endl << found_order.id);
+
+    AWL_ASSERT(found_order == sample_order);
+
+    storage.Delete(btc_key);
+}
+
+AWL_TEST(OrderStorageGetBind3d)
+{
+    DbContainer c(context);
+
+    sqlite::SetStorage storage(c.m_db, "orders", std::make_tuple(&v3::Order::marketId, &v3::Order::accountType));
+
+    storage.Create();
+    storage.Prepare();
+
+    using TestOrderKey = std::tuple<std::string, v3::AccountType>;
+
+    TestOrderKey btc_key(btc_market_id, v3::Spot);
+
+    const v3::Order sample_order = makeSampleOrder3();
 
     const std::vector<v3::Order> sample_v{ sample_order };
 
