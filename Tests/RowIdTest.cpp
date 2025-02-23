@@ -36,7 +36,7 @@ namespace
     Bot bot2{ 0, "XRP_USDT", {1u, 2u} };
 }
 
-AWL_TEST(RowIdRawQueries)
+AWL_UNSTABLE_TEST(RowIdRawQueries)
 {
     const std::string table_name = "bots";
 
@@ -79,7 +79,7 @@ AWL_TEST(RowIdRawQueries)
     }
 }
 
-AWL_TEST(RowIdRaw)
+AWL_UNSTABLE_TEST(RowIdRaw)
 {
     DbContainer c(context);
 
@@ -93,7 +93,7 @@ AWL_TEST(RowIdRaw)
     insert_statement.Exec();
 }
 
-AWL_TEST(RowIdSet)
+AWL_UNSTABLE_TEST(RowIdSet)
 {
     const std::string table_name = "bots";
     

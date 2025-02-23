@@ -67,7 +67,8 @@ namespace sqlite
 
                 const std::string& member_name = member_names[memberIndex];
 
-                if (member_name != rowIdFieldName)
+                // Do not create a column with name 'ROWID'.
+                if (!(prefixes.empty() && awl::CStringInsensitiveEqual<char>()(member_name.c_str(), rowIdFieldName)))
                 {
                     std::string full_name = helpers::MakeFullFieldName(prefixes, member_name);
 
@@ -75,10 +76,10 @@ namespace sqlite
 
                     AddColumn<FieldType>(full_name, constraint);
                 }
-                else
-                {
-                    m_rowIdIndex = fieldIndex;
-                }
+                //else
+                //{
+                //    m_rowIdIndex = fieldIndex;
+                //}
             });
         }
 
@@ -210,10 +211,10 @@ namespace sqlite
 
             m_out << std::endl << ")";
 
-            if (m_rowIdIndex == noIndex)
-            {
-                m_out << " WITHOUT ROWID";
-            }
+            //if (m_rowIdIndex == noIndex)
+            //{
+            //    m_out << " WITHOUT ROWID";
+            //}
 
             m_out << ";" << std::endl;
 
@@ -241,7 +242,7 @@ namespace sqlite
             }
         }
 
-        size_t m_rowIdIndex = noIndex;
+        // size_t m_rowIdIndex = noIndex;
 
         Collation m_defaultCollation = Collation::NoCase;
 
