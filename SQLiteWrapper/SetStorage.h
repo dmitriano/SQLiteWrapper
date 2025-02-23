@@ -226,6 +226,7 @@ namespace sqlite
 
             awl::for_each(ids, [&stmt, &i](auto& field_val)
             {
+                // This requires the indeces to be std::vector but not std::set.
                 const size_t id_index = *i++;
 
                 Bind(stmt, id_index, field_val);
