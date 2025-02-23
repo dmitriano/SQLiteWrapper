@@ -57,7 +57,7 @@ namespace sqlite
             {
                 static_cast<void>(fieldId);
 
-                if (!filter || filter->find(fieldIndex) != filter->end())
+                if (!filter || filter->contains(fieldIndex))
                 {
                     using StructType = typename decltype(structTd)::Type;
 

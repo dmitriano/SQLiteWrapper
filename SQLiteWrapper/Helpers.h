@@ -1,6 +1,7 @@
 #pragma once
 
 #include "SQLiteWrapper/Exception.h"
+#include "SQLiteWrapper/IndexFilter.h"
 
 #include "Awl/Reflection.h"
 #include "Awl/TupleHelpers.h"
@@ -16,8 +17,6 @@
 
 namespace sqlite
 {
-    //We need to construct it from a tuple of field pointers.
-    using IndexFilter = std::set<size_t>;
     using OptionalIndexFilter = std::optional<IndexFilter>;
 
     constexpr size_t noIndex = static_cast<size_t>(-1);
