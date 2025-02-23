@@ -38,14 +38,14 @@ namespace sqlite::helpers
         return val ^ (static_cast<T>(1) << (sizeof(T) * 8 - 1));
     }
 
-    template <typename T>
-    constexpr typename std::enable_if_t<std::is_integral_v<T> && std::is_unsigned_v<T>, std::make_signed<T>>::type MakeSigned(T val)
+    template <typename T> requires std::is_integral_v<T>&& std::is_unsigned_v<T>
+    constexpr std::make_signed_t<T> MakeSigned(T val)
     {
         return FlipSignBit(val);
     }
 
-    template <typename T>
-    constexpr typename std::enable_if_t<std::is_integral_v<T> && std::is_signed_v<T>, std::make_unsigned<T>>::type MakeUnsigned(T val)
+    template <typename T> requires std::is_integral_v<T>&& std::is_signed_v<T>
+    constexpr typename std::make_unsigned_t<T> MakeUnsigned(T val)
     {
         return FlipSignBit(val);
     }
