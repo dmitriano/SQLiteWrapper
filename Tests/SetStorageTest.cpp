@@ -343,7 +343,7 @@ AWL_TEST(SetStorageMax)
     CheckMax(c.db(), trx_market_id, 1);
 }
 
-AWL_UNSTABLE_TEST(OrderStorageGetBind2)
+AWL_TEST(OrderStorageGetBind2)
 {
     DbContainer c(context);
 
@@ -418,7 +418,7 @@ AWL_UNSTABLE_TEST(OrderStorageGetBind2)
     storage.Delete(btc_key);
 }
 
-AWL_UNSTABLE_TEST(OrderStorageGetBind3)
+AWL_TEST(OrderStorageGetBind3)
 {
     DbContainer c(context);
 
@@ -485,7 +485,7 @@ AWL_UNSTABLE_TEST(OrderStorageGetBind3)
     storage.Delete(btc_key);
 }
 
-AWL_UNSTABLE_TEST(OrderStorageGetBind3a)
+AWL_TEST(OrderStorageGetBind3a)
 {
     DbContainer c(context);
 
@@ -627,7 +627,7 @@ AWL_TEST(OrderStorageGetBind3b)
     storage.Delete(btc_key);
 }
 
-AWL_UNSTABLE_TEST(OrderStorageGetBind3c)
+AWL_TEST(OrderStorageGetBind3c)
 {
     DbContainer c(context);
 
