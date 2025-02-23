@@ -116,7 +116,7 @@ namespace exchange::data
 
     AWL_MEMBERWISE_EQUATABLE(Order)
 
-    AWL_SEQUENTIAL_ENUM(AccountType, Spot, CrossMargin, IsolatedMargin)
+    AWL_SEQUENTIAL_ENUM(AccountType2, Spot, CrossMargin, IsolatedMargin)
 
     struct Order2
     {
@@ -126,7 +126,7 @@ namespace exchange::data
         int64_t listId;
         std::string clientId;
 
-        AccountType accountType;
+        AccountType2 accountType;
 
         OrderSide side;
         OrderType type;

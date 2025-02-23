@@ -352,12 +352,12 @@ AWL_TEST(OrderStorageGetBind)
     storage.Create();
     storage.Prepare();
 
-    using TestOrderKey = std::tuple<AccountType, std::string, data::OrderId>;
+    using TestOrderKey = std::tuple<AccountType2, std::string, data::OrderId>;
 
-    TestOrderKey btc_key(data::AccountType::Spot, btc_market_id, 15);
+    TestOrderKey btc_key(data::AccountType2::Spot, btc_market_id, 15);
 
     {
-        auto val = static_cast<std::underlying_type_t<data::AccountType>>(std::get<0>(btc_key));
+        auto val = static_cast<std::underlying_type_t<data::AccountType2>>(std::get<0>(btc_key));
 
         auto signed_val = sqlite::helpers::MakeSigned(val);
 
@@ -372,7 +372,7 @@ AWL_TEST(OrderStorageGetBind)
         -1,
         "dcb1aa07-7448-4e8e-8f88-713dd4feb159",
 
-        data::AccountType::Spot,
+        data::AccountType2::Spot,
 
         data::OrderSide::Sell,
         data::OrderType::StopLossLimit,
