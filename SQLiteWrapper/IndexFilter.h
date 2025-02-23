@@ -1,6 +1,6 @@
 #pragma once
 
-#include <set>
+#include <vector>
 
 namespace sqlite
 {
@@ -9,33 +9,37 @@ namespace sqlite
     {
     public:
 
-        using iterator = std::set<size_t>::const_iterator;
+        using iterator = std::vector<size_t>::const_iterator;
 
         IndexFilter() = default;
 
-        IndexFilter(std::initializer_list<size_t> init) : m_set(init) {}
+        IndexFilter(std::initializer_list<size_t> init) : m_v(init) {}
 
-        iterator begin() const { return m_set.begin(); }
+        iterator begin() const { return m_v.begin(); }
 
-        iterator end() const { return m_set.end(); }
+        iterator end() const { return m_v.end(); }
 
         bool contains(size_t val) const
         {
-            return m_set.contains(val);
+            return std::find(m_v.begin(), m_v.end(), val) != m_v.end();
         }
 
         void insert(size_t val)
         {
-            if (!m_set.emplace(val).second)
+            if (contains(val))
             {
                 throw std::runtime_error("Duplicated index.");
             }
+
+            m_v.push_back(val);
         }
 
-        size_t size() const { return m_set.size(); }
+        size_t size() const { return m_v.size(); }
 
     private:
 
-        std::set<size_t> m_set;
+        // The vector should not be sorted.
+        // The elements should stay in the order we added them in, see SetStorage::BindKey.
+        std::vector<size_t> m_v;
     };
 }
