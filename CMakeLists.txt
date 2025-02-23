@@ -12,6 +12,7 @@ include(${AWL_ROOT_DIR}/CMake/AwlConfig.cmake)
 
 #set(AWL_FIND_QT OFF)
 #set(AWL_STATIC_RUNTIME ON)
+set(AWL_COMPILE_MAIN ON)
 
 file(GLOB_RECURSE CPP_FILES
   ${SQLITE_SRC_DIR}/*.h ${SQLITE_SRC_DIR}/sqlite3.c
