@@ -36,7 +36,7 @@ namespace
     const Bot bot2{ 2, "XRP_USDT", {1u, 2u} };
 }
 
-AWT_TEST(Blob)
+AWL_TEST(Blob)
 {
     const std::string table_name = "bots";
     
@@ -54,7 +54,7 @@ AWT_TEST(Blob)
     {
         Bot b0 = *set.begin();
 
-        AWT_ASSERT(b0 == bots[0]);
+        AWL_ASSERT(b0 == bots[0]);
     }
 
     //Range-based loop test
@@ -66,12 +66,12 @@ AWT_TEST(Blob)
             actual_bots.push_back(bot);
         }
 
-        AWT_ASSERT(std::ranges::equal(bots, actual_bots));
+        AWL_ASSERT(std::ranges::equal(bots, actual_bots));
     }
 
     //std::ranges tests
 
-    AWT_ASSERT(std::ranges::equal(bots, set));
+    AWL_ASSERT(std::ranges::equal(bots, set));
 
     //Find/Update tests
 
@@ -79,9 +79,9 @@ AWT_TEST(Blob)
     {
         Bot actual;
 
-        AWT_ASSERT(set.Find(bot.id, actual));
+        AWL_ASSERT(set.Find(bot.id, actual));
 
-        AWT_ASSERT(actual == bot);
+        AWL_ASSERT(actual == bot);
     }
 
     {
@@ -89,9 +89,9 @@ AWT_TEST(Blob)
 
         Bot actual;
 
-        AWT_ASSERT(set.Find(bot1.id, actual));
+        AWL_ASSERT(set.Find(bot1.id, actual));
 
-        AWT_ASSERT(actual == bot1);
+        AWL_ASSERT(actual == bot1);
     }
 
     {
@@ -101,8 +101,8 @@ AWT_TEST(Blob)
 
         Bot actual;
 
-        AWT_ASSERT(set.Find(bot2.id, actual));
+        AWL_ASSERT(set.Find(bot2.id, actual));
 
-        AWT_ASSERT(actual == bot2);
+        AWL_ASSERT(actual == bot2);
     }
 }

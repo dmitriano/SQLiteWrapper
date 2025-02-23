@@ -89,7 +89,7 @@ namespace
 
     inline void CheckCount(Database & db, size_t expected_count, std::optional<size_t> i = {})
     {
-        AWT_ASSERT_EQUAL(expected_count, GetCount(db, i));
+        AWL_ASSERT_EQUAL(expected_count, GetCount(db, i));
     }
 
     void PrintStat(const awl::testing::TestContext & context, const awl::StopWatch & sw, size_t batch_index, size_t batch_size)
@@ -105,11 +105,11 @@ namespace
 }
 
 //--output all --filter InsertPrice_Test --batch_count 1000000 --batch_size 1000000 --transaction --synchronous FULL --journal_mode TRUNCATE
-AWT_TEST(InsertPrice)
+AWL_TEST(InsertPrice)
 {
-    AWT_ATTRIBUTE(size_t, batch_count, 10);
-    AWT_ATTRIBUTE(size_t, batch_size, 10);
-    AWT_FLAG(transaction);
+    AWL_ATTRIBUTE(size_t, batch_count, 10);
+    AWL_ATTRIBUTE(size_t, batch_size, 10);
+    AWL_FLAG(transaction);
 
     DbContainer c(context);
     Database & db = c.db();
@@ -163,12 +163,12 @@ AWT_TEST(InsertPrice)
 //--output all --filter InsertMarketPrice_Test --batch_count 1000000 --batch_size 1000000 --transaction --use_index --synchronous FULL --journal_mode TRUNCATE
 //--output all --filter InsertMarketPrice_Test --batch_count 1000 --batch_size 1000000 --transaction
 //--output all --filter InsertMarketPrice_Test --batch_count 1000 --batch_size 1000 --transaction --use_index
-AWT_TEST(InsertMarketPrice)
+AWL_TEST(InsertMarketPrice)
 {
-    AWT_ATTRIBUTE(size_t, batch_count, 10);
-    AWT_ATTRIBUTE(size_t, batch_size, 10);
-    AWT_FLAG(transaction);
-    AWT_FLAG(use_index);
+    AWL_ATTRIBUTE(size_t, batch_count, 10);
+    AWL_ATTRIBUTE(size_t, batch_size, 10);
+    AWL_FLAG(transaction);
+    AWL_FLAG(use_index);
 
     DbContainer c(context);
     Database & db = c.db();
@@ -256,12 +256,12 @@ AWT_TEST(InsertMarketPrice)
     CheckCount(db, batch_size * batch_count);
 }
 
-AWT_TEST(Mars)
+AWL_TEST(Mars)
 {
-    AWT_ATTRIBUTE(size_t, batch_count, 10);
-    AWT_ATTRIBUTE(size_t, batch_size, 10);
-    AWT_ATTRIBUTE(awl::String, synchronous, _T("FULL"));
-    AWT_ATTRIBUTE(awl::String, journal_mode, _T("DELETE"));
+    AWL_ATTRIBUTE(size_t, batch_count, 10);
+    AWL_ATTRIBUTE(size_t, batch_size, 10);
+    AWL_ATTRIBUTE(awl::String, synchronous, _T("FULL"));
+    AWL_ATTRIBUTE(awl::String, journal_mode, _T("DELETE"));
 
     DbContainer c;
     Database & db = c.db();
@@ -305,10 +305,10 @@ AWT_TEST(Mars)
 }
 
 //--output all --filter MarsMt_Test --batch_count 1000000 --batch_size 1000 --transaction --synchronous OFF  --journal_mode TRUNCATE
-AWT_TEST(MarsMt)
+AWL_TEST(MarsMt)
 {
-    AWT_ATTRIBUTE(size_t, batch_count, 10);
-    AWT_ATTRIBUTE(size_t, batch_size, 10);
+    AWL_ATTRIBUTE(size_t, batch_count, 10);
+    AWL_ATTRIBUTE(size_t, batch_size, 10);
 
     DbContainer c(context);
     Database & db = c.db();
@@ -347,7 +347,7 @@ AWT_TEST(MarsMt)
                 catch (const SQLiteException & e)
                 {
                     context.out << e.What() << std::endl;
-                    AWT_FAIL;
+                    AWL_FAIL;
                 }
             }
 
@@ -387,9 +387,9 @@ namespace
     AWL_MEMBERWISE_EQUATABLE(MarketInfo);
 }
 
-AWT_TEST(MarketInfo)
+AWL_TEST(MarketInfo)
 {
-    AWT_FLAG(whole_record);
+    AWL_FLAG(whole_record);
 
     DbContainer c(context);
     Database& db = c.db();
@@ -437,13 +437,13 @@ AWT_TEST(MarketInfo)
 
         sqlite::Statement select_statement = sqlite::Statement(db, query);
 
-        AWT_ASSERT(select_statement.Next());
+        AWL_ASSERT(select_statement.Next());
 
         MarketInfo mi_actual;
 
         sqlite::Get(select_statement, 0, mi_actual);
 
-        AWT_ASSERT(mi_actual == mi_sample);
+        AWL_ASSERT(mi_actual == mi_sample);
     }
 
     {
@@ -478,17 +478,17 @@ AWT_TEST(MarketInfo)
 
         sqlite::Bind(select_statement, 0, mi_sample.id);
 
-        AWT_ASSERT(select_statement.Next());
+        AWL_ASSERT(select_statement.Next());
 
         Precision actual;
 
         sqlite::Get(select_statement, 0, actual);
 
-        AWT_ASSERT(actual == precision_result);
+        AWL_ASSERT(actual == precision_result);
     }
 }
         
-AWT_EXAMPLE(Console)
+AWL_EXAMPLE(Console)
 {
     DbContainer c(context);
     Database & db = c.db();

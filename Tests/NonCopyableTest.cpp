@@ -112,9 +112,9 @@ namespace sqlite
     }
 }
 
-AWT_TEST(NonCopyable)
+AWL_TEST(NonCopyable)
 {
-    AWT_UNUSED_CONTEXT;
+    AWL_UNUSED_CONTEXT;
     
     //Check if helper functions do not require copy constructor and copy assignment.
     {

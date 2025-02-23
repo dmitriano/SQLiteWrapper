@@ -34,7 +34,7 @@ namespace
     AWL_MEMBERWISE_EQUATABLE(MarketInfo)
 }
 
-AWT_TEST(MapStorage)
+AWL_TEST(MapStorage)
 {
     DbContainer c(context);
 
@@ -55,16 +55,16 @@ AWT_TEST(MapStorage)
     {
         MarketInfo mi;
 
-        AWT_ASSERT(!ms.Find(wrong_id, mi));
+        AWL_ASSERT(!ms.Find(wrong_id, mi));
     };
 
     auto assert_exists = [&ms](const std::string& id, const MarketInfo& expected)
     {
         MarketInfo mi;
 
-        AWT_ASSERT(ms.Find(id, mi));
+        AWL_ASSERT(ms.Find(id, mi));
 
-        AWT_ASSERT(mi == expected);
+        AWL_ASSERT(mi == expected);
     };
 
     assert_does_not_exist();

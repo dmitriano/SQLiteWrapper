@@ -36,7 +36,7 @@ namespace
     Bot bot2{ 0, "XRP_USDT", {1u, 2u} };
 }
 
-AWT_TEST(RowIdRawQueries)
+AWL_TEST(RowIdRawQueries)
 {
     const std::string table_name = "bots";
 
@@ -79,7 +79,7 @@ AWT_TEST(RowIdRawQueries)
     }
 }
 
-AWT_TEST(RowIdRaw)
+AWL_TEST(RowIdRaw)
 {
     DbContainer c(context);
 
@@ -93,7 +93,7 @@ AWT_TEST(RowIdRaw)
     insert_statement.Exec();
 }
 
-AWT_TEST(RowIdSet)
+AWL_TEST(RowIdSet)
 {
     const std::string table_name = "bots";
     
@@ -113,7 +113,7 @@ AWT_TEST(RowIdSet)
     {
         Bot b1 = *set.begin();
 
-        AWT_ASSERT(b1 == bots[0]);
+        AWL_ASSERT(b1 == bots[0]);
     }
 
     //Range-based loop test
@@ -125,12 +125,12 @@ AWT_TEST(RowIdSet)
             actual_bots.push_back(bot);
         }
 
-        AWT_ASSERT(std::ranges::equal(bots, actual_bots));
+        AWL_ASSERT(std::ranges::equal(bots, actual_bots));
     }
 
     //Algo tests
 
-    AWT_ASSERT(std::ranges::equal(bots, set));
+    AWL_ASSERT(std::ranges::equal(bots, set));
 
     {
         //auto r = std::ranges::common_view{ set };
@@ -142,9 +142,9 @@ AWT_TEST(RowIdSet)
     {
         Bot actual;
 
-        AWT_ASSERT(set.Find(bot.rowId, actual));
+        AWL_ASSERT(set.Find(bot.rowId, actual));
 
-        AWT_ASSERT(actual == bot);
+        AWL_ASSERT(actual == bot);
     }
 
     bot1.rowId = bots[0].rowId;
@@ -154,9 +154,9 @@ AWT_TEST(RowIdSet)
 
         Bot actual;
 
-        AWT_ASSERT(set.Find(bot1.rowId, actual));
+        AWL_ASSERT(set.Find(bot1.rowId, actual));
 
-        AWT_ASSERT(actual == bot1);
+        AWL_ASSERT(actual == bot1);
     }
 
     bot2.rowId = bots[1].rowId;
@@ -169,9 +169,9 @@ AWT_TEST(RowIdSet)
 
             Bot actual;
 
-            AWT_ASSERT(set.Find(bot2.rowId, actual));
+            AWL_ASSERT(set.Find(bot2.rowId, actual));
 
-            AWT_ASSERT(actual == bot2);
+            AWL_ASSERT(actual == bot2);
         }
 
         {
@@ -183,9 +183,9 @@ AWT_TEST(RowIdSet)
 
             Bot actual;
 
-            AWT_ASSERT(set.Find(bot2.rowId, actual));
+            AWL_ASSERT(set.Find(bot2.rowId, actual));
 
-            AWT_ASSERT(actual == bot2);
+            AWL_ASSERT(actual == bot2);
         }
     }
 }

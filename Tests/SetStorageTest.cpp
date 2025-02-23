@@ -10,16 +10,16 @@
 using namespace swtest;
 using namespace exchange;
 
-AWT_TEST(FieldIndex)
+AWL_TEST(FieldIndex)
 {
-    AWT_UNUSED_CONTEXT;
+    AWL_UNUSED_CONTEXT;
 
-    AWT_ASSERT(sqlite::helpers::FindFieldIndex(&Market::id) == 1);
+    AWL_ASSERT(sqlite::helpers::FindFieldIndex(&Market::id) == 1);
 
-    AWT_ASSERT(sqlite::helpers::FindTransparentFieldIndex(&Market::id) == 6);
+    AWL_ASSERT(sqlite::helpers::FindTransparentFieldIndex(&Market::id) == 6);
 }
 
-AWT_TEST(SetStorageMarket)
+AWL_TEST(SetStorageMarket)
 {
     DbContainer c(context);
 
@@ -41,16 +41,16 @@ AWT_TEST(SetStorageMarket)
     {
         Market m;
 
-        AWT_ASSERT(!ms.Find(wrong_id, m));
+        AWL_ASSERT(!ms.Find(wrong_id, m));
     };
 
     auto assert_exists = [&ms](const std::string& id, const Market& expected)
     {
         Market m;
 
-        AWT_ASSERT(ms.Find(id, m));
+        AWL_ASSERT(ms.Find(id, m));
 
-        AWT_ASSERT(m == expected);
+        AWL_ASSERT(m == expected);
     };
 
     assert_does_not_exist();
@@ -143,7 +143,7 @@ namespace
     };
 }
 
-AWT_TEST(SetStorageOrder)
+AWL_TEST(SetStorageOrder)
 {
     DbContainer c(context);
 
@@ -156,8 +156,8 @@ AWT_TEST(SetStorageOrder)
         Order order;
 
         //SELECT listId, clientId, marketId, side, type, status, id, price, stopPrice, amount, filled, cost, createTime, updateTime FROM orders WHERE marketId=?3 AND id=?7;
-        AWT_ASSERT(!storage.Find(btc_key1, order));
-        AWT_ASSERT(!storage.Find(btc_key2, order));
+        AWL_ASSERT(!storage.Find(btc_key1, order));
+        AWL_ASSERT(!storage.Find(btc_key2, order));
     }
 
     storage.Insert(btc_order1);
@@ -165,24 +165,24 @@ AWT_TEST(SetStorageOrder)
     {
         Order order;
 
-        AWT_ASSERT(storage.Find(btc_key1, order));
-        AWT_ASSERT(order == btc_order1);
+        AWL_ASSERT(storage.Find(btc_key1, order));
+        AWL_ASSERT(order == btc_order1);
 
-        AWT_ASSERT(!storage.Find(btc_key2, order));
+        AWL_ASSERT(!storage.Find(btc_key2, order));
     }
 
-    AWT_ASSERT(!storage.TryInsert(btc_order1));
+    AWL_ASSERT(!storage.TryInsert(btc_order1));
 
-    AWT_ASSERT(storage.TryInsert(btc_order2));
+    AWL_ASSERT(storage.TryInsert(btc_order2));
 
     {
         Order order;
 
-        AWT_ASSERT(storage.Find(btc_key1, order));
-        AWT_ASSERT(order == btc_order1);
+        AWL_ASSERT(storage.Find(btc_key1, order));
+        AWL_ASSERT(order == btc_order1);
 
-        AWT_ASSERT(storage.Find(btc_key2, order));
-        AWT_ASSERT(order == btc_order2);
+        AWL_ASSERT(storage.Find(btc_key2, order));
+        AWL_ASSERT(order == btc_order2);
     }
 
     Order btc_order1_updated = btc_order1;
@@ -199,8 +199,8 @@ AWT_TEST(SetStorageOrder)
             std::get<1>(btc_key1)
         };
 
-        AWT_ASSERT(storage.Find(order));
-        AWT_ASSERT(order == btc_order1_updated);
+        AWL_ASSERT(storage.Find(order));
+        AWL_ASSERT(order == btc_order1_updated);
     }
 
     {
@@ -210,8 +210,8 @@ AWT_TEST(SetStorageOrder)
             std::get<1>(btc_key2)
         };
 
-        AWT_ASSERT(storage.Find(order));
-        AWT_ASSERT(order == btc_order2);
+        AWL_ASSERT(storage.Find(order));
+        AWL_ASSERT(order == btc_order2);
     }
 
     storage.Insert(trx_order1);
@@ -219,15 +219,15 @@ AWT_TEST(SetStorageOrder)
     {
         Order order;
 
-        AWT_ASSERT(storage.Find(trx_key1, order));
-        AWT_ASSERT(order == trx_order1);
+        AWL_ASSERT(storage.Find(trx_key1, order));
+        AWL_ASSERT(order == trx_order1);
     }
 
     try
     {
         storage.Insert(btc_order1);
 
-        AWT_FAILM("It does not throw.");
+        AWL_FAILM("It does not throw.");
     }
     catch (const sqlite::SQLiteException& e)
     {
@@ -240,7 +240,7 @@ AWT_TEST(SetStorageOrder)
         
         storage.Update(btc_order1_updated);
 
-        AWT_FAILM("It does not throw.");
+        AWL_FAILM("It does not throw.");
     }
     catch (const sqlite::SQLiteException& e)
     {
@@ -250,11 +250,11 @@ AWT_TEST(SetStorageOrder)
     Order btc_order1_found;
     Order btc_order2_found;
 
-    AWT_ASSERT(storage.Find(btc_key1, btc_order1_found));
+    AWL_ASSERT(storage.Find(btc_key1, btc_order1_found));
 
-    AWT_ASSERT(!storage.Find(std::make_tuple(btc_market_id, 5), btc_order2_found));
+    AWL_ASSERT(!storage.Find(std::make_tuple(btc_market_id, 5), btc_order2_found));
 
-    AWT_ASSERT(storage.Find(btc_key2, btc_order2_found));
+    AWL_ASSERT(storage.Find(btc_key2, btc_order2_found));
 
     //Builds UPDATE orders SET status=?7, filled=?11 WHERE marketId=?1 AND id=?2;
     sqlite::Updater up = storage.CreateUpdater(std::make_tuple(&Order::status, &Order::filled));
@@ -268,17 +268,17 @@ AWT_TEST(SetStorageOrder)
 
     Order btc_order2_updated_found;
 
-    AWT_ASSERT(storage.Find(btc_key2, btc_order2_updated_found));
+    AWL_ASSERT(storage.Find(btc_key2, btc_order2_updated_found));
 
-    AWT_ASSERT(btc_order2_updated_found == btc_order2_updated);
+    AWL_ASSERT(btc_order2_updated_found == btc_order2_updated);
 
     storage.Delete(btc_key1);
 
     {
         Order order;
 
-        AWT_ASSERT(!storage.Find(btc_key1, order));
-        AWT_ASSERT(storage.Find(btc_key2, order));
+        AWL_ASSERT(!storage.Find(btc_key1, order));
+        AWL_ASSERT(storage.Find(btc_key2, order));
     }
 
     storage.Delete(btc_order2);
@@ -286,8 +286,8 @@ AWT_TEST(SetStorageOrder)
     {
         Order order;
 
-        AWT_ASSERT(!storage.Find(btc_key1, order));
-        AWT_ASSERT(!storage.Find(btc_key2, order));
+        AWL_ASSERT(!storage.Find(btc_key1, order));
+        AWL_ASSERT(!storage.Find(btc_key2, order));
     }
 }
 
@@ -314,12 +314,12 @@ namespace
                 sqlite::Get(rs, 0, max_db_id);
             }
 
-            AWT_ASSERT_EQUAL(expected_max_id, max_db_id);
+            AWL_ASSERT_EQUAL(expected_max_id, max_db_id);
         }
     }
 }
 
-AWT_TEST(SetStorageMax)
+AWL_TEST(SetStorageMax)
 {
     DbContainer c(context);
 

@@ -215,9 +215,9 @@ namespace
     }
 }
 
-AWT_TEST(DatabaseTest)
+AWL_TEST(DatabaseTest)
 {
-    AWT_UNUSED_CONTEXT;
+    AWL_UNUSED_CONTEXT;
     
     DbContainer c;
 
@@ -232,9 +232,9 @@ AWT_TEST(DatabaseTest)
     db.Exec("drop table myTable");
 }
 
-AWT_TEST(SimpleQueryTest)
+AWL_TEST(SimpleQueryTest)
 {
-    AWT_UNUSED_CONTEXT;
+    AWL_UNUSED_CONTEXT;
 
     DbContainer c;
 
@@ -251,12 +251,12 @@ AWT_TEST(SimpleQueryTest)
         ++count;
     }
 
-    AWT_ASSERT_EQUAL(c.m_ages.size(), count);
+    AWL_ASSERT_EQUAL(c.m_ages.size(), count);
 }
 
-AWT_TEST(WhereTest)
+AWL_TEST(WhereTest)
 {
-    AWT_UNUSED_CONTEXT;
+    AWL_UNUSED_CONTEXT;
 
     DbContainer c;
 
@@ -283,11 +283,11 @@ AWT_TEST(WhereTest)
 
     while (rs.Next())
     {
-        AWT_ASSERT(rs.IsText(0));
-        AWT_ASSERT_FALSE(rs.IsNull(0));
+        AWL_ASSERT(rs.IsText(0));
+        AWL_ASSERT_FALSE(rs.IsNull(0));
 
-        AWT_ASSERT(rs.IsInt(1));
-        AWT_ASSERT_FALSE(rs.IsNull(1));
+        AWL_ASSERT(rs.IsInt(1));
+        AWL_ASSERT_FALSE(rs.IsNull(1));
 
         std::string firstName;
         sqlite::Get(rs, 0, firstName);
@@ -295,15 +295,15 @@ AWT_TEST(WhereTest)
         size_t age;
         sqlite::Get(rs, 1, age);
 
-        AWT_ASSERT_EQUAL(c.m_ages[count], age);
+        AWL_ASSERT_EQUAL(c.m_ages[count], age);
 
         ++count;
     }
 
-    AWT_ASSERT_EQUAL(i + 1, count);
+    AWL_ASSERT_EQUAL(i + 1, count);
 }
 
-AWT_TEST(CreateTableTestWithRowId)
+AWL_TEST(CreateTableTestWithRowId)
 {
     DbContainer c;
     Database & db = c.db();
@@ -321,7 +321,7 @@ AWT_TEST(CreateTableTestWithRowId)
     db.Exec(query);
 }
 
-AWT_TEST(CreateTableWithoutRowIdTest)
+AWL_TEST(CreateTableWithoutRowIdTest)
 {
     DbContainer c;
     Database & db = c.db();
@@ -337,7 +337,7 @@ AWT_TEST(CreateTableWithoutRowIdTest)
     db.Exec(query);
 }
 
-AWT_TEST(CreateTableWithMulticolumnPKTest)
+AWL_TEST(CreateTableWithMulticolumnPKTest)
 {
     DbContainer c;
     Database & db = c.db();
@@ -353,7 +353,7 @@ AWT_TEST(CreateTableWithMulticolumnPKTest)
     db.Exec(query);
 }
 
-AWT_TEST(CreateTableRecursiveTest)
+AWL_TEST(CreateTableRecursiveTest)
 {
     CreateTableRecursiveTest<UniqueUser>(context, "UniqueUser", true);
     CreateTableRecursiveTest<UniqueUser1>(context, "UniqueUser1", false);
