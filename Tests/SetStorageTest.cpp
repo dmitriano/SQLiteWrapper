@@ -347,24 +347,24 @@ AWL_TEST(OrderStorageGetBind)
 {
     DbContainer c(context);
 
-    sqlite::SetStorage storage(c.m_db, "orders", std::make_tuple(&data::Order2::accountType, &data::Order2::marketId, &data::Order2::id));
+    sqlite::SetStorage storage(c.m_db, "orders", std::make_tuple(&v2::Order::accountType, &v2::Order::marketId, &v2::Order::id));
 
     storage.Create();
     storage.Prepare();
 
-    using TestOrderKey = std::tuple<AccountType2, std::string, data::OrderId>;
+    using TestOrderKey = std::tuple<v2::AccountType, std::string, data::OrderId>;
 
-    TestOrderKey btc_key(data::AccountType2::Spot, btc_market_id, 15);
+    TestOrderKey btc_key(v2::AccountType::Spot, btc_market_id, 15);
 
     {
-        auto val = static_cast<std::underlying_type_t<data::AccountType2>>(std::get<0>(btc_key));
+        auto val = static_cast<std::underlying_type_t<v2::AccountType>>(std::get<0>(btc_key));
 
         auto signed_val = sqlite::helpers::MakeSigned(val);
 
         AWL_ASSERT_EQUAL(0u, sqlite::helpers::MakeUnsigned(signed_val));
     }
 
-    const data::Order2 sample_order =
+    const v2::Order sample_order =
     {
         "binance",
         btc_market_id,
@@ -372,7 +372,7 @@ AWL_TEST(OrderStorageGetBind)
         -1,
         "dcb1aa07-7448-4e8e-8f88-713dd4feb159",
 
-        data::AccountType2::Spot,
+        v2::AccountType::Spot,
 
         data::OrderSide::Sell,
         data::OrderType::StopLossLimit,
@@ -388,7 +388,7 @@ AWL_TEST(OrderStorageGetBind)
         {}
     };
 
-    const std::vector<data::Order2> sample_v{ sample_order };
+    const std::vector<v2::Order> sample_v{ sample_order };
 
     context.logger.debug(awl::format() << "Inserting order: " << sample_order.id);
 
@@ -402,12 +402,12 @@ AWL_TEST(OrderStorageGetBind)
 
     context.logger.debug(awl::format() << count << " orders:");
 
-    for (const data::Order2& order : storage)
+    for (const v2::Order& order : storage)
     {
         context.logger.debug(awl::format() << "Order: " << order.id);
     }
 
-    data::Order2 found_order;
+    v2::Order found_order;
 
     AWL_ASSERT(storage.Find(btc_key, found_order));
 

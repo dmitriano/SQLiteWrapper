@@ -116,35 +116,73 @@ namespace exchange::data
 
     AWL_MEMBERWISE_EQUATABLE(Order)
 
-    AWL_SEQUENTIAL_ENUM(AccountType2, Spot, CrossMargin, IsolatedMargin)
-
-    struct Order2
+    namespace v2
     {
-        std::string exchangeId;
-        std::string marketId;
-        OrderId id;
-        int64_t listId;
-        std::string clientId;
+        AWL_SEQUENTIAL_ENUM(AccountType, Spot, CrossMargin, IsolatedMargin)
 
-        AccountType2 accountType;
+        struct Order
+        {
+            std::string exchangeId;
+            std::string marketId;
+            OrderId id;
+            int64_t listId;
+            std::string clientId;
 
-        OrderSide side;
-        OrderType type;
-        OrderStatus status;
+            AccountType accountType;
 
-        Decimal price;
-        Decimal stopPrice;
-        Decimal amount;
-        Decimal filled;
-        Decimal cost;
-        Decimal reserved;
+            OrderSide side;
+            OrderType type;
+            OrderStatus status;
 
-        TimePoint createTime;
-        TimePoint updateTime;
+            Decimal price;
+            Decimal stopPrice;
+            Decimal amount;
+            Decimal filled;
+            Decimal cost;
+            Decimal reserved;
 
-        AWL_REFLECT(exchangeId, marketId, id, accountType, listId, clientId, side, type, status, price, stopPrice,
-            amount, filled, cost, createTime, updateTime)
-    };
+            TimePoint createTime;
+            TimePoint updateTime;
 
-    AWL_MEMBERWISE_EQUATABLE(Order2)
+            AWL_REFLECT(exchangeId, marketId, id, accountType, listId, clientId, side, type, status, price, stopPrice,
+                amount, filled, cost, createTime, updateTime)
+        };
+
+        AWL_MEMBERWISE_EQUATABLE(Order)
+    }
+
+    namespace v3
+    {
+        using AccountType = int;
+
+        struct Order
+        {
+            std::string exchangeId;
+            std::string marketId;
+            OrderId id;
+            int64_t listId;
+            std::string clientId;
+
+            int accountType;
+
+            OrderSide side;
+            OrderType type;
+            OrderStatus status;
+
+            Decimal price;
+            Decimal stopPrice;
+            Decimal amount;
+            Decimal filled;
+            Decimal cost;
+            Decimal reserved;
+
+            TimePoint createTime;
+            TimePoint updateTime;
+
+            AWL_REFLECT(exchangeId, marketId, id, accountType, listId, clientId, side, type, status, price, stopPrice,
+                amount, filled, cost, createTime, updateTime)
+        };
+
+        AWL_MEMBERWISE_EQUATABLE(Order)
+    }
 }
