@@ -9,6 +9,8 @@
 
 using namespace swtest;
 using namespace exchange;
+using namespace exchange::data;
+using awl::testing::Assert;
 
 AWL_TEST(FieldIndex)
 {
@@ -337,4 +339,69 @@ AWL_TEST(SetStorageMax)
     CheckMax(c.db(), btc_market_id, 2);
 
     CheckMax(c.db(), trx_market_id, 1);
+}
+
+AWL_TEST(OrderStorageGetBind)
+{
+    DbContainer c(context);
+
+    sqlite::SetStorage storage(c.m_db, "orders", std::make_tuple(&data::Order2::accountType, &data::Order2::marketId, &data::Order2::id));
+
+    storage.Create();
+    storage.Prepare();
+
+    using TestOrderKey = std::tuple<AccountType, std::string, data::OrderId>;
+
+    TestOrderKey btc_key(data::AccountType::Spot, btc_market_id, -1);
+
+    const data::Order2 sample_order =
+    {
+        "binance",
+        btc_market_id,
+        std::get<2>(btc_key),
+        -1,
+        "dcb1aa07-7448-4e8e-8f88-713dd4feb159",
+
+        data::AccountType::Spot,
+
+        data::OrderSide::Sell,
+        data::OrderType::StopLossLimit,
+        data::OrderStatus::Closed,
+        "45441.5"_d,
+        data::Decimal::zero(),
+        "0.0015"_d,
+        data::Decimal::zero(),
+        "68.14884"_d,
+        data::Decimal::zero(),
+
+        data::Clock::now(),
+        {}
+    };
+
+    storage.TryDelete(btc_key);
+
+    context.logger.debug(awl::format() << "Inserting order: " << sample_order.id);
+
+    storage.Insert(sample_order);
+
+    const auto count = std::ranges::distance(storage);
+
+    Assert::AreEqual(1u, count);
+
+    context.logger.debug(awl::format() << count << " orders:");
+
+    for (const data::Order2& order : storage)
+    {
+        context.logger.debug(awl::format() << "Order: " << order.id);
+    }
+
+    data::Order2 found_order;
+
+    AWL_ASSERT(storage.Find(btc_key, found_order));
+
+    context.logger.debug(awl::format() << "Loaded order: " << awl::format::endl << found_order.id);
+
+    AWL_ASSERT(found_order == sample_order);
+
+    storage.Delete(btc_key);
 }
