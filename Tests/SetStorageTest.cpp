@@ -7,6 +7,8 @@
 #include "Awl/IntRange.h"
 #include "Awl/StdConsole.h"
 
+#include <vector>
+
 using namespace swtest;
 using namespace exchange;
 using namespace exchange::data;
@@ -378,13 +380,17 @@ AWL_TEST(OrderStorageGetBind)
         {}
     };
 
+    const std::vector<data::Order2> sample_v{ sample_order };
+
     context.logger.debug(awl::format() << "Inserting order: " << sample_order.id);
 
     storage.Insert(sample_order);
 
     const auto count = std::ranges::distance(storage);
 
-    Assert::AreEqual(1u, count);
+    AWL_ASSERT_EQUAL(1u, count);
+
+    AWL_ASSERT(std::ranges::equal(storage, sample_v));
 
     context.logger.debug(awl::format() << count << " orders:");
 
