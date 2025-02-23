@@ -26,12 +26,15 @@ namespace sqlite
 
         void insert(size_t val)
         {
-            m_set.emplace(val);
+            emplace(val);
         }
 
         void emplace(size_t val)
         {
-            m_set.emplace(val);
+            if (!m_set.emplace(val).second)
+            {
+                throw std::runtime_error("Duplicated index.");
+            }
         }
 
         size_t size() const { return m_set.size(); }
