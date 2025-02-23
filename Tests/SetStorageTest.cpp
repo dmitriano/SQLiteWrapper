@@ -361,7 +361,7 @@ AWL_TEST(OrderStorageGetBind2)
 
         auto signed_val = sqlite::helpers::MakeSigned(val);
 
-        AWL_ASSERT_EQUAL(0u, sqlite::helpers::MakeUnsigned(signed_val));
+        AWL_ASSERT_EQUAL(0, signed_val);
     }
 
     const v2::Order sample_order =
