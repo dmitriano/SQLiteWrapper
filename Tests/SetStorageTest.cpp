@@ -378,8 +378,6 @@ AWL_TEST(OrderStorageGetBind)
         {}
     };
 
-    storage.TryDelete(btc_key);
-
     context.logger.debug(awl::format() << "Inserting order: " << sample_order.id);
 
     storage.Insert(sample_order);
