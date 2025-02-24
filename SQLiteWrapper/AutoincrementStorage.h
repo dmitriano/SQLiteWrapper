@@ -7,7 +7,7 @@
 namespace sqlite
 {
     template <class Value, class Int> requires std::is_integral_v<Int>
-    class AutoincrementStorage
+    class AutoincrementStorage : private awl::Observer<Element>
     {
     private:
 
@@ -18,8 +18,8 @@ namespace sqlite
         AutoincrementStorage(const std::shared_ptr<Database>& db, std::string table_name, Int Value::* id_ptr) :
             m_storage(db, std::move(table_name), std::make_tuple(id_ptr))
         {
-            // TODO: Double subscription.
-            // m_storage.m_db->Subscribe(this);
+            // Move the observer.
+            static_cast<awl::Observer<Element>&>(*this) = std::move(static_cast<awl::Observer<Element>&>(m_storage));
         }
 
         AutoincrementStorage(const AutoincrementStorage&) = delete;

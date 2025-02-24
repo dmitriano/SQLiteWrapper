@@ -44,11 +44,6 @@ namespace sqlite
         SetStorage(const SetStorage&) = delete;
         SetStorage(SetStorage&&) = default;
         
-        ~SetStorage()
-        {
-            m_db->Unsubscribe(this);
-        }
-
         SetStorage& operator = (const SetStorage&) = delete;
         SetStorage& operator = (SetStorage&&) = default;
 
