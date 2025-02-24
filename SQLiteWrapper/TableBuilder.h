@@ -67,19 +67,16 @@ namespace sqlite
 
                 const std::string& member_name = member_names[memberIndex];
 
-                // Do not create a column with name 'ROWID'.
-                if (!(prefixes.empty() && awl::CStringInsensitiveEqual<char>()(member_name.c_str(), rowIdFieldName)))
+                if (prefixes.empty() && awl::CStringInsensitiveEqual<char>()(member_name.c_str(), rowIdFieldName))
                 {
-                    std::string full_name = helpers::MakeFullFieldName(prefixes, member_name);
-
-                    const std::string& constraint = m_columnConstraints[fieldIndex];
-
-                    AddColumn<FieldType>(full_name, constraint);
+                    throw SQLiteException(0, "A field with name ROWID is not allowed.");
                 }
-                //else
-                //{
-                //    m_rowIdIndex = fieldIndex;
-                //}
+
+                std::string full_name = helpers::MakeFullFieldName(prefixes, member_name);
+
+                const std::string& constraint = m_columnConstraints[fieldIndex];
+
+                AddColumn<FieldType>(full_name, constraint);
             });
         }
 

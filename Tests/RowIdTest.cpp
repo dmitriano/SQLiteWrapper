@@ -2,7 +2,7 @@
 #include "SQLiteWrapper/Bind.h"
 #include "SQLiteWrapper/Get.h"
 #include "SQLiteWrapper/QueryBuilder.h"
-#include "SQLiteWrapper/SetStorage.h"
+#include "SQLiteWrapper/AutoincrementStorage.h"
 
 #include "Awl/IntRange.h"
 

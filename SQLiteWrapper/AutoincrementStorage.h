@@ -1,10 +1,10 @@
 #pragma once
 
-#include "SQLiteWrapper/NaturalStorage.h"
+#include "SQLiteWrapper/SetStorage.h"
 
 namespace sqlite
 {
-    template <class Value, class Int> requires std::is_integral_v<Int>
+    template <class Value, class Int> // requires std::is_integral_v<Int>
     class AutoincrementStorage
     {
     public:
