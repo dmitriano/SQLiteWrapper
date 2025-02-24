@@ -129,7 +129,7 @@ namespace
 
     struct DbaUser2
     {
-        int rowId;
+        int formerRowId; //RowId is not allowed anymore.
         std::string AccountStatus;
         std::optional<std::string> AllShard;
         std::optional<std::string> AuthenticationType;
@@ -157,7 +157,7 @@ namespace
         NumberType UserId;
 
         AWL_REFLECT(
-            rowId,
+            formerRowId,
             AccountStatus,
             AllShard,
             AuthenticationType,

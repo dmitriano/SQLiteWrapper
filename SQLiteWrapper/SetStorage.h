@@ -22,7 +22,7 @@
 namespace sqlite
 {
     template <class Value, class... Keys>
-    class SetStorage : public awl::Observer<Element>
+    class SetStorage : private awl::Observer<Element>
     {
     private:
 
@@ -36,25 +36,14 @@ namespace sqlite
             m_db(db),
             tableName(std::move(table_name)),
             idPtrs(id_ptrs),
-            idIndices(FindKeyIndices()),
-            rowIdIndex(FindRowIdIndex())
+            idIndices(FindKeyIndices())
         {
-            if (rowIdIndex != noIndex && !idIndices.contains(rowIdIndex))
-            {
-                throw std::runtime_error("RowId is not included into the key.");
-            }
-
             m_db->Subscribe(this);
         }
 
         SetStorage(const SetStorage&) = delete;
         SetStorage(SetStorage&&) = default;
         
-        ~SetStorage()
-        {
-            m_db->Unsubscribe(this);
-        }
-
         SetStorage& operator = (const SetStorage&) = delete;
         SetStorage& operator = (SetStorage&&) = default;
 
@@ -74,37 +63,31 @@ namespace sqlite
             }
         }
 
-        void Prepare() override
+        void Open() override
         {
-            if (rowIdIndex != noIndex)
-            {
-                insertFilter = IndexFilter{};
-            }
+            insertStatement = Statement(*m_db, BuildParameterizedInsertQuery<Record>(tableName));
 
-            IndexFilter value_filter;
-                
-            for (size_t i = 0; i < helpers::GetFieldCount<Record>(); ++i)
-            {
-                if (!idIndices.contains(i))
-                {
-                    value_filter.insert(i);
-                }
-
-                if (insertFilter && i != rowIdIndex)
-                {
-                    insertFilter->insert(i);
-                }
-            }
-
-            insertStatement = Statement(*m_db, BuildParameterizedInsertQuery<Record>(tableName, insertFilter));
-
-            updateStatement = Statement(*m_db, BuildParameterizedUpdateQuery<Record>(tableName, std::move(value_filter), idIndices));
+            updateStatement = Statement(*m_db, BuildParameterizedUpdateQuery<Record>(tableName, MakeValueFilter(), idIndices));
 
             selectStatement = Statement(*m_db, BuildParameterizedSelectQuery<Record>(tableName, {}, idIndices));
 
             deleteStatement = Statement(*m_db, BuildParameterizedDeleteQuery<Record>(tableName, idIndices));
 
             iterateStatement = Statement(*m_db, BuildTrivialSelectQuery<Value>(tableName));
+        }
+
+        void Close() override
+        {
+            insertStatement.Close();
+            updateStatement.Close();
+            selectStatement.Close();
+            deleteStatement.Close();
+            iterateStatement.Close();
+        }
+
+        void Delete() override
+        {
+            m_db->DropTable(tableName);
         }
 
         Iterator<Value> begin()
@@ -194,27 +177,24 @@ namespace sqlite
 
     private:
 
-        size_t FindRowIdIndex() const
+        template <class Value, class Int> requires std::is_integral_v<Int>
+        friend class AutoincrementStorage;
+
+        IndexFilter MakeValueFilter() const
         {
-            size_t index = noIndex;
+            IndexFilter value_filter;
 
-            awl::for_each(idPtrs, [this, &index](auto& id_ptr)
+            for (size_t i = 0; i < helpers::GetFieldCount<Record>(); ++i)
             {
-                const size_t member_index = helpers::FindFieldIndex(id_ptr);
-
-                const auto& member_names = Value::get_member_names();
-
-                const std::string& member_name = member_names[member_index];
-
-                if (member_name == rowIdFieldName)
+                if (!idIndices.contains(i))
                 {
-                    index = helpers::FindTransparentFieldIndex(id_ptr);
+                    value_filter.insert(i);
                 }
-            });
+            }
 
-            return index;
+            return value_filter;
         }
-        
+
         IndexFilter FindKeyIndices() const
         {
             return helpers::FindTransparentFieldIndices(idPtrs);
@@ -251,14 +231,7 @@ namespace sqlite
 
         void BindInsertFields(Statement& stmt, const Value& val)
         {
-            if (insertFilter)
-            {
-                BindValue(stmt, val, *insertFilter);
-            }
-            else
-            {
-                Bind(stmt, 0, val);
-            }
+            Bind(stmt, 0, val);
         }
 
         bool SelectValue(Value& val)
@@ -281,9 +254,6 @@ namespace sqlite
 
         const PtrTuple idPtrs;
         const IndexFilter idIndices;
-        OptionalIndexFilter insertFilter;
-
-        size_t rowIdIndex = noIndex;
 
         Statement insertStatement;
         Statement updateStatement;

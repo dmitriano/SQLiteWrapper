@@ -67,18 +67,16 @@ namespace sqlite
 
                 const std::string& member_name = member_names[memberIndex];
 
-                if (member_name != rowIdFieldName)
+                if (prefixes.empty() && awl::CStringInsensitiveEqual<char>()(member_name.c_str(), rowIdFieldName))
                 {
-                    std::string full_name = helpers::MakeFullFieldName(prefixes, member_name);
-
-                    const std::string& constraint = m_columnConstraints[fieldIndex];
-
-                    AddColumn<FieldType>(full_name, constraint);
+                    throw SQLiteException(0, "A field with name ROWID is not allowed.");
                 }
-                else
-                {
-                    m_rowIdIndex = fieldIndex;
-                }
+
+                std::string full_name = helpers::MakeFullFieldName(prefixes, member_name);
+
+                const std::string& constraint = m_columnConstraints[fieldIndex];
+
+                AddColumn<FieldType>(full_name, constraint);
             });
         }
 
@@ -210,10 +208,10 @@ namespace sqlite
 
             m_out << std::endl << ")";
 
-            if (m_rowIdIndex == noIndex)
-            {
-                m_out << " WITHOUT ROWID";
-            }
+            //if (m_rowIdIndex == noIndex)
+            //{
+            //    m_out << " WITHOUT ROWID";
+            //}
 
             m_out << ";" << std::endl;
 
@@ -241,7 +239,7 @@ namespace sqlite
             }
         }
 
-        size_t m_rowIdIndex = noIndex;
+        // size_t m_rowIdIndex = noIndex;
 
         Collation m_defaultCollation = Collation::NoCase;
 
