@@ -22,7 +22,7 @@
 namespace sqlite
 {
     template <class Value, class... Keys>
-    class SetStorage : public awl::Observer<Element>
+    class SetStorage : private awl::Observer<Element>
     {
     private:
 
@@ -177,6 +177,9 @@ namespace sqlite
         }
 
     private:
+
+        template <class Value, class Int>
+        friend class AutoincrementStorage;
 
         IndexFilter FindKeyIndices() const
         {
