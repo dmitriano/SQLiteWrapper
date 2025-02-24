@@ -70,19 +70,9 @@ namespace sqlite
 
         void Prepare() override
         {
-            IndexFilter value_filter;
-                
-            for (size_t i = 0; i < helpers::GetFieldCount<Record>(); ++i)
-            {
-                if (!idIndices.contains(i))
-                {
-                    value_filter.insert(i);
-                }
-            }
-
             insertStatement = Statement(*m_db, BuildParameterizedInsertQuery<Record>(tableName));
 
-            updateStatement = Statement(*m_db, BuildParameterizedUpdateQuery<Record>(tableName, std::move(value_filter), idIndices));
+            updateStatement = Statement(*m_db, BuildParameterizedUpdateQuery<Record>(tableName, MakeValueFilter(), idIndices));
 
             selectStatement = Statement(*m_db, BuildParameterizedSelectQuery<Record>(tableName, {}, idIndices));
 
@@ -180,6 +170,21 @@ namespace sqlite
 
         template <class Value, class Int>
         friend class AutoincrementStorage;
+
+        IndexFilter MakeValueFilter() const
+        {
+            IndexFilter value_filter;
+
+            for (size_t i = 0; i < helpers::GetFieldCount<Record>(); ++i)
+            {
+                if (!idIndices.contains(i))
+                {
+                    value_filter.insert(i);
+                }
+            }
+
+            return value_filter;
+        }
 
         IndexFilter FindKeyIndices() const
         {

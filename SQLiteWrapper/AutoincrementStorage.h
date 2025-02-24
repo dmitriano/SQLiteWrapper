@@ -7,11 +7,18 @@ namespace sqlite
     template <class Value, class Int> // requires std::is_integral_v<Int>
     class AutoincrementStorage
     {
+    private:
+
+        using Record = Value;
+
     public:
 
         AutoincrementStorage(const std::shared_ptr<Database>& db, std::string table_name, Int Value::* id_ptr) :
             m_storage(db, std::move(table_name), std::make_tuple(id_ptr))
-        {}
+        {
+            // TODO: Double subscription.
+            // m_storage.m_db->Subscribe(this);
+        }
 
         AutoincrementStorage(const AutoincrementStorage&) = delete;
         AutoincrementStorage(AutoincrementStorage&&) = default;
@@ -19,14 +26,16 @@ namespace sqlite
         AutoincrementStorage& operator = (const AutoincrementStorage&) = delete;
         AutoincrementStorage& operator = (AutoincrementStorage&&) = default;
 
-        void Create() override
+        void Create()
         {
             m_storage.Create();
         }
 
-        void Prepare() override
+        void Prepare()
         {
             m_storage.Prepare();
+
+            insertWithoutIdStatement = Statement(*m_storage.m_db, BuildParameterizedInsertQuery<Record>(m_storage.tableName, m_storage.MakeValueFilter()));
         }
 
         Iterator<Value> begin()
@@ -39,12 +48,23 @@ namespace sqlite
             return m_storage.end();
         }
 
-        void Insert(const Value& val)
+        void Insert(Value& val)
+        {
+            m_storage.BindValue(insertWithoutIdStatement, val, m_storage.MakeValueFilter());
+
+            insertWithoutIdStatement.Exec();
+
+            Int Value::* id_ptr = std::get<0>(m_storage.idPtrs);
+
+            val.*id_ptr = static_cast<Int>(m_storage.m_db->GetLastRowId());
+        }
+
+        void InsertWithId(const Value& val)
         {
             m_storage.Insert(val);
         }
 
-        bool TryInsert(const Value& val)
+        bool TryInsertWithId(const Value& val)
         {
             return m_storage.TryInsert(val);
         }
@@ -93,5 +113,7 @@ namespace sqlite
     private:
 
         SetStorage<Value, Int> m_storage;
+
+        Statement insertWithoutIdStatement;
     };
 }
