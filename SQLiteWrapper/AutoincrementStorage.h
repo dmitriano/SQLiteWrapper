@@ -2,9 +2,11 @@
 
 #include "SQLiteWrapper/SetStorage.h"
 
+#include <type_traits>
+
 namespace sqlite
 {
-    template <class Value, class Int> // requires std::is_integral_v<Int>
+    template <class Value, class Int> requires std::is_integral_v<Int>
     class AutoincrementStorage
     {
     private:
@@ -56,6 +58,7 @@ namespace sqlite
 
             Int Value::* id_ptr = std::get<0>(m_storage.idPtrs);
 
+            // TODO: What about signed/unsigned?
             val.*id_ptr = static_cast<Int>(m_storage.m_db->GetLastRowId());
         }
 
