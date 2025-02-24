@@ -53,13 +53,20 @@ namespace sqlite
         {
             if (m_db != nullptr)
             {
+                Notify(&Element::Close);
+
                 sqlite3_close(m_db);
             }
         }
 
         void Prepare()
         {
-            Notify(&Element::Prepare);
+            Notify(&Element::Open);
+        }
+
+        void Clear()
+        {
+            Notify(&Element::Delete);
         }
 
         Database(const Database&) = delete;

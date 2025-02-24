@@ -63,7 +63,7 @@ namespace sqlite
             }
         }
 
-        void Prepare() override
+        void Open() override
         {
             insertStatement = Statement(*m_db, BuildParameterizedInsertQuery<Record>(tableName));
 
@@ -74,6 +74,20 @@ namespace sqlite
             deleteStatement = Statement(*m_db, BuildParameterizedDeleteQuery<Record>(tableName, idIndices));
 
             iterateStatement = Statement(*m_db, BuildTrivialSelectQuery<Value>(tableName));
+        }
+
+        void Close() override
+        {
+            insertStatement.Close();
+            updateStatement.Close();
+            selectStatement.Close();
+            deleteStatement.Close();
+            iterateStatement.Close();
+        }
+
+        void Delete() override
+        {
+            m_db->DropTable(tableName);
         }
 
         Iterator<Value> begin()

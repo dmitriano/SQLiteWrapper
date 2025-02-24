@@ -28,16 +28,28 @@ namespace sqlite
         AutoincrementStorage& operator = (const AutoincrementStorage&) = delete;
         AutoincrementStorage& operator = (AutoincrementStorage&&) = default;
 
-        void Create()
+        void Create() override
         {
             m_storage.Create();
         }
 
-        void Prepare()
+        void Open() override
         {
-            m_storage.Prepare();
+            m_storage.Open();
 
             insertWithoutIdStatement = Statement(*m_storage.m_db, BuildParameterizedInsertQuery<Record>(m_storage.tableName, m_storage.MakeValueFilter()));
+        }
+
+        void Close() override
+        {
+            m_storage.Close();
+
+            insertWithoutIdStatement.Close();
+        }
+
+        void Delete() override
+        {
+            m_storage.Delete();
         }
 
         Iterator<Value> begin()

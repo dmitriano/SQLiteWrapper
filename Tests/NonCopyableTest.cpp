@@ -136,7 +136,7 @@ AWL_TEST(NonCopyable)
 
         sqlite::SetStorage set(c.m_db, table_name, std::make_tuple(&Bot::botId));
         set.Create();
-        set.Prepare();
+        set.Open();
 
         set.Insert(Bot{ 0, "BTC_USDT", {}, Nc(0) });
         

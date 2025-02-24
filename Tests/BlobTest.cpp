@@ -44,7 +44,7 @@ AWL_TEST(Blob)
 
     sqlite::SetStorage set(c.m_db, table_name, std::make_tuple(&Bot::id));
     set.Create();
-    set.Prepare();
+    set.Open();
 
     for (const Bot& bot : bots)
     {

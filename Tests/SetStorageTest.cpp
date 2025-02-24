@@ -29,7 +29,7 @@ AWL_TEST(SetStorageMarket)
 
     sqlite::SetStorage ms(c.m_db, "markets", std::make_tuple(&Market::id));
     ms.Create();
-    ms.Prepare();
+    ms.Open();
 
     Precision precision_sample{ 1, 2, 3, 4 };
     Precision precision_result{ 5, 6, 7, 8 };
@@ -154,7 +154,7 @@ AWL_TEST(SetStorageOrder)
     sqlite::SetStorage storage(c.m_db, "orders", std::make_tuple(&Order::marketId, &Order::id));
 
     storage.Create();
-    storage.Prepare();
+    storage.Open();
 
     {
         Order order;
@@ -330,7 +330,7 @@ AWL_TEST(SetStorageMax)
     sqlite::SetStorage storage(c.m_db, "orders", std::make_tuple(&Order::marketId, &Order::id));
 
     storage.Create();
-    storage.Prepare();
+    storage.Open();
 
     CheckMax(c.db(), btc_market_id, -1);
 
@@ -350,7 +350,7 @@ AWL_TEST(OrderStorageGetBind2)
     sqlite::SetStorage storage(c.m_db, "orders", std::make_tuple(&v2::Order::accountType, &v2::Order::marketId, &v2::Order::id));
 
     storage.Create();
-    storage.Prepare();
+    storage.Open();
 
     using TestOrderKey = std::tuple<v2::AccountType, std::string, data::OrderId>;
 
@@ -425,7 +425,7 @@ AWL_TEST(OrderStorageGetBind3)
     sqlite::SetStorage storage(c.m_db, "orders", std::make_tuple(&v3::Order::accountType, &v3::Order::marketId, &v3::Order::id));
 
     storage.Create();
-    storage.Prepare();
+    storage.Open();
 
     using TestOrderKey = std::tuple<v3::AccountType, std::string, data::OrderId>;
 
@@ -492,7 +492,7 @@ AWL_TEST(OrderStorageGetBind3a)
     sqlite::SetStorage storage(c.m_db, "orders", std::make_tuple(&v3::Order::marketId, &v3::Order::id));
 
     storage.Create();
-    storage.Prepare();
+    storage.Open();
 
     using TestOrderKey = std::tuple<std::string, data::OrderId>;
 
@@ -589,7 +589,7 @@ AWL_TEST(OrderStorageGetBind3b)
     sqlite::SetStorage storage(c.m_db, "orders", std::make_tuple(&v3::Order::accountType));
 
     storage.Create();
-    storage.Prepare();
+    storage.Open();
 
     using TestOrderKey = std::tuple<v3::AccountType>;
 
@@ -634,7 +634,7 @@ AWL_TEST(OrderStorageGetBind3c)
     sqlite::SetStorage storage(c.m_db, "orders", std::make_tuple(&v3::Order::accountType, &v3::Order::marketId));
 
     storage.Create();
-    storage.Prepare();
+    storage.Open();
 
     using TestOrderKey = std::tuple<v3::AccountType, std::string>;
 
@@ -679,7 +679,7 @@ AWL_TEST(OrderStorageGetBind3d)
     sqlite::SetStorage storage(c.m_db, "orders", std::make_tuple(&v3::Order::marketId, &v3::Order::accountType));
 
     storage.Create();
-    storage.Prepare();
+    storage.Open();
 
     using TestOrderKey = std::tuple<std::string, v3::AccountType>;
 

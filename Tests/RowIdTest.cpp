@@ -103,7 +103,7 @@ AWL_TEST(RowIdSet)
 
     sqlite::AutoincrementStorage set(c.m_db, table_name, &Bot::botId);
     set.Create();
-    set.Prepare();
+    set.Open();
 
     for (Bot& bot : bots)
     {
