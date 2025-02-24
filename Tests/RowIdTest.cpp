@@ -36,7 +36,7 @@ namespace
     Bot bot2{ 0, "XRP_USDT", {1u, 2u} };
 }
 
-AWL_UNSTABLE_TEST(RowIdRawQueries)
+AWL_TEST(RowIdRawQueries)
 {
     const std::string table_name = "bots";
 
@@ -48,6 +48,8 @@ AWL_UNSTABLE_TEST(RowIdRawQueries)
         sqlite::TableBuilder<Bot> builder(table_name);
 
         builder.AddColumns();
+
+        builder.SetPrimaryKey(&Bot::botId);
 
         const std::string query = builder.Build();
 
@@ -79,7 +81,7 @@ AWL_UNSTABLE_TEST(RowIdRawQueries)
     }
 }
 
-AWL_UNSTABLE_TEST(RowIdRaw)
+AWL_TEST(RowIdRaw)
 {
     DbContainer c(context);
 
@@ -93,7 +95,7 @@ AWL_UNSTABLE_TEST(RowIdRaw)
     insert_statement.Exec();
 }
 
-AWL_UNSTABLE_TEST(RowIdSet)
+AWL_TEST(RowIdSet)
 {
     const std::string table_name = "bots";
     
