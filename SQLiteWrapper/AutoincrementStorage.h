@@ -9,10 +9,6 @@ namespace sqlite
     template <class Value, class Int> requires std::is_integral_v<Int>
     class AutoincrementStorage : private awl::Observer<Element>
     {
-    private:
-
-        using Record = Value;
-
     public:
 
         AutoincrementStorage(const std::shared_ptr<Database>& db, std::string table_name, Int Value::* id_ptr) :
@@ -37,7 +33,7 @@ namespace sqlite
         {
             m_storage.Open();
 
-            insertWithoutIdStatement = Statement(*m_storage.m_db, BuildParameterizedInsertQuery<Record>(m_storage.tableName, m_storage.MakeValueFilter()));
+            insertWithoutIdStatement = Statement(*m_storage.m_db, BuildParameterizedInsertQuery<Value>(m_storage.tableName, m_storage.MakeValueFilter()));
         }
 
         void Close() override
