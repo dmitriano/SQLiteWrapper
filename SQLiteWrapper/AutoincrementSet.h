@@ -7,22 +7,22 @@
 namespace sqlite
 {
     template <class Value, class Int> requires std::is_integral_v<Int>
-    class AutoincrementStorage : private awl::Observer<Element>
+    class AutoincrementSet : private awl::Observer<Element>
     {
     public:
 
-        AutoincrementStorage(const std::shared_ptr<Database>& db, std::string table_name, Int Value::* id_ptr) :
+        AutoincrementSet(const std::shared_ptr<Database>& db, std::string table_name, Int Value::* id_ptr) :
             m_storage(db, std::move(table_name), std::make_tuple(id_ptr))
         {
             // Move the observer.
             static_cast<awl::Observer<Element>&>(*this) = std::move(static_cast<awl::Observer<Element>&>(m_storage));
         }
 
-        AutoincrementStorage(const AutoincrementStorage&) = delete;
-        AutoincrementStorage(AutoincrementStorage&&) = default;
+        AutoincrementSet(const AutoincrementSet&) = delete;
+        AutoincrementSet(AutoincrementSet&&) = default;
 
-        AutoincrementStorage& operator = (const AutoincrementStorage&) = delete;
-        AutoincrementStorage& operator = (AutoincrementStorage&&) = default;
+        AutoincrementSet& operator = (const AutoincrementSet&) = delete;
+        AutoincrementSet& operator = (AutoincrementSet&&) = default;
 
         void Create() override
         {
@@ -64,10 +64,22 @@ namespace sqlite
 
             insertWithoutIdStatement.Exec();
 
-            Int Value::* id_ptr = std::get<0>(m_storage.idPtrs);
+            AssignLastRowId(val);
+        }
 
-            // TODO: What about signed/unsigned?
-            val.*id_ptr = static_cast<Int>(m_storage.m_db->GetLastRowId());
+        // It may still violate some constraint like UNIQUE index on other columns.
+        bool TryInsert(Value& val)
+        {
+            m_storage.BindValue(insertWithoutIdStatement, val, m_storage.MakeValueFilter());
+
+            const bool success = insertWithoutIdStatement.Exec();
+
+            if (success)
+            {
+                AssignLastRowId(val);
+            }
+
+            return success;
         }
 
         void InsertWithId(const Value& val)
@@ -122,6 +134,14 @@ namespace sqlite
         }
 
     private:
+
+        void AssignLastRowId(Value& val) const
+        {
+            Int Value::* id_ptr = std::get<0>(m_storage.idPtrs);
+
+            // TODO: What about signed/unsigned?
+            val.*id_ptr = static_cast<Int>(m_storage.m_db->GetLastRowId());
+        }
 
         SetStorage<Value, Int> m_storage;
 

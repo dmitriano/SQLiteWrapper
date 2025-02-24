@@ -2,7 +2,7 @@
 #include "SQLiteWrapper/Bind.h"
 #include "SQLiteWrapper/Get.h"
 #include "SQLiteWrapper/QueryBuilder.h"
-#include "SQLiteWrapper/AutoincrementStorage.h"
+#include "SQLiteWrapper/AutoincrementSet.h"
 
 #include "Awl/IntRange.h"
 
@@ -101,7 +101,7 @@ AWL_TEST(RowIdSet)
     
     DbContainer c(context);
 
-    sqlite::AutoincrementStorage set(c.m_db, table_name, &Bot::botId);
+    sqlite::AutoincrementSet set(c.m_db, table_name, &Bot::botId);
     set.Create();
     set.Open();
 

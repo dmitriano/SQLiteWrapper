@@ -1,6 +1,6 @@
 #include "DbContainer.h"
 
-#include "SQLiteWrapper/MapStorage.h"
+#include "Tests/Experimental/MapStorage.h"
 
 #include <vector>
 #include <optional>
