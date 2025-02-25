@@ -100,6 +100,23 @@ namespace sqlite
             Exec("ROLLBACK;");
         }
 
+        // Begin transaction
+        void Save(const char* savepoint)
+        {
+            Exec(awl::aformat() << "SAVEPOINT " << savepoint << ";");
+        }
+
+        // Commit changes.
+        void Release(const char* savepoint)
+        {
+            Exec(awl::aformat() << "RELEASE " << savepoint << ";");
+        }
+
+        void RollbackTo(const char* savepoint)
+        {
+            Exec(awl::aformat() << "ROLLBACK TO " << savepoint << ";");
+        }
+
         //A thrown exception causes rollback.
         template <class Func>
         void Try(Func && func)
@@ -118,6 +135,26 @@ namespace sqlite
             }
 
             Commit();
+        }
+
+        //A thrown exception causes rollback.
+        template <class Func>
+        void Try(Func&& func, const char* savepoint)
+        {
+            Save(savepoint);
+
+            try
+            {
+                func();
+            }
+            catch (const std::exception&)
+            {
+                RollbackTo(savepoint);
+
+                throw;
+            }
+
+            Release(savepoint);
         }
 
         int ExecRaw(const char* query, char** errmsg = nullptr)
