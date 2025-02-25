@@ -67,9 +67,15 @@ namespace sqlite
         {
             insertStatement = Statement(*m_db, BuildParameterizedInsertQuery<Record>(tableName));
 
-            updateStatement = Statement(*m_db, BuildParameterizedUpdateQuery<Record>(tableName, MakeValueFilter(), idIndices));
+            IndexFilter value_filter = MakeValueFilter();
 
-            selectStatement = Statement(*m_db, BuildParameterizedSelectQuery<Record>(tableName, {}, idIndices));
+            // A table containins only key columns can't be updated.
+            if (!value_filter.empty())
+            {
+                updateStatement = Statement(*m_db, BuildParameterizedUpdateQuery<Record>(tableName, std::move(value_filter), idIndices));
+
+                selectStatement = Statement(*m_db, BuildParameterizedSelectQuery<Record>(tableName, {}, idIndices));
+            }
 
             deleteStatement = Statement(*m_db, BuildParameterizedDeleteQuery<Record>(tableName, idIndices));
 

@@ -36,6 +36,11 @@ namespace sqlite
 
         size_t size() const { return m_v.size(); }
 
+        bool empty() const
+        {
+            return m_v.empty();
+        }
+
     private:
 
         // The vector should not be sorted.
