@@ -12,6 +12,7 @@
 #include "SQLiteWrapper/Updater.h"
 #include "SQLiteWrapper/Iterator.h"
 #include "SQLiteWrapper/Element.h"
+#include "SQLiteWrapper/TableVisitor.h"
 
 #include <deque>
 #include <limits>
@@ -53,13 +54,14 @@ namespace sqlite
             {
                 TableBuilder<Record> builder(tableName);
 
-                builder.AddColumns();
-
                 builder.SetPrimaryKeyTuple(idPtrs);
 
-                const std::string query = builder.Build();
+                // TableVisitor adds constraints like REFERENCES, NULL, UNIQUE, etc...
+                TableVisitor<Record> visitor;
 
-                m_db->Exec(query);
+                visitor(builder);
+
+                m_db->Exec(builder.Create());
             }
         }
 
