@@ -34,6 +34,20 @@ namespace sqlite
             m_v.push_back(val);
         }
 
+        bool erase(size_t val)
+        {
+            auto i = std::find(m_v.begin(), m_v.end(), val);
+
+            if (i != m_v.end())
+            {
+                m_v.erase(i);
+
+                return true;
+            }
+
+            return false;
+        }
+
         size_t size() const { return m_v.size(); }
 
         bool empty() const

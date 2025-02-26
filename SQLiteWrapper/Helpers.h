@@ -190,6 +190,14 @@ namespace sqlite::helpers
         return foundIndex;
     }
 
+    template <class Struct, class T>
+    const std::string& FindFieldName(T Struct::* field_ptr)
+    {
+        const std::size_t index = FindFieldIndex(field_ptr);
+
+        return Struct::get_member_names()[index];
+    }
+        
     template <class T>
     constexpr inline size_t GetFieldCount()
     {
