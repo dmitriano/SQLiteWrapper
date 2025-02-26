@@ -8,6 +8,7 @@
 
 #include "Awl/StringFormat.h"
 #include "Awl/Observable.h"
+#include "Awl/ScopeGuard.h"
 
 #define SQL_QUERY(src) #src
 
@@ -101,7 +102,7 @@ namespace sqlite
         }
 
         // Begin transaction
-        void Save(const char* savepoint)
+        void SavePoint(const char* savepoint)
         {
             Exec(awl::aformat() << "SAVEPOINT " << savepoint << ";");
         }
@@ -117,9 +118,9 @@ namespace sqlite
             Exec(awl::aformat() << "ROLLBACK TO " << savepoint << ";");
         }
 
-        //A thrown exception causes rollback.
+        // The BEGIN command only works if the transaction stack is empty.
         template <class Func>
-        void Try(Func && func)
+        void TryOutermost(Func && func)
         {
             Begin();
             
@@ -137,11 +138,20 @@ namespace sqlite
             Commit();
         }
 
-        //A thrown exception causes rollback.
+        // A thrown exception causes rollback.
         template <class Func>
-        void Try(Func&& func, const char* savepoint)
+        void Try(Func&& func, std::string savepoint = {})
         {
-            Save(savepoint);
+            ++m_transactionLevel;
+
+            auto guard = awl::make_scope_guard([this] { --m_transactionLevel; });
+
+            if (savepoint.empty())
+            {
+                savepoint = awl::aformat() << "sp" << m_transactionLevel;
+            }
+
+            SavePoint(savepoint.c_str());
 
             try
             {
@@ -149,12 +159,12 @@ namespace sqlite
             }
             catch (const std::exception&)
             {
-                RollbackTo(savepoint);
+                RollbackTo(savepoint.c_str());
 
                 throw;
             }
 
-            Release(savepoint);
+            Release(savepoint.c_str());
         }
 
         int ExecRaw(const char* query, char** errmsg = nullptr)
@@ -229,6 +239,8 @@ namespace sqlite
     private:
 
         sqlite3 * m_db = nullptr;
+
+        std::size_t m_transactionLevel = 0u;
 
         friend class Statement;
     };
