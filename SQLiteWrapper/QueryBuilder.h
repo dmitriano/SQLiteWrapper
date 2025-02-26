@@ -123,6 +123,11 @@ namespace sqlite
             AddText(" WHERE ");
         }
 
+        void AddWhereParam(size_t index)
+        {
+            m_out << "=?" << index + 1;
+        }
+
         void AddLimit(size_t n)
         {
             m_out << " LIMIT " << n;
@@ -223,7 +228,7 @@ namespace sqlite
     template <class LeftStruct, class RightStruct, class T>
     std::string BuildListJoinQuery(const std::string& left_table_name, const std::string& right_table_name,
         T LeftStruct::* left_id_ptr, T RightStruct::* right_id_ptr,
-        const OptionalIndexFilter& right_filter = {})
+        const OptionalIndexFilter& right_filter = {}, T LeftStruct::* where_id_ptr = nullptr)
     {
         QueryBuilder<RightStruct> builder;
 
@@ -243,6 +248,19 @@ namespace sqlite
         // Key ids can't be in nested structures (this is not supported yet).
         builder.AddJoinCondition(left_table_name, right_table_name,
             helpers::FindFieldName(left_id_ptr), helpers::FindFieldName(right_id_ptr));
+
+        if (where_id_ptr != nullptr)
+        {
+            builder.AddWhere();
+
+            builder.AddText(left_table_name);
+            
+            builder.AddText(".");
+
+            builder.AddText(helpers::FindFieldName(where_id_ptr));
+
+            builder.AddWhereParam(0);
+        }
 
         builder.AddTerminator();
 
