@@ -101,13 +101,13 @@ namespace sqlite::helpers
     using RemoveOptionalT = typename RemoveOptional<T>::type;
 
     template <class Tuple, class Func, std::size_t... index>
-    inline constexpr void ForEachTF(Func f, std::index_sequence<index...>)
+    constexpr void ForEachTF(Func f, std::index_sequence<index...>)
     {
         (f(std::integral_constant<std::size_t, index>()), ...);
     }
 
     template <class Tuple, class Func>
-    inline constexpr void ForEachTF(Func f)
+    constexpr void ForEachTF(Func f)
     {
         ForEachTF<Tuple>(f, std::make_index_sequence<std::tuple_size_v<Tuple>>());
     }
@@ -119,7 +119,7 @@ namespace sqlite::helpers
     };
 
     template <class T, typename Func>
-    inline size_t ForEachFieldTypeImpl(std::vector<std::string_view>& prefixes, Func&& func, size_t startIndex)
+    size_t ForEachFieldTypeImpl(std::vector<std::string_view>& prefixes, Func&& func, size_t startIndex)
     {
         size_t count = 0;
 
@@ -154,7 +154,7 @@ namespace sqlite::helpers
     }
 
     template <class T, typename Func>
-    inline size_t ForEachFieldType(Func&& func)
+    size_t ForEachFieldType(Func&& func)
     {
         std::vector<std::string_view> prefixes;
 
@@ -347,5 +347,31 @@ namespace sqlite::helpers
         out << sep << name;
 
         return out.str();
+    }
+
+    
+    template <class Struct, class ColumnVisitor>
+    void ForEachColumn(ColumnVisitor& visitor)
+    {
+        //memberNames capture parameter makes lambdas different.
+        ForEachFieldType<Struct>([&visitor](std::vector<std::string_view>& prefixes, size_t memberIndex, size_t fieldIndex, auto structTd, auto fieldTd)
+            {
+                using StructType = typename decltype(structTd)::Type;
+
+                using FieldType = typename decltype(fieldTd)::Type;
+
+                const auto& member_names = StructType::get_member_names();
+
+                const std::string& member_name = member_names[memberIndex];
+
+                if (prefixes.empty() && awl::CStringInsensitiveEqual<char>()(member_name.c_str(), rowIdFieldName))
+                {
+                    throw SQLiteException(0, "A field with name ROWID is not allowed.");
+                }
+
+                std::string full_name = helpers::MakeFullFieldName(prefixes, member_name);
+
+                visitor.template AddColumn<FieldType>(full_name, fieldIndex);
+            });
     }
 }
