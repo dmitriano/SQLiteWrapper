@@ -10,7 +10,7 @@
 
 namespace sqlite
 {
-    AWL_SEQUENTIAL_ENUM(FieldOption, Parametized)
+    AWL_SEQUENTIAL_ENUM(FieldOption, Parametized, SequentialBindingIndices)
 }
 
 AWL_ENUM_TRAITS(sqlite, FieldOption)
@@ -57,8 +57,13 @@ namespace sqlite
 
             if (options[FieldOption::Parametized])
             {
-                out() << "=?" << static_cast<size_t>(field_index + 1);
+                // Bind entire value or a tuple of ids.
+                const size_t parameter_index = options[FieldOption::SequentialBindingIndices] ? sequentialIndex : field_index;
+                    
+                out() << "=?" << static_cast<size_t>(parameter_index + 1);
             }
+
+            ++sequentialIndex;
         }
 
         void SetFilter(OptionalIndexFilter optional_filter)
@@ -81,5 +86,7 @@ namespace sqlite
         std::reference_wrapper<std::ostringstream> m_out;
 
         awl::aseparator m_sep;
+
+        size_t sequentialIndex = 0;
     };
 }

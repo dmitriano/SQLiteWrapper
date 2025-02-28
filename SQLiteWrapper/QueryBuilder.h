@@ -197,7 +197,8 @@ namespace sqlite
     }
 
     template <class Struct>
-    std::string BuildParameterizedSelectQuery(const std::string& table_name, const OptionalIndexFilter& select_fields, const OptionalIndexFilter& where_fields = {})
+    std::string BuildParameterizedSelectQuery(const std::string& table_name, const OptionalIndexFilter& select_fields,
+        const OptionalIndexFilter& where_fields = {}, bool sequential_binding_indices = false)
     {
         QueryBuilder<Struct> builder;
 
@@ -207,7 +208,14 @@ namespace sqlite
         {
             builder.AddWhere();
 
-            builder.AddFieldNames(where_fields, { FieldOption::Parametized }, MakeAndSeparator());
+            awl::bitmap<FieldOption> options = { FieldOption::Parametized };
+
+            if (sequential_binding_indices)
+            {
+                options |= FieldOption::SequentialBindingIndices;
+            }
+
+            builder.AddFieldNames(where_fields, options, MakeAndSeparator());
         }
 
         builder.AddTerminator();

@@ -80,7 +80,8 @@ namespace sqlite
 
         Statement MakeSelectStatement() const
         {
-            const std::string query = BuildParameterizedSelectQuery<Record>(tableName, {}, helpers::FindTransparentFieldIndices(idPtrs));
+            // Where clause with sequential indices.
+            const std::string query = BuildParameterizedSelectQuery<Record>(tableName, {}, helpers::FindTransparentFieldIndices(idPtrs), true);
 
             m_db->logger().debug(awl::format() << "'" << indexName << "' IndexInstantiator select query: " << query);
 
