@@ -214,6 +214,11 @@ namespace sqlite
 
             ColumnVisitor(TableBuilder& builder) : m_builder(builder) {}
 
+            bool ContainsColumn(size_t) const
+            {
+                return true;
+            }
+
             template <class FieldType>
             void AddColumn(const std::string& full_name, size_t field_index)
             {

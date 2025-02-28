@@ -74,12 +74,12 @@ namespace sqlite
             builder.p_filter = &filter;
             builder.options = std::move(options);
 
-            AddFieldNames(builder);
+            helpers::ForEachColumn<Struct>(builder);
         }
 
         void AddFieldNames(FieldListBuilder<Struct>& builder)
         {
-            helpers::ForEachFieldType<Struct>(builder);
+            helpers::ForEachColumn<Struct>(builder);
         }
 
         void AddText(const std::string_view& text)

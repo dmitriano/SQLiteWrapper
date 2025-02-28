@@ -28,33 +28,26 @@ namespace sqlite
             m_sep(std::move(sep))
         {}
 
-        void operator() (std::vector<std::string_view>& prefixes, size_t memberIndex, size_t fieldIndex, auto structTd, auto fieldId)
+        bool ContainsColumn(size_t field_index) const
         {
-            static_cast<void>(fieldId);
+            return !p_filter || !p_filter->has_value() || p_filter->value().contains(field_index);
+        }
 
-            if (!p_filter || !p_filter->has_value() || p_filter->value().contains(fieldIndex))
+        template <class FieldType>
+        void AddColumn(const std::string& full_name, size_t field_index)
+        {
+            out() << m_sep;
+
+            if (!table_name.empty())
             {
-                using StructType = typename decltype(structTd)::Type;
+                out() << table_name << ".";
+            }
 
-                const auto& member_names = StructType::get_member_names();
+            out() << full_name;
 
-                const std::string& member_name = member_names[memberIndex];
-
-                std::string full_name = helpers::MakeFullFieldName(prefixes, member_name);
-
-                out() << m_sep;
-
-                if (!table_name.empty())
-                {
-                    out() << table_name << ".";
-                }
-
-                out() << full_name;
-
-                if (options[FieldOption::Parametized])
-                {
-                    out() << "=?" << static_cast<size_t>(fieldIndex + 1);
-                }
+            if (options[FieldOption::Parametized])
+            {
+                out() << "=?" << static_cast<size_t>(field_index + 1);
             }
         }
 

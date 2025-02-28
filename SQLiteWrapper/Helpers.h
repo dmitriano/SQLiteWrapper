@@ -350,12 +350,12 @@ namespace sqlite::helpers
     }
 
     template <class Struct, class ColumnVisitor>
-    void ForEachColumn(ColumnVisitor& visitor, const OptionalIndexFilter& filter = {})
+    void ForEachColumn(ColumnVisitor& visitor)
     {
         //memberNames capture parameter makes lambdas different.
-        ForEachFieldType<Struct>([&visitor, &filter](std::vector<std::string_view>& prefixes, size_t memberIndex, size_t fieldIndex, auto structTd, auto fieldTd)
+        ForEachFieldType<Struct>([&visitor](std::vector<std::string_view>& prefixes, size_t memberIndex, size_t fieldIndex, auto structTd, auto fieldTd)
             {
-                if (!filter || filter->contains(fieldIndex))
+                if (visitor.ContainsColumn(fieldIndex))
                 {
                     using StructType = typename decltype(structTd)::Type;
 
