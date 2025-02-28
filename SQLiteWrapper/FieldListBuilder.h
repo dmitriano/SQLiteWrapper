@@ -30,7 +30,7 @@ namespace sqlite
 
         bool ContainsColumn(size_t field_index) const
         {
-            return !p_filter || !p_filter->has_value() || p_filter->value().contains(field_index);
+            return !filter || filter->contains(field_index);
         }
 
         template <class FieldType>
@@ -51,11 +51,24 @@ namespace sqlite
             }
         }
 
+        void SetFilter(const OptionalIndexFilter& optional_filter)
+        {
+            if (optional_filter)
+            {
+                filter = &(*optional_filter);
+            }
+            else
+            {
+                filter = nullptr;
+            }
+        }
+
         std::string table_name;
-        const OptionalIndexFilter* p_filter;
         awl::bitmap<FieldOption> options;
 
     private:
+
+        const IndexFilter* filter = nullptr;
 
         std::ostringstream& out()
         {
