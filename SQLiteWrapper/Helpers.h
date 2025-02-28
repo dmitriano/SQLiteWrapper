@@ -350,27 +350,30 @@ namespace sqlite::helpers
     }
 
     template <class Struct, class ColumnVisitor>
-    void ForEachColumn(ColumnVisitor& visitor)
+    void ForEachColumn(ColumnVisitor& visitor, const OptionalIndexFilter& filter = {})
     {
         //memberNames capture parameter makes lambdas different.
-        ForEachFieldType<Struct>([&visitor](std::vector<std::string_view>& prefixes, size_t memberIndex, size_t fieldIndex, auto structTd, auto fieldTd)
+        ForEachFieldType<Struct>([&visitor, &filter](std::vector<std::string_view>& prefixes, size_t memberIndex, size_t fieldIndex, auto structTd, auto fieldTd)
             {
-                using StructType = typename decltype(structTd)::Type;
-
-                using FieldType = typename decltype(fieldTd)::Type;
-
-                const auto& member_names = StructType::get_member_names();
-
-                const std::string& member_name = member_names[memberIndex];
-
-                if (prefixes.empty() && awl::CStringInsensitiveEqual<char>()(member_name.c_str(), rowIdFieldName))
+                if (!filter || filter->contains(fieldIndex))
                 {
-                    throw SQLiteException(0, "A field with name ROWID is not allowed.");
+                    using StructType = typename decltype(structTd)::Type;
+
+                    using FieldType = typename decltype(fieldTd)::Type;
+
+                    const auto& member_names = StructType::get_member_names();
+
+                    const std::string& member_name = member_names[memberIndex];
+
+                    if (prefixes.empty() && awl::CStringInsensitiveEqual<char>()(member_name.c_str(), rowIdFieldName))
+                    {
+                        throw SQLiteException(0, "A field with name ROWID is not allowed.");
+                    }
+
+                    std::string full_name = helpers::MakeFullFieldName(prefixes, member_name);
+
+                    visitor.template AddColumn<FieldType>(full_name, fieldIndex);
                 }
-
-                std::string full_name = helpers::MakeFullFieldName(prefixes, member_name);
-
-                visitor.template AddColumn<FieldType>(full_name, fieldIndex);
             });
     }
 }
