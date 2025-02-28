@@ -5,6 +5,7 @@
 #include "SQLiteWrapper/Types.h"
 #include "SQLiteWrapper/Exception.h"
 #include "SQLiteWrapper/Element.h"
+#include "SQLiteWrapper/Statement.h"
 
 #include "Awl/StringFormat.h"
 #include "Awl/Observable.h"
@@ -38,31 +39,6 @@ namespace sqlite
             Close();
         }
 
-        void Open(const char * fileName)
-        {
-            const int rc = sqlite3_open(fileName, &m_db);
-
-            if (rc != SQLITE_OK)
-            {
-                RaiseError(m_db, rc, awl::aformat() << "Can't open database '" << fileName << "'");
-            }
-
-            Notify(&Element::Create);
-        }
-
-        void Close()
-        {
-            if (m_db != nullptr)
-            {
-                sqlite3_close(m_db);
-            }
-        }
-
-        void Clear()
-        {
-            Notify(&Element::Delete);
-        }
-
         Database(const Database&) = delete;
 
         Database& operator = (const Database&) = delete;
@@ -79,6 +55,15 @@ namespace sqlite
             m_db = other.m_db;
             other.m_db = nullptr;
             return *this;
+        }
+
+        void Open(const char* fileName);
+
+        void Close();
+
+        void Clear()
+        {
+            Notify(&Element::Delete);
         }
 
         void Begin()
@@ -251,6 +236,9 @@ namespace sqlite
 
         std::size_t m_transactionLevel = 0u;
 
-        friend class Statement;
+        Statement tableExistsStatement;
+        Statement indexExistsStatement;
+
+        friend Statement;
     };
 }

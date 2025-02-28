@@ -1,5 +1,4 @@
 #include "SQLiteWrapper/Database.h"
-#include "SQLiteWrapper/Statement.h"
 #include "SQLiteWrapper/Bind.h"
 #include "SQLiteWrapper/Get.h"
 
@@ -16,6 +15,30 @@ namespace sqlite
 }
 
 using namespace sqlite;
+
+void Database::Open(const char* fileName)
+{
+    const int rc = sqlite3_open(fileName, &m_db);
+
+    if (rc != SQLITE_OK)
+    {
+        RaiseError(m_db, rc, awl::aformat() << "Can't open database '" << fileName << "'");
+    }
+
+    tableExistsStatement.Open(*this, "SELECT count(*) FROM sqlite_master WHERE type='table' AND name=?;");
+
+    indexExistsStatement.Open(*this, "SELECT count(*) FROM sqlite_master WHERE type='index' AND name=?;");
+
+    Notify(&Element::Create);
+}
+
+void Database::Close()
+{
+    if (m_db != nullptr)
+    {
+        sqlite3_close(m_db);
+    }
+}
 
 void Database::Exec(const char * query)
 {
@@ -36,9 +59,10 @@ bool Database::TableExists(const char * name)
 {
     int exists;
 
-    Statement rs(*this, "SELECT count(*) FROM sqlite_master WHERE type='table' AND name=?;");
-    Bind(rs, 0, name);
-    SelectScalar(rs, exists);
+    Bind(tableExistsStatement, 0, name);
+    SelectScalar(tableExistsStatement, exists);
+    tableExistsStatement.ClearBindings();
+    tableExistsStatement.Reset();
 
     return exists != 0;
 }
@@ -63,9 +87,10 @@ bool Database::IndexExists(const char * name)
 {
     int exists;
 
-    Statement rs(*this, "SELECT count(*) FROM sqlite_master WHERE type='index' AND name=?;");
-    Bind(rs, 0, name);
-    SelectScalar(rs, exists);
+    Bind(indexExistsStatement, 0, name);
+    SelectScalar(indexExistsStatement, exists);
+    indexExistsStatement.ClearBindings();
+    indexExistsStatement.Reset();
 
     return exists != 0;
 }
