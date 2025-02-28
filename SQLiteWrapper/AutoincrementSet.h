@@ -1,21 +1,20 @@
 #pragma once
 
-#include "SQLiteWrapper/SetStorage.h"
+#include "SQLiteWrapper/Set.h"
 
 #include <type_traits>
 
 namespace sqlite
 {
     template <class Value, class Int> requires std::is_integral_v<Int>
-    class AutoincrementSet : private awl::Observer<Element>
+    class AutoincrementSet
     {
     public:
 
         AutoincrementSet(const std::shared_ptr<Database>& db, std::string table_name, Int Value::* id_ptr) :
             m_storage(db, std::move(table_name), std::make_tuple(id_ptr))
         {
-            // Move the observer.
-            static_cast<awl::Observer<Element>&>(*this) = std::move(static_cast<awl::Observer<Element>&>(m_storage));
+            insertWithoutIdStatement = m_storage.MakeStatement("autoinsert", BuildParameterizedInsertQuery<Value>(m_storage.tableName, m_storage.MakeValueFilter()));
         }
 
         AutoincrementSet(const AutoincrementSet&) = delete;
@@ -24,28 +23,11 @@ namespace sqlite
         AutoincrementSet& operator = (const AutoincrementSet&) = delete;
         AutoincrementSet& operator = (AutoincrementSet&&) = default;
 
-        void Create() override
-        {
-            m_storage.Create();
-        }
-
-        void Open() override
-        {
-            m_storage.Open();
-
-            insertWithoutIdStatement = Statement(*m_storage.m_db, BuildParameterizedInsertQuery<Value>(m_storage.tableName, m_storage.MakeValueFilter()));
-        }
-
-        void Close() override
+        void Close()
         {
             m_storage.Close();
 
             insertWithoutIdStatement.Close();
-        }
-
-        void Delete() override
-        {
-            m_storage.Delete();
         }
 
         Iterator<Value> begin()
@@ -143,7 +125,7 @@ namespace sqlite
             val.*id_ptr = static_cast<Int>(m_storage.m_db->GetLastRowId());
         }
 
-        SetStorage<Value, Int> m_storage;
+        Set<Value, Int> m_storage;
 
         Statement insertWithoutIdStatement;
     };

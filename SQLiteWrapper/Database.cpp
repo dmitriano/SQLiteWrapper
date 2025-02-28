@@ -69,3 +69,19 @@ bool Database::IndexExists(const char * name)
 
     return exists != 0;
 }
+
+void Database::DropIndex(const char* name, bool exists)
+{
+    std::ostringstream out;
+
+    out << "DROP INDEX";
+
+    if (!exists)
+    {
+        out << " IF EXISTS";
+    }
+
+    out << " " << name << ";";
+
+    Exec(out.str());
+}

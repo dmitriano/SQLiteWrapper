@@ -58,7 +58,7 @@ namespace sqlite
     private:
 
         // The vector should not be sorted.
-        // The elements should stay in the order we added them in, see SetStorage::BindKey.
+        // The elements should stay in the order we added them in, see Set::BindKey.
         std::vector<size_t> m_v;
     };
 }

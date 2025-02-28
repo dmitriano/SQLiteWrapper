@@ -1,8 +1,10 @@
-#include "DbContainer.h"
+#include "Tests/DbContainer.h"
+#include "Tests/TableHelper.h"
+
 #include "SQLiteWrapper/Bind.h"
 #include "SQLiteWrapper/Get.h"
 #include "SQLiteWrapper/QueryBuilder.h"
-#include "SQLiteWrapper/SetStorage.h"
+#include "SQLiteWrapper/Set.h"
 
 #include "Awl/IntRange.h"
 
@@ -42,9 +44,7 @@ AWL_TEST(Blob)
     
     DbContainer c(context);
 
-    sqlite::SetStorage set(c.m_db, table_name, std::make_tuple(&Bot::id));
-    set.Create();
-    set.Open();
+    auto set = MakeSet(c.m_db, table_name, std::make_tuple(&Bot::id));
 
     for (const Bot& bot : bots)
     {

@@ -56,28 +56,9 @@ namespace sqlite
         
         void AddColumns()
         {
-            //memberNames capture parameter makes lambdas different.
-            helpers::ForEachFieldType<Struct>([this](std::vector<std::string_view>& prefixes, size_t memberIndex, size_t fieldIndex, auto structTd, auto fieldTd)
-            {
-                using StructType = typename decltype(structTd)::Type;
-                
-                using FieldType = typename decltype(fieldTd)::Type;
-
-                const auto & member_names = StructType::get_member_names();
-
-                const std::string& member_name = member_names[memberIndex];
-
-                if (prefixes.empty() && awl::CStringInsensitiveEqual<char>()(member_name.c_str(), rowIdFieldName))
-                {
-                    throw SQLiteException(0, "A field with name ROWID is not allowed.");
-                }
-
-                std::string full_name = helpers::MakeFullFieldName(prefixes, member_name);
-
-                const std::string& constraint = m_columnConstraints[fieldIndex];
-
-                AddColumn<FieldType>(full_name, constraint);
-            });
+            ColumnVisitor visitor(*this);
+            
+            helpers::ForEachColumn<Struct>(visitor);
         }
 
         void AddLine(const std::string & line)
@@ -88,7 +69,7 @@ namespace sqlite
         }
         
         template <class FieldType>
-        void AddColumn(const std::string & name, const std::string & constraint)
+        void AddColumn(const std::string & name, const std::string& constraint)
         {
             AddLineSearator();
 
@@ -226,6 +207,32 @@ namespace sqlite
         }
 
     private:
+
+        class ColumnVisitor
+        {
+        public:
+
+            ColumnVisitor(TableBuilder& builder) : m_builder(builder) {}
+
+            bool ContainsColumn(size_t) const
+            {
+                return true;
+            }
+
+            template <class FieldType>
+            void AddColumn(const std::string& full_name, size_t field_index)
+            {
+                const std::string& constraint = m_builder.m_columnConstraints[field_index];
+
+                m_builder.AddColumn<FieldType>(full_name, constraint);
+            }
+
+        private:
+
+            TableBuilder& m_builder;
+        };
+
+        friend ColumnVisitor;
 
         void AddLineSearator()
         {

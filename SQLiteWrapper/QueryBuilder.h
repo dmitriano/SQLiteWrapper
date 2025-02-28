@@ -19,7 +19,7 @@ namespace sqlite
         {
             FieldListBuilder<Struct> builder = MakeFieldBuilder();
 
-            builder.p_filter = &filter;
+            builder.SetFilter(filter);
 
             StartSelect(table_name, builder);
         }
@@ -71,15 +71,15 @@ namespace sqlite
         {
             FieldListBuilder<Struct> builder = MakeFieldBuilder(std::move(sep));
 
-            builder.p_filter = &filter;
+            builder.SetFilter(filter);
             builder.options = std::move(options);
 
-            AddFieldNames(builder);
+            helpers::ForEachColumn<Struct>(builder);
         }
 
         void AddFieldNames(FieldListBuilder<Struct>& builder)
         {
-            helpers::ForEachFieldType<Struct>(builder);
+            helpers::ForEachColumn<Struct>(builder);
         }
 
         void AddText(const std::string_view& text)
@@ -179,16 +179,6 @@ namespace sqlite
             return m_out.str();
         }
 
-        static awl::aseparator MakeCommaSeparator()
-        {
-            return awl::aseparator(',');
-        }
-
-        static awl::aseparator MakeAndSeparator()
-        {
-            return awl::aseparator(" AND ");
-        }
-
     private:
 
         std::ostringstream m_out;
@@ -217,7 +207,7 @@ namespace sqlite
         {
             builder.AddWhere();
 
-            builder.AddFieldNames(where_fields, { FieldOption::Parametized }, builder.MakeAndSeparator());
+            builder.AddFieldNames(where_fields, { FieldOption::Parametized }, MakeAndSeparator());
         }
 
         builder.AddTerminator();
@@ -236,7 +226,7 @@ namespace sqlite
         {
             FieldListBuilder<RightStruct> field_builder = builder.MakeFieldBuilder();
 
-            field_builder.p_filter = &right_filter;
+            field_builder.SetFilter(right_filter);
             field_builder.table_name = right_table_name;
 
             builder.StartSelect(left_table_name, field_builder);
@@ -292,7 +282,7 @@ namespace sqlite
         {
             builder.AddWhere();
 
-            builder.AddFieldNames(where_fields, { FieldOption::Parametized }, builder.MakeAndSeparator());
+            builder.AddFieldNames(where_fields, { FieldOption::Parametized }, MakeAndSeparator());
         }
 
         builder.AddTerminator();
@@ -309,7 +299,7 @@ namespace sqlite
 
         builder.AddWhere();
 
-        builder.AddFieldNames(where_fields, { FieldOption::Parametized }, builder.MakeAndSeparator());
+        builder.AddFieldNames(where_fields, { FieldOption::Parametized }, MakeAndSeparator());
 
         builder.AddTerminator();
 

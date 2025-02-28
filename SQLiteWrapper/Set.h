@@ -11,8 +11,6 @@
 #include "SQLiteWrapper/Get.h"
 #include "SQLiteWrapper/Updater.h"
 #include "SQLiteWrapper/Iterator.h"
-#include "SQLiteWrapper/Element.h"
-#include "SQLiteWrapper/TableVisitor.h"
 
 #include <deque>
 #include <limits>
@@ -23,7 +21,7 @@
 namespace sqlite
 {
     template <class Value, class... Keys>
-    class SetStorage : private awl::Observer<Element>
+    class Set
     {
     private:
 
@@ -33,39 +31,11 @@ namespace sqlite
 
     public:
 
-        SetStorage(const std::shared_ptr<Database>& db, std::string table_name, PtrTuple id_ptrs) :
+        Set(const std::shared_ptr<Database>& db, std::string table_name, PtrTuple id_ptrs) :
             m_db(db),
             tableName(std::move(table_name)),
-            idPtrs(id_ptrs),
+            idPtrs(std::move(id_ptrs)),
             idIndices(FindKeyIndices())
-        {
-            m_db->Subscribe(this);
-        }
-
-        SetStorage(const SetStorage&) = delete;
-        SetStorage(SetStorage&&) = default;
-        
-        SetStorage& operator = (const SetStorage&) = delete;
-        SetStorage& operator = (SetStorage&&) = default;
-
-        void Create() override
-        {
-            if (!m_db->TableExists(tableName))
-            {
-                TableBuilder<Record> builder(tableName);
-
-                builder.SetPrimaryKeyTuple(idPtrs);
-
-                // TableVisitor adds constraints like REFERENCES, NULL, UNIQUE, etc...
-                TableVisitor<Record> visitor;
-
-                visitor(builder);
-
-                m_db->Exec(builder.Create());
-            }
-        }
-
-        void Open() override
         {
             insertStatement = Statement(*m_db, BuildParameterizedInsertQuery<Record>(tableName));
 
@@ -74,28 +44,29 @@ namespace sqlite
             // A table containins only key columns can't be updated.
             if (!value_filter.empty())
             {
-                updateStatement = Statement(*m_db, BuildParameterizedUpdateQuery<Record>(tableName, std::move(value_filter), idIndices));
+                updateStatement = MakeStatement("update", BuildParameterizedUpdateQuery<Record>(tableName, std::move(value_filter), idIndices));
 
-                selectStatement = Statement(*m_db, BuildParameterizedSelectQuery<Record>(tableName, {}, idIndices));
+                selectStatement = MakeStatement("select", BuildParameterizedSelectQuery<Record>(tableName, {}, idIndices));
             }
 
-            deleteStatement = Statement(*m_db, BuildParameterizedDeleteQuery<Record>(tableName, idIndices));
+            deleteStatement = MakeStatement("delete", BuildParameterizedDeleteQuery<Record>(tableName, idIndices));
 
-            iterateStatement = Statement(*m_db, BuildTrivialSelectQuery<Value>(tableName));
+            iterateStatement = MakeStatement("iterate", BuildTrivialSelectQuery<Value>(tableName));
         }
 
-        void Close() override
+        Set(const Set&) = delete;
+        Set(Set&&) = default;
+        
+        Set& operator = (const Set&) = delete;
+        Set& operator = (Set&&) = default;
+
+        void Close()
         {
             insertStatement.Close();
             updateStatement.Close();
             selectStatement.Close();
             deleteStatement.Close();
             iterateStatement.Close();
-        }
-
-        void Delete() override
-        {
-            m_db->DropTable(tableName);
         }
 
         Iterator<Value> begin()
@@ -150,7 +121,7 @@ namespace sqlite
         {
             IndexFilter value_filter = helpers::FindTransparentFieldIndices(field_ptrs);
 
-            Statement stmt(*m_db, BuildParameterizedUpdateQuery<Record>(tableName, value_filter, idIndices));
+            Statement stmt = MakeStatement("update", BuildParameterizedUpdateQuery<Record>(tableName, value_filter, idIndices));
 
             return Updater<Record>(*m_db, std::move(stmt), idIndices, value_filter);
         }
@@ -256,11 +227,20 @@ namespace sqlite
             return exists;
         }
 
+        Statement MakeStatement(const std::string log_prefix, const std::string& query) const
+        {
+            m_db->logger().debug(awl::format() << "Set " << log_prefix << ": " << query);
+
+            return Statement(*m_db, query);
+        };
+
         std::shared_ptr<Database> m_db;
 
+        // Used by CreateUpdater
         const std::string tableName;
 
         const PtrTuple idPtrs;
+
         const IndexFilter idIndices;
 
         Statement insertStatement;

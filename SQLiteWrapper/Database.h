@@ -9,6 +9,7 @@
 #include "Awl/StringFormat.h"
 #include "Awl/Observable.h"
 #include "Awl/ScopeGuard.h"
+#include "Awl/Logger.h"
 
 #define SQL_QUERY(src) #src
 
@@ -25,9 +26,9 @@ namespace sqlite
     {
     public:
         
-        Database() = default;
+        Database(awl::Logger& logger) : m_logger(logger) {}
         
-        Database(const char * fileName)
+        Database(const char * fileName, awl::Logger& logger) : Database(logger)
         {
             Open(fileName);
         }
@@ -47,22 +48,14 @@ namespace sqlite
             }
 
             Notify(&Element::Create);
-            Prepare();
         }
 
         void Close()
         {
             if (m_db != nullptr)
             {
-                Notify(&Element::Close);
-
                 sqlite3_close(m_db);
             }
-        }
-
-        void Prepare()
-        {
-            Notify(&Element::Open);
         }
 
         void Clear()
@@ -74,7 +67,9 @@ namespace sqlite
 
         Database& operator = (const Database&) = delete;
 
-        Database(Database&& other) : m_db(std::move(other.m_db))
+        Database(Database&& other) :
+            m_logger(other.m_logger),
+            m_db(std::move(other.m_db))
         {
             other.m_db = nullptr;
         }
@@ -205,6 +200,13 @@ namespace sqlite
             return IndexExists(name.c_str());
         }
 
+        void DropIndex(const char* name, bool exists = false);
+
+        void DropIndex(const std::string& name, bool exists = false)
+        {
+            DropIndex(name.c_str(), exists);
+        }
+
         void CreateFunction(const char* zFunc, int nArg, void (*xSFunc)(sqlite3_context*, int, sqlite3_value**))
         {
             const int rc = sqlite3_create_function(m_db, zFunc, nArg, SQLITE_UTF8, NULL, xSFunc, NULL, NULL);
@@ -236,7 +238,14 @@ namespace sqlite
             return sqlite3_last_insert_rowid(m_db);
         }
 
+        awl::Logger& logger()
+        {
+            return m_logger;
+        }
+
     private:
+
+        std::reference_wrapper<awl::Logger> m_logger;
 
         sqlite3 * m_db = nullptr;
 

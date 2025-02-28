@@ -1,4 +1,6 @@
 #include "DbContainer.h"
+#include "Tests/TableHelper.h"
+
 #include "SQLiteWrapper/Bind.h"
 #include "SQLiteWrapper/Get.h"
 #include "SQLiteWrapper/QueryBuilder.h"
@@ -101,9 +103,7 @@ AWL_TEST(RowIdSet)
     
     DbContainer c(context);
 
-    sqlite::AutoincrementSet set(c.m_db, table_name, &Bot::botId);
-    set.Create();
-    set.Open();
+    auto set = MakeAutoincrementSet(c.m_db, table_name, &Bot::botId);
 
     for (Bot& bot : bots)
     {
