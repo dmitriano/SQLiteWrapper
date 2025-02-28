@@ -2,7 +2,6 @@
 #include "ExchangeModel.h"
 #include "SQLiteWrapper/AutoincrementTableInstantiator.h"
 #include "SQLiteWrapper/IndexInstantiator.h"
-#include "SQLiteWrapper/Set.h"
 
 using namespace swtest;
 using namespace exchange::data;
