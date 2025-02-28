@@ -349,7 +349,6 @@ namespace sqlite::helpers
         return out.str();
     }
 
-    
     template <class Struct, class ColumnVisitor>
     void ForEachColumn(ColumnVisitor& visitor)
     {
