@@ -22,11 +22,12 @@ namespace sqlite
 
     public:
 
-        IndexInstantiator(const std::shared_ptr<Database>& db, std::string table_name, std::string index_name, PtrTuple id_ptrs) :
+        IndexInstantiator(const std::shared_ptr<Database>& db, std::string table_name, std::string index_name, PtrTuple id_ptrs, bool unique = false) :
             m_db(db),
             tableName(std::move(table_name)),
             indexName(std::move(index_name)),
-            idPtrs(id_ptrs)
+            idPtrs(id_ptrs),
+            m_unique(unique)
         {
             m_db->Subscribe(this);
         }
@@ -37,7 +38,14 @@ namespace sqlite
             {
                 std::ostringstream out;
 
-                out << "CREATE INDEX '" << indexName << "' ON '" << tableName << "' (";
+                out << "CREATE ";
+                
+                if (m_unique)
+                {
+                    out << "UNIQUE ";
+                }
+
+                out << "INDEX '" << indexName << "' ON '" << tableName << "' (";
 
                 {
                     FieldListBuilder<Record> field_builder(out, MakeCommaSeparator());
@@ -69,9 +77,12 @@ namespace sqlite
     private:
 
         std::shared_ptr<Database> m_db;
-        const PtrTuple idPtrs;
 
         const std::string tableName;
         const std::string indexName;
+
+        const PtrTuple idPtrs;
+
+        const bool m_unique;
     };
 }

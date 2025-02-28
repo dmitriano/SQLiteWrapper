@@ -7,6 +7,7 @@
 #include "Awl/StringFormat.h"
 
 #include <memory>
+#include <functional>
 
 namespace sqlite
 {
@@ -21,10 +22,13 @@ namespace sqlite
 
     public:
 
-        TableInstantiator(const std::shared_ptr<Database>& db, std::string table_name, PtrTuple id_ptrs) :
+        TableInstantiator(const std::shared_ptr<Database>& db, std::string table_name, PtrTuple id_ptrs,
+            std::function<void(TableBuilder<Record>&)> add_constraints = {})
+        :
             m_db(db),
             tableName(std::move(table_name)),
-            idPtrs(id_ptrs)
+            idPtrs(id_ptrs),
+            addConstraints(std::move(add_constraints))
         {
             m_db->Subscribe(this);
         }
@@ -37,7 +41,11 @@ namespace sqlite
 
                 builder.SetPrimaryKeyTuple(idPtrs);
 
-                AddConstraints(builder);
+                if (addConstraints)
+                {
+                    // Adds constraints like REFERENCES, NULL, UNIQUE, etc...
+                    addConstraints(builder);
+                }
 
                 const std::string query = builder.Create();
 
@@ -56,17 +64,14 @@ namespace sqlite
             m_db->DropTable(tableName);
         }
 
-        // Adds constraints like REFERENCES, NULL, UNIQUE, etc...
-        virtual void AddConstraints(TableBuilder<Record>& builder)
-        {
-            static_cast<void>(builder);
-        }
-
     private:
 
         std::shared_ptr<Database> m_db;
-        const PtrTuple idPtrs;
 
         const std::string tableName;
+
+        const PtrTuple idPtrs;
+
+        std::function<void(TableBuilder<Record>&)> addConstraints;
     };
 }
