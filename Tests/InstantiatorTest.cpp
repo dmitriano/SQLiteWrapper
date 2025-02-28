@@ -23,7 +23,8 @@ AWL_TEST(InstantiatorIndex)
 
     index_instantiator.Create();
 
-    auto order_set = index_instantiator.MakeSet();
+    // Index is not unique so it can't crate a set.
+    // auto order_set = index_instantiator.MakeSet();
 }
 
 namespace
