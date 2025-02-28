@@ -37,7 +37,7 @@ namespace sqlite
             idPtrs(std::move(id_ptrs)),
             idIndices(FindKeyIndices())
         {
-            insertStatement = Statement(*m_db, BuildParameterizedInsertQuery<Record>(tableName));
+            insertStatement = MakeStatement("insert",  BuildParameterizedInsertQuery<Record>(tableName));
 
             IndexFilter value_filter = MakeValueFilter();
 
