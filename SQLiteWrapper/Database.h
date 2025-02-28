@@ -200,6 +200,13 @@ namespace sqlite
             return IndexExists(name.c_str());
         }
 
+        void DropIndex(const char* name, bool exists = false);
+
+        void DropIndex(const std::string& name, bool exists = false)
+        {
+            DropIndex(name.c_str(), exists);
+        }
+
         void CreateFunction(const char* zFunc, int nArg, void (*xSFunc)(sqlite3_context*, int, sqlite3_value**))
         {
             const int rc = sqlite3_create_function(m_db, zFunc, nArg, SQLITE_UTF8, NULL, xSFunc, NULL, NULL);

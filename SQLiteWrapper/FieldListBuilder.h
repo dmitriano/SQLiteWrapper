@@ -17,6 +17,16 @@ AWL_ENUM_TRAITS(sqlite, FieldOption)
 
 namespace sqlite
 {
+    inline awl::aseparator MakeCommaSeparator()
+    {
+        return awl::aseparator(',');
+    }
+
+    inline awl::aseparator MakeAndSeparator()
+    {
+        return awl::aseparator(" AND ");
+    }
+
     //TODO: It can build a vector of transparent filed names in the constructor.
     template <class Struct>
     class FieldListBuilder
@@ -51,16 +61,9 @@ namespace sqlite
             }
         }
 
-        void SetFilter(const OptionalIndexFilter& optional_filter)
+        void SetFilter(OptionalIndexFilter optional_filter)
         {
-            if (optional_filter)
-            {
-                filter = &(*optional_filter);
-            }
-            else
-            {
-                filter = nullptr;
-            }
+            filter = std::move(optional_filter);
         }
 
         std::string table_name;
@@ -68,7 +71,7 @@ namespace sqlite
 
     private:
 
-        const IndexFilter* filter = nullptr;
+        OptionalIndexFilter filter;
 
         std::ostringstream& out()
         {

@@ -179,16 +179,6 @@ namespace sqlite
             return m_out.str();
         }
 
-        static awl::aseparator MakeCommaSeparator()
-        {
-            return awl::aseparator(',');
-        }
-
-        static awl::aseparator MakeAndSeparator()
-        {
-            return awl::aseparator(" AND ");
-        }
-
     private:
 
         std::ostringstream m_out;
@@ -217,7 +207,7 @@ namespace sqlite
         {
             builder.AddWhere();
 
-            builder.AddFieldNames(where_fields, { FieldOption::Parametized }, builder.MakeAndSeparator());
+            builder.AddFieldNames(where_fields, { FieldOption::Parametized }, MakeAndSeparator());
         }
 
         builder.AddTerminator();
@@ -292,7 +282,7 @@ namespace sqlite
         {
             builder.AddWhere();
 
-            builder.AddFieldNames(where_fields, { FieldOption::Parametized }, builder.MakeAndSeparator());
+            builder.AddFieldNames(where_fields, { FieldOption::Parametized }, MakeAndSeparator());
         }
 
         builder.AddTerminator();
@@ -309,7 +299,7 @@ namespace sqlite
 
         builder.AddWhere();
 
-        builder.AddFieldNames(where_fields, { FieldOption::Parametized }, builder.MakeAndSeparator());
+        builder.AddFieldNames(where_fields, { FieldOption::Parametized }, MakeAndSeparator());
 
         builder.AddTerminator();
 

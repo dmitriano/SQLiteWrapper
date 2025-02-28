@@ -187,4 +187,39 @@ namespace exchange::data
 
         AWL_MEMBERWISE_EQUATABLE(Order)
     }
+
+    namespace v4
+    {
+        AWL_SEQUENTIAL_ENUM(AccountType, Spot, CrossMargin, IsolatedMargin)
+            
+        struct Order
+        {
+            int64_t clientId;
+
+            QString exchangeId;
+            QString marketId;
+            OrderId id;
+            int64_t listId;
+            QString clientGuid;
+
+            AccountType accountType;
+
+            OrderSide side;
+            OrderType type;
+            OrderStatus status;
+
+            Decimal price;
+            Decimal stopPrice;
+            Decimal amount;
+            Decimal filled;
+            Decimal cost;
+            Decimal reserved;
+
+            TimePoint createTime;
+            TimePoint updateTime;
+
+            AWL_REFLECT(clientId, exchangeId, marketId, id, accountType, listId, clientGuid, side, type, status, price, stopPrice,
+                amount, filled, cost, createTime, updateTime)
+        };
+    }
 }

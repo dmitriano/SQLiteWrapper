@@ -1,7 +1,8 @@
 #pragma once
 
 #include "SQLiteWrapper/Database.h"
-#include "SQLiteWrapper/TableBuilder.h"
+#include "SQLiteWrapper/FieldListBuilder.h"
+#include "SQLiteWrapper/Helpers.h"
 #include "SQLiteWrapper/Element.h"
 
 #include "Awl/StringFormat.h"
@@ -21,9 +22,10 @@ namespace sqlite
 
     public:
 
-        IndexInstantiator(const std::shared_ptr<Database>& db, std::string table_name, PtrTuple id_ptrs) :
+        IndexInstantiator(const std::shared_ptr<Database>& db, std::string table_name, std::string index_name, PtrTuple id_ptrs) :
             m_db(db),
             tableName(std::move(table_name)),
+            indexName(std::move(index_name)),
             idPtrs(id_ptrs)
         {
             m_db->Subscribe(this);
@@ -31,29 +33,37 @@ namespace sqlite
 
         void Create() override
         {
-            if (!m_db->TableExists(tableName))
+            if (!m_db->IndexExists(indexName))
             {
-                TableBuilder<Record> builder(tableName);
+                std::ostringstream out;
 
-                builder.SetPrimaryKeyTuple(idPtrs);
+                out << "CREATE INDEX '" << indexName << "' ON '" << tableName << "' (";
 
-                AddConstraints(builder);
+                {
+                    FieldListBuilder<Record> field_builder(out, MakeCommaSeparator());
 
-                const std::string query = builder.Create();
+                    field_builder.SetFilter(helpers::FindTransparentFieldIndices(idPtrs));
 
-                m_db->logger().debug(awl::format() << "Creating table '" << tableName << "': \n" << query);
+                    helpers::ForEachColumn<Record>(field_builder);
+                }
+                
+                out << ");";
+
+                const std::string query = out.str();
+
+                m_db->logger().debug(awl::format() << "Creating index '" << indexName << "': \n" << query);
 
                 m_db->Exec(query);
             }
             else
             {
-                m_db->logger().debug(awl::format() << "Table '" << tableName << "' already exists.");
+                m_db->logger().debug(awl::format() << "Index '" << indexName << "' already exists.");
             }
         }
 
         void Delete() override
         {
-            m_db->DropTable(tableName);
+            m_db->DropIndex(indexName);
         }
 
     private:
@@ -62,5 +72,6 @@ namespace sqlite
         const PtrTuple idPtrs;
 
         const std::string tableName;
+        const std::string indexName;
     };
 }
