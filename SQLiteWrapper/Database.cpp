@@ -26,8 +26,6 @@ void Database::Open(const char* fileName)
     }
 
     Notify(&Element::Create);
-
-    schemeValid = true;
 }
 
 void Database::Close()
@@ -57,6 +55,7 @@ bool Database::TableExists(const char * name)
 {
     int exists;
 
+    // Creating a table invaidates prepared statements.
     if (!tableExistsStatement.IsOpen())
     {
         tableExistsStatement.Open(*this, "SELECT count(*) FROM sqlite_master WHERE type='table' AND name=?;");
@@ -64,17 +63,8 @@ bool Database::TableExists(const char * name)
 
     Bind(tableExistsStatement, 0, name);
     SelectScalar(tableExistsStatement, exists);
-
-    // Creating a table invaidates prepared statements.
-    if (!schemeValid)
-    {
-        tableExistsStatement.Close();
-    }
-    else
-    {
-        tableExistsStatement.ClearBindings();
-        tableExistsStatement.Reset();
-    }
+    tableExistsStatement.ClearBindings();
+    tableExistsStatement.Reset();
 
     return exists != 0;
 }
@@ -108,16 +98,8 @@ bool Database::IndexExists(const char * name)
 
     Bind(indexExistsStatement, 0, name);
     SelectScalar(indexExistsStatement, exists);
-
-    if (!schemeValid)
-    {
-        indexExistsStatement.Close();
-    }
-    else
-    {
-        indexExistsStatement.ClearBindings();
-        indexExistsStatement.Reset();
-    }
+    indexExistsStatement.ClearBindings();
+    indexExistsStatement.Reset();
 
     return exists != 0;
 }
