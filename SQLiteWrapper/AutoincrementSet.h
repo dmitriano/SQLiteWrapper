@@ -13,20 +13,15 @@ namespace sqlite
 
         AutoincrementSet(const std::shared_ptr<Database>& db, std::string table_name, Int Value::* id_ptr) :
             m_storage(db, std::move(table_name), std::make_tuple(id_ptr))
-        {}
+        {
+            insertWithoutIdStatement = m_storage.MakeStatement("autoinsert", BuildParameterizedInsertQuery<Value>(m_storage.tableName, m_storage.MakeValueFilter()));
+        }
 
         AutoincrementSet(const AutoincrementSet&) = delete;
         AutoincrementSet(AutoincrementSet&&) = default;
 
         AutoincrementSet& operator = (const AutoincrementSet&) = delete;
         AutoincrementSet& operator = (AutoincrementSet&&) = default;
-
-        void Open()
-        {
-            m_storage.Open();
-
-            insertWithoutIdStatement = Statement(*m_storage.m_db, BuildParameterizedInsertQuery<Value>(m_storage.tableName, m_storage.MakeValueFilter()));
-        }
 
         void Close()
         {

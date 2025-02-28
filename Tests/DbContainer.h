@@ -25,13 +25,13 @@ namespace swtest
     {
     public:
 
-        DbContainer()
+        DbContainer(awl::Logger& logger)
         {
             RemoveFile();
-            m_db = std::make_shared<Database>(fileName);
+            m_db = std::make_shared<Database>(fileName, logger);
         }
 
-        DbContainer(const awl::testing::TestContext & context) : DbContainer()
+        DbContainer(const awl::testing::TestContext& context) : DbContainer(context.logger)
         {
             SetAttributes(context);
         }

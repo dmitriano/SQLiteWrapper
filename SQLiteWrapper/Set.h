@@ -44,14 +44,14 @@ namespace sqlite
             // A table containins only key columns can't be updated.
             if (!value_filter.empty())
             {
-                updateStatement = Statement(*m_db, BuildParameterizedUpdateQuery<Record>(tableName, std::move(value_filter), idIndices));
+                updateStatement = MakeStatement("update", BuildParameterizedUpdateQuery<Record>(tableName, std::move(value_filter), idIndices));
 
-                selectStatement = Statement(*m_db, BuildParameterizedSelectQuery<Record>(tableName, {}, idIndices));
+                selectStatement = MakeStatement("select", BuildParameterizedSelectQuery<Record>(tableName, {}, idIndices));
             }
 
-            deleteStatement = Statement(*m_db, BuildParameterizedDeleteQuery<Record>(tableName, idIndices));
+            deleteStatement = MakeStatement("delete", BuildParameterizedDeleteQuery<Record>(tableName, idIndices));
 
-            iterateStatement = Statement(*m_db, BuildTrivialSelectQuery<Value>(tableName));
+            iterateStatement = MakeStatement("iterate", BuildTrivialSelectQuery<Value>(tableName));
         }
 
         Set(const Set&) = delete;
@@ -121,7 +121,7 @@ namespace sqlite
         {
             IndexFilter value_filter = helpers::FindTransparentFieldIndices(field_ptrs);
 
-            Statement stmt(*m_db, BuildParameterizedUpdateQuery<Record>(tableName, value_filter, idIndices));
+            Statement stmt = MakeStatement("update", BuildParameterizedUpdateQuery<Record>(tableName, value_filter, idIndices));
 
             return Updater<Record>(*m_db, std::move(stmt), idIndices, value_filter);
         }
@@ -226,6 +226,13 @@ namespace sqlite
 
             return exists;
         }
+
+        Statement MakeStatement(const std::string log_prefix, const std::string& query) const
+        {
+            m_db->logger().debug(awl::format() << "Set " << log_prefix << ": " << query);
+
+            return Statement(*m_db, query);
+        };
 
         std::shared_ptr<Database> m_db;
 

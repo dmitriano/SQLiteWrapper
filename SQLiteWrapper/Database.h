@@ -9,6 +9,7 @@
 #include "Awl/StringFormat.h"
 #include "Awl/Observable.h"
 #include "Awl/ScopeGuard.h"
+#include "Awl/Logger.h"
 
 #define SQL_QUERY(src) #src
 
@@ -25,9 +26,9 @@ namespace sqlite
     {
     public:
         
-        Database() = default;
+        Database(awl::Logger& logger) : m_logger(logger) {}
         
-        Database(const char * fileName)
+        Database(const char * fileName, awl::Logger& logger) : Database(logger)
         {
             Open(fileName);
         }
@@ -66,7 +67,9 @@ namespace sqlite
 
         Database& operator = (const Database&) = delete;
 
-        Database(Database&& other) : m_db(std::move(other.m_db))
+        Database(Database&& other) :
+            m_logger(other.m_logger),
+            m_db(std::move(other.m_db))
         {
             other.m_db = nullptr;
         }
@@ -228,7 +231,14 @@ namespace sqlite
             return sqlite3_last_insert_rowid(m_db);
         }
 
+        awl::Logger& logger()
+        {
+            return m_logger;
+        }
+
     private:
+
+        std::reference_wrapper<awl::Logger> m_logger;
 
         sqlite3 * m_db = nullptr;
 

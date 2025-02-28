@@ -4,6 +4,8 @@
 #include "SQLiteWrapper/TableBuilder.h"
 #include "SQLiteWrapper/Element.h"
 
+#include "Awl/StringFormat.h"
+
 #include <memory>
 
 namespace sqlite
@@ -37,7 +39,15 @@ namespace sqlite
 
                 AddConstraints(builder);
 
-                m_db->Exec(builder.Create());
+                const std::string query = builder.Create();
+
+                m_db->logger().debug(awl::format() << "Creating table '" << tableName << "': \n" << query);
+
+                m_db->Exec(query);
+            }
+            else
+            {
+                m_db->logger().debug(awl::format() << "Table '" << tableName << "' already exists.");
             }
         }
 

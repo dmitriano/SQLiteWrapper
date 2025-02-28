@@ -191,7 +191,7 @@ namespace
     template <class User>
     void CreateTableRecursiveTest(const awl::testing::TestContext & context, const char * name, bool header)
     {
-        DbContainer c;
+        DbContainer c(context);
         Database & db = c.db();
 
         TableBuilder<User> builder(name, true);
@@ -219,7 +219,7 @@ AWL_TEST(DatabaseTest)
 {
     AWL_UNUSED_CONTEXT;
     
-    DbContainer c;
+    DbContainer c(context);
 
     c.FillDatabase();
 
@@ -236,7 +236,7 @@ AWL_TEST(SimpleQueryTest)
 {
     AWL_UNUSED_CONTEXT;
 
-    DbContainer c;
+    DbContainer c(context);
 
     c.FillDatabase();
 
@@ -258,7 +258,7 @@ AWL_TEST(WhereTest)
 {
     AWL_UNUSED_CONTEXT;
 
-    DbContainer c;
+    DbContainer c(context);
 
     c.FillDatabase();
 
@@ -305,7 +305,7 @@ AWL_TEST(WhereTest)
 
 AWL_TEST(CreateTableTestWithRowId)
 {
-    DbContainer c;
+    DbContainer c(context);
     Database & db = c.db();
 
     TableBuilder<DbaUser2> builder("DbaUser", true);
@@ -323,7 +323,7 @@ AWL_TEST(CreateTableTestWithRowId)
 
 AWL_TEST(CreateTableWithoutRowIdTest)
 {
-    DbContainer c;
+    DbContainer c(context);
     Database & db = c.db();
 
     TableBuilder<DbaUser> builder("DbaUser");
@@ -339,7 +339,7 @@ AWL_TEST(CreateTableWithoutRowIdTest)
 
 AWL_TEST(CreateTableWithMulticolumnPKTest)
 {
-    DbContainer c;
+    DbContainer c(context);
     Database & db = c.db();
 
     TableBuilder<DbaUser> builder("DbaUser");

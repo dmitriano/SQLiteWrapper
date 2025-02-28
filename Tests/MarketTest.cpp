@@ -263,7 +263,7 @@ AWL_TEST(Mars)
     AWL_ATTRIBUTE(awl::String, synchronous, _T("FULL"));
     AWL_ATTRIBUTE(awl::String, journal_mode, _T("DELETE"));
 
-    DbContainer c;
+    DbContainer c(context);
     Database & db = c.db();
 
     db.Exec(awl::aformat() << "PRAGMA synchronous = " << awl::ToAString(synchronous) << ";");

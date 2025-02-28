@@ -97,7 +97,7 @@ AWL_TEST(RowIdRaw)
     insert_statement.Exec();
 }
 
-AWL_UNSTABLE_TEST(RowIdSet)
+AWL_TEST(RowIdSet)
 {
     const std::string table_name = "bots";
     
