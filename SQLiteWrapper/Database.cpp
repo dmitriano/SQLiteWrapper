@@ -32,6 +32,9 @@ void Database::Close()
 {
     if (m_db != nullptr)
     {
+        // Close the statements.
+        InvalidateScheme();
+
         sqlite3_close(m_db);
     }
 }
