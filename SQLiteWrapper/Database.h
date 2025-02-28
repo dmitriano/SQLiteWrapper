@@ -228,6 +228,14 @@ namespace sqlite
             return m_logger;
         }
 
+        void InvalidateScheme()
+        {
+            schemeValid = false;
+
+            tableExistsStatement.Close();
+            indexExistsStatement.Close();
+        }
+
     private:
 
         std::reference_wrapper<awl::Logger> m_logger;
@@ -235,6 +243,8 @@ namespace sqlite
         sqlite3 * m_db = nullptr;
 
         std::size_t m_transactionLevel = 0u;
+
+        bool schemeValid = false;
 
         Statement tableExistsStatement;
         Statement indexExistsStatement;

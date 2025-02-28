@@ -53,6 +53,8 @@ namespace sqlite
                 m_db->logger().debug(awl::format() << "Creating table '" << tableName << "': \n" << query);
 
                 m_db->Exec(query);
+
+                m_db->InvalidateScheme();
             }
             else
             {

@@ -4,6 +4,8 @@
 #include "SQLiteWrapper/FieldListBuilder.h"
 #include "SQLiteWrapper/Helpers.h"
 #include "SQLiteWrapper/Element.h"
+#include "SQLiteWrapper/Statement.h"
+#include "SQLiteWrapper/QueryBuilder.h"
 
 #include "Awl/StringFormat.h"
 
@@ -62,6 +64,8 @@ namespace sqlite
                 m_db->logger().debug(awl::format() << "Creating index '" << indexName << "': \n" << query);
 
                 m_db->Exec(query);
+
+                m_db->InvalidateScheme();
             }
             else
             {
@@ -72,6 +76,15 @@ namespace sqlite
         void Delete() override
         {
             m_db->DropIndex(indexName);
+        }
+
+        Statement MakeSelectStatement() const
+        {
+            const std::string query = BuildParameterizedSelectQuery<Record>(tableName, {}, helpers::FindTransparentFieldIndices(idPtrs));
+
+            m_db->logger().debug(awl::format() << "'" << indexName << "' IndexInstantiator select query: " << query);
+
+            return Statement(*m_db, query);
         }
 
     private:

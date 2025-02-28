@@ -25,11 +25,9 @@ void Database::Open(const char* fileName)
         RaiseError(m_db, rc, awl::aformat() << "Can't open database '" << fileName << "'");
     }
 
-    tableExistsStatement.Open(*this, "SELECT count(*) FROM sqlite_master WHERE type='table' AND name=?;");
-
-    indexExistsStatement.Open(*this, "SELECT count(*) FROM sqlite_master WHERE type='index' AND name=?;");
-
     Notify(&Element::Create);
+
+    schemeValid = true;
 }
 
 void Database::Close()
@@ -59,10 +57,24 @@ bool Database::TableExists(const char * name)
 {
     int exists;
 
+    if (!tableExistsStatement.IsOpen())
+    {
+        tableExistsStatement.Open(*this, "SELECT count(*) FROM sqlite_master WHERE type='table' AND name=?;");
+    }
+
     Bind(tableExistsStatement, 0, name);
     SelectScalar(tableExistsStatement, exists);
-    tableExistsStatement.ClearBindings();
-    tableExistsStatement.Reset();
+
+    // Creating a table invaidates prepared statements.
+    if (!schemeValid)
+    {
+        tableExistsStatement.Close();
+    }
+    else
+    {
+        tableExistsStatement.ClearBindings();
+        tableExistsStatement.Reset();
+    }
 
     return exists != 0;
 }
@@ -81,16 +93,31 @@ void Database::DropTable(const char* name, bool exists)
     out << " " << name << ";";
 
     Exec(out.str());
+
+    InvalidateScheme();
 }
 
 bool Database::IndexExists(const char * name)
 {
     int exists;
 
+    if (!indexExistsStatement.IsOpen())
+    {
+        indexExistsStatement.Open(*this, "SELECT count(*) FROM sqlite_master WHERE type='index' AND name=?;");
+    }
+
     Bind(indexExistsStatement, 0, name);
     SelectScalar(indexExistsStatement, exists);
-    indexExistsStatement.ClearBindings();
-    indexExistsStatement.Reset();
+
+    if (!schemeValid)
+    {
+        indexExistsStatement.Close();
+    }
+    else
+    {
+        indexExistsStatement.ClearBindings();
+        indexExistsStatement.Reset();
+    }
 
     return exists != 0;
 }
@@ -109,4 +136,6 @@ void Database::DropIndex(const char* name, bool exists)
     out << " " << name << ";";
 
     Exec(out.str());
+
+    InvalidateScheme();
 }

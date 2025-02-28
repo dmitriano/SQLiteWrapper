@@ -25,6 +25,8 @@ AWL_TEST(InstantiatorIndex)
 
     // Index is not unique so it can't crate a set.
     // auto order_set = index_instantiator.MakeSet();
+
+    Statement selectStatement = index_instantiator.MakeSelectStatement();
 }
 
 namespace
