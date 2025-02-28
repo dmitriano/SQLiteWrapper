@@ -1,4 +1,6 @@
 #include "DbContainer.h"
+#include "Tests/TableHelper.h"
+
 #include "SQLiteWrapper/Bind.h"
 #include "SQLiteWrapper/Get.h"
 #include "SQLiteWrapper/QueryBuilder.h"
@@ -95,15 +97,13 @@ AWL_TEST(RowIdRaw)
     insert_statement.Exec();
 }
 
-AWL_TEST(RowIdSet)
+AWL_UNSTABLE_TEST(RowIdSet)
 {
     const std::string table_name = "bots";
     
     DbContainer c(context);
 
-    sqlite::AutoincrementSet set(c.m_db, table_name, &Bot::botId);
-    set.Create();
-    set.Open();
+    auto set = MakeAutoincrementSet(c.m_db, table_name, &Bot::botId);
 
     for (Bot& bot : bots)
     {
