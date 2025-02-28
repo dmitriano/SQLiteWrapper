@@ -15,7 +15,7 @@ namespace swtest
 
         instantiator.Create();
 
-        return Set<Value, Keys...>(db, table_name, id_ptrs);
+        return instantiator.MakeSet();
     }
 
     template <class Value, class Int> requires std::is_integral_v<Int>
@@ -27,6 +27,6 @@ namespace swtest
 
         instantiator.Create();
 
-        return AutoincrementSet<Value, Int>(db, table_name, id_ptr);
+        return instantiator.MakeSet();
     }
 }

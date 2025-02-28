@@ -22,6 +22,8 @@ AWL_TEST(InstantiatorIndex)
     sqlite::IndexInstantiator index_instantiator(c.m_db, table_name, index_name, key_ptrs);
 
     index_instantiator.Create();
+
+    auto order_set = index_instantiator.MakeSet();
 }
 
 namespace
@@ -68,4 +70,6 @@ AWL_TEST(InstantiatorConstraints)
     sqlite::TableInstantiator links_instantiator(c.m_db, "order_links", std::make_tuple(&OrderLink::listId, &OrderLink::orderId), add_constraints);
 
     links_instantiator.Create();
+
+    auto links_set = links_instantiator.MakeSet();
 }

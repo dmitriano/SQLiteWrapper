@@ -4,6 +4,7 @@
 #include "SQLiteWrapper/FieldListBuilder.h"
 #include "SQLiteWrapper/Helpers.h"
 #include "SQLiteWrapper/Element.h"
+#include "SQLiteWrapper/Set.h"
 
 #include "Awl/StringFormat.h"
 
@@ -72,6 +73,13 @@ namespace sqlite
         void Delete() override
         {
             m_db->DropIndex(indexName);
+        }
+
+        using SetType = Set<Value, Keys...>;
+
+        SetType MakeSet() const
+        {
+            return SetType(m_db, tableName, idPtrs);
         }
 
     private:

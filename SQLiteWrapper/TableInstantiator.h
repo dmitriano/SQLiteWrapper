@@ -3,6 +3,7 @@
 #include "SQLiteWrapper/Database.h"
 #include "SQLiteWrapper/TableBuilder.h"
 #include "SQLiteWrapper/Element.h"
+#include "SQLiteWrapper/Set.h"
 
 #include "Awl/StringFormat.h"
 
@@ -64,6 +65,13 @@ namespace sqlite
             m_db->DropTable(tableName);
         }
 
+        using SetType = Set<Value, Keys...>;
+
+        SetType MakeSet() const
+        {
+            return SetType(m_db, tableName, idPtrs);
+        }
+
     private:
 
         std::shared_ptr<Database> m_db;
@@ -73,5 +81,8 @@ namespace sqlite
         const PtrTuple idPtrs;
 
         std::function<void(TableBuilder<Record>&)> addConstraints;
+
+        template <class Value, class Int> requires std::is_integral_v<Int>
+        friend class AutoincrementTableInstantiator;
     };
 }

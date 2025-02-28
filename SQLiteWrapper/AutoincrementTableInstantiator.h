@@ -1,6 +1,7 @@
 #pragma once
 
 #include "SQLiteWrapper/TableInstantiator.h"
+#include "SQLiteWrapper/AutoincrementSet.h"
 
 #include <memory>
 
@@ -19,6 +20,13 @@ namespace sqlite
         void Create()
         {
             m_instantiator.Create();
+        }
+
+        using SetType = AutoincrementSet<Value, Int>;
+
+        SetType MakeSet() const
+        {
+            return SetType(m_instantiator.m_db, m_instantiator.tableName, std::get<0>(m_instantiator.idPtrs));
         }
 
     private:
