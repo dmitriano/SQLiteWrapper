@@ -2,6 +2,7 @@
 #include "SQLiteWrapper/Bind.h"
 #include "SQLiteWrapper/Get.h"
 #include "SQLiteWrapper/QueryBuilder.h"
+#include "SQLiteWrapper/Scalar.h"
 
 #include "Awl/IntRange.h"
 

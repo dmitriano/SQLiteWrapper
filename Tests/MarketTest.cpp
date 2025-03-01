@@ -1,6 +1,7 @@
 #include "DbContainer.h"
 #include "SQLiteWrapper/Bind.h"
 #include "SQLiteWrapper/Get.h"
+#include "SQLiteWrapper/Scalar.h"
 
 #include <vector>
 #include <optional>

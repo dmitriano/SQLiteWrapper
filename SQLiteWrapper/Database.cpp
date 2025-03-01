@@ -1,6 +1,7 @@
 #include "SQLiteWrapper/Database.h"
 #include "SQLiteWrapper/Bind.h"
 #include "SQLiteWrapper/Get.h"
+#include "SQLiteWrapper/Scalar.h"
 
 #include <sstream>
 
