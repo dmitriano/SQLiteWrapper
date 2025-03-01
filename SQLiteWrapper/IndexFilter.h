@@ -55,6 +55,18 @@ namespace sqlite
             return m_v.empty();
         }
 
+        size_t index_of(size_t val) const
+        {
+            auto i = std::find(m_v.begin(), m_v.end(), val);
+
+            if (i == m_v.end())
+            {
+                throw std::runtime_error("Element not found.");
+            }
+
+            return i - m_v.begin();
+        }
+
     private:
 
         // The vector should not be sorted.

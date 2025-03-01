@@ -2,6 +2,8 @@
 #include "ExchangeModel.h"
 #include "SQLiteWrapper/AutoincrementTableInstantiator.h"
 #include "SQLiteWrapper/IndexInstantiator.h"
+#include "SQLiteWrapper/QueryBuilder.h"
+#include "SQLiteWrapper/Helpers.h"
 
 using namespace swtest;
 using namespace exchange::data;
@@ -27,6 +29,15 @@ AWL_TEST(InstantiatorIndex)
     // auto order_set = index_instantiator.MakeSet();
 
     Statement selectStatement = index_instantiator.MakeSelectStatement();
+}
+
+AWL_TEST(InstantiatorIndexWhere)
+{
+    const std::string query = sqlite::BuildParameterizedSelectQuery<v4::Order>("orders", {},
+        sqlite::helpers::FindTransparentFieldIndices(
+            std::make_tuple(&v4::Order::exchangeId, &v4::Order::marketId, &v4::Order::accountType, &v4::Order::id)), true);
+
+    context.logger.debug(query);
 }
 
 namespace
