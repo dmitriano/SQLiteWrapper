@@ -6,22 +6,28 @@
 
 namespace sqlite
 {
-    inline void NextScalar(Statement& st)
+    // Returns an iterator pointing to the first element.
+    inline HeterogeneousIterator NextScalar(Statement& st)
     {
-        if (!st.Next())
+        // It restes the statement in its destructor.
+        HeterogeneousIterator i(st);
+
+        if (!i.Next())
         {
             st.RaiseError("An empty recordset when a scalar is expected.");
         }
+
+        return i;
     }
     
     // A recordset with a single row and a value that is not null.
     // For retrieving the results of MIN, MAX, COUNT, etc...,
     template <typename T>
-    void SelectScalar(Statement & st, T & val)
+    void SelectScalar(Statement& st, T& val)
     {
-        NextScalar(st);
+        HeterogeneousIterator i = NextScalar(st);
 
-        Get(st, 0, val);
+        i.Get(val);
     }
 
     // A recordset with a single row and a value that can be null.
@@ -31,13 +37,13 @@ namespace sqlite
     template <typename T>
     void SelectOptionalScalar(Statement& st, std::optional<T>& opt)
     {
-        NextScalar(st);
+        HeterogeneousIterator i = NextScalar(st);
 
         if (!st.IsNull(0))
         {
             T val;
             
-            Get(st, 0, val);
+            i.Get(val);
 
             opt = val;
         }

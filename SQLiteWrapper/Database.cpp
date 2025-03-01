@@ -67,8 +67,6 @@ bool Database::TableExists(const char * name)
 
     Bind(tableExistsStatement, 0, name);
     SelectScalar(tableExistsStatement, exists);
-    tableExistsStatement.ClearBindings();
-    tableExistsStatement.Reset();
 
     return exists != 0;
 }
@@ -102,8 +100,6 @@ bool Database::IndexExists(const char * name)
 
     Bind(indexExistsStatement, 0, name);
     SelectScalar(indexExistsStatement, exists);
-    indexExistsStatement.ClearBindings();
-    indexExistsStatement.Reset();
 
     return exists != 0;
 }

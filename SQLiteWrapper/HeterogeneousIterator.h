@@ -46,13 +46,13 @@ namespace sqlite
         }
 
         template <class T>
-        void Get(size_t col, T & val)
+        void Get(size_t col, T& val)
         {
             sqlite::Get(*m_s, col, val);
         }
 
         template <class T>
-        void Get(T & val)
+        void Get(T& val)
         {
             Get(0, val);
         }

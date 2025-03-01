@@ -278,7 +278,6 @@ AWL_TEST(ViewFunction)
         int count;
         sqlite::SelectScalar(count_statement, count);
         AWL_ASSERT(count == expected);
-        count_statement.Reset();
     };
 
     check_category("debug", 2);
