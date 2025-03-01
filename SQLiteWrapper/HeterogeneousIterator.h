@@ -11,11 +11,10 @@ namespace sqlite
     {
     public:
 
+        // Iterator needs it to be default constructible.
         HeterogeneousIterator() = default;
         
-        HeterogeneousIterator(Statement& s) : m_s(&s)
-        {
-        }
+        HeterogeneousIterator(Statement& s) : m_s(&s) {}
 
         HeterogeneousIterator(const HeterogeneousIterator&) = delete;
 
@@ -76,6 +75,6 @@ namespace sqlite
             }
         }
 
-        Statement* m_s;
+        Statement* m_s = nullptr;
     };
 }
