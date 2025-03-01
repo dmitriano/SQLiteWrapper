@@ -147,7 +147,8 @@ namespace sqlite
         }
     }
     
-    //A recordset with a single row and a value that is not null.
+    // A recordset with a single row and a value that is not null.
+    // For retrieving the results of MIN, MAX, COUNT, etc...,
     template <typename T>
     void SelectScalar(Statement & st, T & val)
     {
@@ -156,7 +157,9 @@ namespace sqlite
         Get(st, 0, val);
     }
 
-    //A recordset with a single row and a value that can be null.
+    // A recordset with a single row and a value that can be null.
+    // MIN, MAX, COUNT can also be null when there are not records
+    // satisfying where clause.
     template <typename T>
     void SelectOptionalScalar(Statement& st, std::optional<T>& opt)
     {
