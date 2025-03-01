@@ -196,9 +196,6 @@ namespace sqlite
         return builder.str();
     }
 
-    // TODO:
-    // The keys order in the tuple is currently ignored.
-    // They always go in the same order as in the structure.
     template <class Struct>
     std::string BuildParameterizedSelectQuery(const std::string& table_name, const OptionalIndexFilter& select_fields,
         const OptionalIndexFilter& where_fields = {}, bool sequential_binding_indices = false)
