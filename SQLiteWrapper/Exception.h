@@ -10,10 +10,10 @@ namespace sqlite
     class SQLiteException : public awl::Exception
     {
     public:
+
+        explicit SQLiteException(std::string message) : SQLiteException(0, std::move(message)) {}
         
-        explicit SQLiteException(int code, std::string message) : m_code(code), m_Message(message)
-        {
-        }
+        SQLiteException(int code, std::string message) : m_code(code), m_Message(std::move(message)) {}
 
         const char* what() const throw() override
         {

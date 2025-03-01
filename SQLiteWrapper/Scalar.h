@@ -52,4 +52,31 @@ namespace sqlite
             opt = {};
         }
     }
+
+    // One or zero rows in the recordset.
+    // It can be a result of a query like "SELECT * FROM t1 WHERE t1.id=5;"
+    // where t1.id is a unique key.
+    template <typename T>
+    void SelectOptionalRecord(Statement& st, std::optional<T>& opt)
+    {
+        HeterogeneousIterator i(st);
+
+        if (i.Next())
+        {
+            T val;
+
+            i.Get(val);
+
+            opt = val;
+
+            if (i.Next())
+            {
+                st.RaiseError("One or zero rows expected.");
+            }
+        }
+        else
+        {
+            opt = {};
+        }
+    }
 }
