@@ -63,7 +63,7 @@ namespace
     };
 }
 
-AWL_TEST(InstantiatorConstraints)
+AWL_TEST(InstantiatorConstraintsManyToMany)
 {
     DbContainer c(context);
 
@@ -85,5 +85,34 @@ AWL_TEST(InstantiatorConstraints)
 
     links_instantiator.Create();
 
+    const std::string join_query = sqlite::BuildListJoinQuery("order_links", "orders",
+        &OrderLink::orderId, &v4::Order::clientId, {}, &OrderLink::listId);
+
+    context.logger.debug(awl::format() << "Join query: " << join_query);
+
     auto links_set = links_instantiator.MakeSet();
+}
+
+AWL_TEST(InstantiatorConstraintsOneToMany)
+{
+    DbContainer c(context);
+
+    sqlite::AutoincrementTableInstantiator lists_instantiator(c.m_db, "order_lists", &OrderList::id);
+
+    lists_instantiator.Create();
+
+    std::function<void(sqlite::TableBuilder<v5::Order>&)> add_constraints = [](sqlite::TableBuilder<v5::Order>& builder)
+        {
+            builder.SetColumnConstraint(&v5::Order::clientListId, "REFERENCES order_lists(id)");
+        };
+
+    sqlite::AutoincrementTableInstantiator orders_instantiator(c.m_db, "orders", &v5::Order::clientId, add_constraints);
+
+    orders_instantiator.Create();
+
+    auto order_set = orders_instantiator.MakeSet();
+
+    const std::string select_query = BuildListWhereQuery("orders", &v5::Order::clientListId);
+
+    context.logger.debug(awl::format() << "Select query: " << select_query);
 }

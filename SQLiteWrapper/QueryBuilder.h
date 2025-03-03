@@ -265,6 +265,13 @@ namespace sqlite
         return builder.str();
     }
 
+    template <class Struct, class T>
+    std::string BuildListWhereQuery(const std::string& table_name, T Struct::* where_id_ptr)
+    {
+        return sqlite::BuildParameterizedSelectQuery<Struct>(table_name, {},
+            helpers::FindTransparentFieldIndices(std::make_tuple(where_id_ptr)), true);
+    }
+        
     template <class Struct>
     std::string BuildParameterizedInsertQuery(const std::string& table_name, const OptionalIndexFilter& filter = {})
     {

@@ -12,10 +12,11 @@ namespace sqlite
     {
     public:
 
-        AutoincrementTableInstantiator(const std::shared_ptr<Database>& db, std::string table_name, Int Value::* id_ptr) :
-            m_instantiator(db, std::move(table_name), std::make_tuple(id_ptr))
-        {
-        }
+        AutoincrementTableInstantiator(const std::shared_ptr<Database>& db, std::string table_name, Int Value::* id_ptr,
+            std::function<void(TableBuilder<Value>&)> add_constraints = {})
+            :
+            m_instantiator(db, std::move(table_name), std::make_tuple(id_ptr), add_constraints)
+        {}
 
         void Create()
         {
