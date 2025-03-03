@@ -11,6 +11,7 @@
 #include <type_traits>
 #include <limits>
 #include <chrono>
+#include <optional>
 
 namespace sqlite
 {
@@ -137,5 +138,22 @@ namespace sqlite
     inline void Get(Statement& st, size_t col, std::vector<uint8_t>& val)
     {
         val = st.GetBlob(col);
+    }
+
+    template <class T>
+    void Get(Statement& st, size_t col, std::optional<T>& opt_val)
+    {
+        if (st.IsNull(col))
+        {
+            opt_val = {};
+        }
+        else
+        {
+            T val;
+            
+            Get(st, col, val);
+
+            opt_val = std::move(val);
+        }
     }
 }

@@ -252,8 +252,8 @@ namespace exchange::data
             Decimal cost;
             Decimal reserved;
 
-            TimePoint createTime;
-            TimePoint updateTime;
+            std::optional<TimePoint> createTime;
+            std::optional<TimePoint> updateTime;
 
             AWL_REFLECT(clientId, clientListId, exchangeId, marketId, id, accountType, listId, clientGuid, side, type, status, price, stopPrice,
                 amount, filled, cost, createTime, updateTime)

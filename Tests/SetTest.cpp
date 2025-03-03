@@ -729,4 +729,6 @@ AWL_TEST(OrderStorageGetBind5)
     DbContainer c(context);
 
     auto storage = MakeSet(c.m_db, "orders", std::make_tuple(&v5::Order::exchangeId, &v5::Order::marketId, &v5::Order::accountType));
+
+    storage.Insert(makeSampleOrder5());
 }

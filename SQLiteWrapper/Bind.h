@@ -134,4 +134,17 @@ namespace sqlite
     {
         st.BindBlob(col, val);
     }
+
+    template <class T>
+    void Bind(Statement& st, size_t col, const std::optional<T>& opt_val)
+    {
+        if (opt_val)
+        {
+            Bind(st, col, *opt_val);
+        }
+        else
+        {
+            st.BindNull(col);
+        }
+    }
 }
