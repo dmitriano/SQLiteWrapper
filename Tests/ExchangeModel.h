@@ -4,6 +4,7 @@
 #include <vector>
 #include <optional>
 #include <chrono>
+#include <optional>
 
 namespace exchange::data
 {
@@ -196,11 +197,11 @@ namespace exchange::data
         {
             int64_t clientId;
 
-            QString exchangeId;
-            QString marketId;
+            std::string exchangeId;
+            std::string marketId;
             OrderId id;
             int64_t listId;
-            QString clientGuid;
+            std::string clientGuid;
 
             AccountType accountType;
 
@@ -219,6 +220,42 @@ namespace exchange::data
             TimePoint updateTime;
 
             AWL_REFLECT(clientId, exchangeId, marketId, id, accountType, listId, clientGuid, side, type, status, price, stopPrice,
+                amount, filled, cost, createTime, updateTime)
+        };
+    }
+
+    namespace v5
+    {
+        AWL_SEQUENTIAL_ENUM(AccountType, Spot, CrossMargin, IsolatedMargin)
+
+        struct Order
+        {
+            int64_t clientId;
+            std::optional<int64_t> clientListId;
+
+            std::string exchangeId;
+            std::string marketId;
+            OrderId id;
+            int64_t listId;
+            std::string clientGuid;
+
+            AccountType accountType;
+
+            OrderSide side;
+            OrderType type;
+            OrderStatus status;
+
+            Decimal price;
+            Decimal stopPrice;
+            Decimal amount;
+            Decimal filled;
+            Decimal cost;
+            Decimal reserved;
+
+            TimePoint createTime;
+            TimePoint updateTime;
+
+            AWL_REFLECT(clientId, clientListId, exchangeId, marketId, id, accountType, listId, clientGuid, side, type, status, price, stopPrice,
                 amount, filled, cost, createTime, updateTime)
         };
     }

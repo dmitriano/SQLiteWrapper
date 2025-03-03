@@ -691,3 +691,42 @@ AWL_TEST(OrderStorageGetBind3d)
 
     storage.Delete(btc_key);
 }
+
+namespace
+{
+    v5::Order makeSampleOrder5()
+    {
+        return v5::Order
+        {
+            1,
+            {},
+            "binance",
+            btc_market_id,
+            15,
+            -1,
+            "dcb1aa07-7448-4e8e-8f88-713dd4feb159",
+
+            v5::AccountType::Spot,
+
+            data::OrderSide::Sell,
+            data::OrderType::StopLossLimit,
+            data::OrderStatus::Closed,
+            "45441.5"_d,
+            data::Decimal::zero(),
+            "0.0015"_d,
+            data::Decimal::zero(),
+            "68.14884"_d,
+            data::Decimal::zero(),
+
+            data::Clock::now(),
+            {}
+        };
+    }
+}
+
+AWL_TEST(OrderStorageGetBind5)
+{
+    DbContainer c(context);
+
+    auto storage = MakeSet(c.m_db, "orders", std::make_tuple(&v5::Order::exchangeId, &v5::Order::marketId, &v5::Order::accountType));
+}
