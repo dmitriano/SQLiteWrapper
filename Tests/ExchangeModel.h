@@ -222,6 +222,8 @@ namespace exchange::data
             AWL_REFLECT(clientId, exchangeId, marketId, id, accountType, listId, clientGuid, side, type, status, price, stopPrice,
                 amount, filled, cost, createTime, updateTime)
         };
+
+        AWL_MEMBERWISE_EQUATABLE(Order)
     }
 
     namespace v5
@@ -258,5 +260,7 @@ namespace exchange::data
             AWL_REFLECT(clientId, clientListId, exchangeId, marketId, id, accountType, listId, clientGuid, side, type, status, price, stopPrice,
                 amount, filled, cost, createTime, updateTime)
         };
+
+        AWL_MEMBERWISE_EQUATABLE(Order)
     }
 }

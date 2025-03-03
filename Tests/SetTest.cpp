@@ -730,5 +730,13 @@ AWL_TEST(OrderStorageGetBind5)
 
     auto storage = MakeSet(c.m_db, "orders", std::make_tuple(&v5::Order::exchangeId, &v5::Order::marketId, &v5::Order::accountType));
 
-    storage.Insert(makeSampleOrder5());
+    const v5::Order sample_order = makeSampleOrder5();
+
+    const std::vector<v5::Order> sample_v{ sample_order };
+
+    context.logger.debug(awl::format() << "Inserting order: " << sample_order.id);
+
+    storage.Insert(sample_order);
+
+    AWL_ASSERT(std::ranges::equal(storage, sample_v));
 }
