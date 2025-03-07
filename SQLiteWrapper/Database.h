@@ -12,8 +12,6 @@
 #include "Awl/ScopeGuard.h"
 #include "Awl/Logger.h"
 
-#define SQL_QUERY(src) #src
-
 namespace sqlite
 {
     class Database : public awl::Observable<Element, Database>
