@@ -83,8 +83,5 @@ namespace sqlite
         const PtrTuple idPtrs;
 
         std::function<void(TableBuilder<Record>&)> addConstraints;
-
-        template <class Value, class Int> requires std::is_integral_v<Int>
-        friend class AutoincrementTableInstantiator;
     };
 }

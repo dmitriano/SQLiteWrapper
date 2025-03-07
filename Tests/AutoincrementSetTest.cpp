@@ -191,3 +191,25 @@ AWL_TEST(RowIdSet)
         }
     }
 }
+
+AWL_TEST(RowIdSequence)
+{
+    const std::string table_name = "bots";
+
+    DbContainer c(context);
+
+    auto set = MakeAutoincrementSet(c.m_db, table_name, &Bot::botId);
+
+    for (size_t i = 0; i < bots.size(); ++i)
+    {
+        set.Insert(bots[i]);
+
+        AWL_ASSERT_EQUAL(static_cast<sqlite::RowId>(i) * 2 + 1, bots[i].botId);
+
+        set.Delete(bots[i]);
+
+        set.Insert(bots[i]);
+
+        AWL_ASSERT_EQUAL(static_cast<sqlite::RowId>(i) * 2 + 2, bots[i].botId);
+    }
+}

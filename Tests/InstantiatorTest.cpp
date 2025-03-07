@@ -1,5 +1,6 @@
 #include "DbContainer.h"
 #include "ExchangeModel.h"
+#include "SQLiteWrapper/TableInstantiator.h"
 #include "SQLiteWrapper/AutoincrementTableInstantiator.h"
 #include "SQLiteWrapper/IndexInstantiator.h"
 #include "SQLiteWrapper/QueryBuilder.h"
