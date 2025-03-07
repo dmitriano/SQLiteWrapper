@@ -9,7 +9,7 @@ using namespace sqlite;
 
     sqlite3 * db = sqlite3_db_handle(m_stmt);
 
-    sqlite::RaiseError(db, code, message);
+    Database::RaiseError(db, code, message);
 }
 
 [[noreturn]] void Statement::RaiseError(std::string message)
@@ -24,6 +24,6 @@ void Statement::Open(Database& db, const char* query)
 
     if (rc != SQLITE_OK)
     {
-        sqlite::RaiseError(db.m_db, rc, awl::aformat() << "Error while preparing SQL query: '" << query << "'.");
+        Database::RaiseError(db.m_db, rc, awl::aformat() << "Error while preparing SQL query: '" << query << "'.");
     }
 }

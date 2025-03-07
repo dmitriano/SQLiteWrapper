@@ -16,13 +16,6 @@
 
 namespace sqlite
 {
-    [[noreturn]] void RaiseError(sqlite3 * db, int code, std::string message);
-
-    [[noreturn]] inline void RaiseError(sqlite3 * db, std::string message)
-    {
-        RaiseError(db, 0, message);
-    }
-
     class Database : public awl::Observable<Element, Database>
     {
     public:
@@ -236,6 +229,15 @@ namespace sqlite
         }
 
     private:
+
+        [[noreturn]]
+        static void RaiseError(sqlite3* db, int code, std::string message);
+
+        [[noreturn]]
+        static void RaiseError(sqlite3* db, std::string message)
+        {
+            RaiseError(db, 0, message);
+        }
 
         std::reference_wrapper<awl::Logger> m_logger;
 

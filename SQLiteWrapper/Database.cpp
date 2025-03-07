@@ -5,16 +5,6 @@
 
 #include <sstream>
 
-namespace sqlite
-{
-    [[noreturn]] void RaiseError(sqlite3 * db, int code, std::string message)
-    {
-        std::string user_message = awl::aformat() << message << ", Error message: " << sqlite3_errmsg(db) << ".";
-        
-        throw SQLiteException(code, user_message);
-    }
-}
-
 using namespace sqlite;
 
 void Database::Open(const char* fileName)
@@ -120,4 +110,12 @@ void Database::DropIndex(const char* name, bool exists)
     Exec(out.str());
 
     InvalidateScheme();
+}
+
+[[noreturn]]
+void Database::RaiseError(sqlite3* db, int code, std::string message)
+{
+    std::string user_message = awl::aformat() << message << ", Error message: " << sqlite3_errmsg(db) << ".";
+
+    throw SQLiteException(code, user_message);
 }
