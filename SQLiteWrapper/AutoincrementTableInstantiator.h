@@ -32,7 +32,7 @@ namespace sqlite
             m_db->Subscribe(this);
         }
 
-        void Create()
+        void Create() override
         {
             if (!m_db->TableExists(tableName))
             {
@@ -40,7 +40,7 @@ namespace sqlite
 
                 // The ROWID chosen for the new row is at least one larger than the largest ROWID that has ever before existed in that same table.
                 // For this to apply, we need to explicilty use AUTOINCREMENT keyword:
-                builder.SetColumnConstraint(idPtr, "PRIMARY KEY AUTOINCREMENT");
+                builder.SetColumnConstraint(idPtr, "NOT NULL PRIMARY KEY AUTOINCREMENT");
 
                 if (addConstraints)
                 {
