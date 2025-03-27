@@ -2,6 +2,7 @@
 #include "SQLiteWrapper/Bind.h"
 #include "SQLiteWrapper/Get.h"
 #include "SQLiteWrapper/QueryBuilder.h"
+#include "SQLiteWrapper/Scalar.h"
 
 #include "Awl/IntRange.h"
 
@@ -95,19 +96,19 @@ namespace
 
         int count;
         sqlite::SelectScalar(s, count);
-        AWT_ASSERT(count == expected);
+        AWL_ASSERT(count == expected);
     }
 
     void CheckSample(sqlite::Statement & s)
     {
-        AWT_ASSERT(s.Next());
+        AWL_ASSERT(s.Next());
 
         Log log;
         sqlite::Get(s, 0, log);
 
-        AWT_ASSERT(log == logSample);
+        AWL_ASSERT(log == logSample);
 
-        AWT_ASSERT(!s.Next());
+        AWL_ASSERT(!s.Next());
     }
     
     void CheckSample(Database& db)
@@ -158,7 +159,7 @@ namespace
     }
 }
 
-AWT_TEST(TrivialFunction)
+AWL_TEST(TrivialFunction)
 {
     DbContainer c(context);
     Database & db = c.db();
@@ -168,31 +169,31 @@ AWT_TEST(TrivialFunction)
     {
         sqlite::Statement s(db, "SELECT firstchar('abc');");
 
-        AWT_ASSERT(s.Next());
-        AWT_ASSERT(std::strcmp(s.GetText(0), "a") == 0);
-        AWT_ASSERT(!s.Next());
+        AWL_ASSERT(s.Next());
+        AWL_ASSERT(std::strcmp(s.GetText(0), "a") == 0);
+        AWL_ASSERT(!s.Next());
     }
 
     {
         sqlite::Statement s(db, "SELECT firstchar('');");
 
-        AWT_ASSERT(s.Next());
-        AWT_ASSERT(s.IsNull(0));
-        AWT_ASSERT(!s.Next());
+        AWL_ASSERT(s.Next());
+        AWL_ASSERT(s.IsNull(0));
+        AWL_ASSERT(!s.Next());
     }
 
     try
     {
         //It knows the number of the arguments.
         sqlite::Statement s(db, "SELECT firstchar('abc', 'xyz');");
-        AWT_FAIL;
+        AWL_FAIL;
     }
     catch (const sqlite::SQLiteException&)
     {
     }
 }
 
-AWT_TEST(TableFunction)
+AWL_TEST(TableFunction)
 {
     DbContainer c(context);
     Database& db = c.db();
@@ -206,9 +207,9 @@ AWT_TEST(TableFunction)
     {
         sqlite::Statement s(db, awl::aformat() << "SELECT firstchar(""message"") FROM " << tableName << ";");
 
-        AWT_ASSERT(s.Next());
-        AWT_ASSERT(std::strcmp(s.GetText(0), "a") == 0);
-        AWT_ASSERT(!s.Next());
+        AWL_ASSERT(s.Next());
+        AWL_ASSERT(std::strcmp(s.GetText(0), "a") == 0);
+        AWL_ASSERT(!s.Next());
     }
 
     {
@@ -228,7 +229,7 @@ AWT_TEST(TableFunction)
     }
 }
 
-AWT_TEST(ViewFunction)
+AWL_TEST(ViewFunction)
 {
     DbContainer c(context);
     Database& db = c.db();
@@ -276,8 +277,7 @@ AWT_TEST(ViewFunction)
 
         int count;
         sqlite::SelectScalar(count_statement, count);
-        AWT_ASSERT(count == expected);
-        count_statement.Reset();
+        AWL_ASSERT(count == expected);
     };
 
     check_category("debug", 2);

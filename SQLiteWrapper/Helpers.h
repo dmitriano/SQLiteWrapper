@@ -1,6 +1,7 @@
 #pragma once
 
 #include "SQLiteWrapper/Exception.h"
+#include "SQLiteWrapper/IndexFilter.h"
 
 #include "Awl/Reflection.h"
 #include "Awl/TupleHelpers.h"
@@ -16,8 +17,6 @@
 
 namespace sqlite
 {
-    //We need to construct it from a tuple of field pointers.
-    using IndexFilter = std::set<size_t>;
     using OptionalIndexFilter = std::optional<IndexFilter>;
 
     constexpr size_t noIndex = static_cast<size_t>(-1);
@@ -27,10 +26,11 @@ namespace sqlite
 
 namespace sqlite::helpers
 {
-    //Functions MakeSigned and MakeUnsigned should satisfy the following criteria:
-    //For a given pair of parameters a, b and return values a1, b1, if a <= b then a1 <= b1.
-    //and for a given unsigned a
-    //MakeUnsigned(MakeSigned(a)) == a
+    // Functions MakeSigned and MakeUnsigned should satisfy the following criteria:
+    // For a given pair of parameters a, b and return values a1, b1, if a <= b then a1 <= b1.
+    // and for a given unsigned a
+    // MakeUnsigned(MakeSigned(a)) == a
+    // For example, MakeSigned(static_cast<unsigned int>(0)) != 0
 
     template <typename T>
     constexpr T FlipSignBit(T val)
@@ -38,16 +38,28 @@ namespace sqlite::helpers
         return val ^ (static_cast<T>(1) << (sizeof(T) * 8 - 1));
     }
 
-    template <typename T>
-    constexpr typename std::enable_if_t<std::is_integral_v<T> && std::is_unsigned_v<T>, std::make_signed<T>>::type MakeSigned(T val)
+    template <typename T> requires std::is_same_v<T, uint32_t> || std::is_same_v<T, uint64_t>
+    constexpr std::make_signed_t<T> MakeSigned(T val)
     {
         return FlipSignBit(val);
     }
 
-    template <typename T>
-    constexpr typename std::enable_if_t<std::is_integral_v<T> && std::is_signed_v<T>, std::make_unsigned<T>>::type MakeUnsigned(T val)
+    template <typename T> requires std::is_same_v<T, int32_t> || std::is_same_v<T, int64_t>
+    constexpr std::make_unsigned_t<T> MakeUnsigned(T val)
     {
         return FlipSignBit(val);
+    }
+
+    template <typename T> requires std::is_same_v<T, uint8_t> || std::is_same_v<T, uint16_t>
+    constexpr int32_t MakeSigned(T val)
+    {
+        return static_cast<int32_t>(val);
+    }
+
+    template <typename T> requires std::is_same_v<T, int8_t> || std::is_same_v<T, int16_t>
+    constexpr uint32_t MakeUnsigned(T val)
+    {
+        return static_cast<uint32_t>(val);
     }
 
     static_assert(MakeSigned(std::numeric_limits<unsigned int>::min()) == std::numeric_limits<int>::min());
@@ -89,13 +101,13 @@ namespace sqlite::helpers
     using RemoveOptionalT = typename RemoveOptional<T>::type;
 
     template <class Tuple, class Func, std::size_t... index>
-    inline constexpr void ForEachTF(Func f, std::index_sequence<index...>)
+    constexpr void ForEachTF(Func f, std::index_sequence<index...>)
     {
         (f(std::integral_constant<std::size_t, index>()), ...);
     }
 
     template <class Tuple, class Func>
-    inline constexpr void ForEachTF(Func f)
+    constexpr void ForEachTF(Func f)
     {
         ForEachTF<Tuple>(f, std::make_index_sequence<std::tuple_size_v<Tuple>>());
     }
@@ -107,7 +119,7 @@ namespace sqlite::helpers
     };
 
     template <class T, typename Func>
-    inline size_t ForEachFieldTypeImpl(std::vector<std::string_view>& prefixes, Func&& func, size_t startIndex)
+    size_t ForEachFieldTypeImpl(std::vector<std::string_view>& prefixes, Func&& func, size_t startIndex)
     {
         size_t count = 0;
 
@@ -142,7 +154,7 @@ namespace sqlite::helpers
     }
 
     template <class T, typename Func>
-    inline size_t ForEachFieldType(Func&& func)
+    size_t ForEachFieldType(Func&& func)
     {
         std::vector<std::string_view> prefixes;
 
@@ -178,6 +190,14 @@ namespace sqlite::helpers
         return foundIndex;
     }
 
+    template <class Struct, class T>
+    const std::string& FindFieldName(T Struct::* field_ptr)
+    {
+        const std::size_t index = FindFieldIndex(field_ptr);
+
+        return Struct::get_member_names()[index];
+    }
+        
     template <class T>
     constexpr inline size_t GetFieldCount()
     {
@@ -327,5 +347,33 @@ namespace sqlite::helpers
         out << sep << name;
 
         return out.str();
+    }
+
+    template <class Struct, class ColumnVisitor>
+    void ForEachColumn(ColumnVisitor& visitor)
+    {
+        //memberNames capture parameter makes lambdas different.
+        ForEachFieldType<Struct>([&visitor](std::vector<std::string_view>& prefixes, size_t memberIndex, size_t fieldIndex, auto structTd, auto fieldTd)
+            {
+                if (visitor.ContainsColumn(fieldIndex))
+                {
+                    using StructType = typename decltype(structTd)::Type;
+
+                    using FieldType = typename decltype(fieldTd)::Type;
+
+                    const auto& member_names = StructType::get_member_names();
+
+                    const std::string& member_name = member_names[memberIndex];
+
+                    if (prefixes.empty() && awl::CStringInsensitiveEqual<char>()(member_name.c_str(), rowIdFieldName))
+                    {
+                        throw SQLiteException(0, "A field with name ROWID is not allowed.");
+                    }
+
+                    std::string full_name = helpers::MakeFullFieldName(prefixes, member_name);
+
+                    visitor.template AddColumn<FieldType>(full_name, fieldIndex);
+                }
+            });
     }
 }

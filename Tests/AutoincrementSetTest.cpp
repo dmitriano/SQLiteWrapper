@@ -1,8 +1,10 @@
 #include "DbContainer.h"
+#include "Tests/TableHelper.h"
+
 #include "SQLiteWrapper/Bind.h"
 #include "SQLiteWrapper/Get.h"
 #include "SQLiteWrapper/QueryBuilder.h"
-#include "SQLiteWrapper/SetStorage.h"
+#include "SQLiteWrapper/AutoincrementSet.h"
 
 #include "Awl/IntRange.h"
 
@@ -14,11 +16,11 @@ namespace
 {
     struct Bot
     {
-        sqlite::RowId rowId;
+        sqlite::RowId botId;
         std::string name;
         std::vector<uint8_t> state;
 
-        AWL_REFLECT(name, rowId, state)
+        AWL_REFLECT(name, botId, state)
     };
 
     AWL_MEMBERWISE_EQUATABLE(Bot);
@@ -36,7 +38,7 @@ namespace
     Bot bot2{ 0, "XRP_USDT", {1u, 2u} };
 }
 
-AWT_TEST(RowIdRawQueries)
+AWL_TEST(RowIdRawQueries)
 {
     const std::string table_name = "bots";
 
@@ -48,6 +50,8 @@ AWT_TEST(RowIdRawQueries)
         sqlite::TableBuilder<Bot> builder(table_name);
 
         builder.AddColumns();
+
+        builder.SetPrimaryKey(&Bot::botId);
 
         const std::string query = builder.Build();
 
@@ -70,16 +74,16 @@ AWT_TEST(RowIdRawQueries)
         {
             Bot bot;
 
-            sqlite::Get(st, 0, bot.rowId);
+            sqlite::Get(st, 0, bot.botId);
             sqlite::Get(st, 1, bot.name);
             sqlite::Get(st, 2, bot.state);
 
-            context.out << bot.rowId << ", " << awl::FromAString(bot.name) << ", " << bot.state.size() << std::endl;
+            context.out << bot.botId << ", " << awl::FromAString(bot.name) << ", " << bot.state.size() << std::endl;
         }
     }
 }
 
-AWT_TEST(RowIdRaw)
+AWL_TEST(RowIdRaw)
 {
     DbContainer c(context);
 
@@ -93,27 +97,25 @@ AWT_TEST(RowIdRaw)
     insert_statement.Exec();
 }
 
-AWT_TEST(RowIdSet)
+AWL_TEST(RowIdSet)
 {
     const std::string table_name = "bots";
     
     DbContainer c(context);
 
-    sqlite::SetStorage set(c.m_db, table_name, std::make_tuple(&Bot::rowId));
-    set.Create();
-    set.Prepare();
+    auto set = MakeAutoincrementSet(c.m_db, table_name, &Bot::botId);
 
     for (Bot& bot : bots)
     {
         set.Insert(bot);
 
-        bot.rowId = c.db().GetLastRowId();
+        // bot.botId = c.db().GetLastRowId();
     }
 
     {
         Bot b1 = *set.begin();
 
-        AWT_ASSERT(b1 == bots[0]);
+        AWL_ASSERT(b1 == bots[0]);
     }
 
     //Range-based loop test
@@ -125,12 +127,12 @@ AWT_TEST(RowIdSet)
             actual_bots.push_back(bot);
         }
 
-        AWT_ASSERT(std::ranges::equal(bots, actual_bots));
+        AWL_ASSERT(std::ranges::equal(bots, actual_bots));
     }
 
     //Algo tests
 
-    AWT_ASSERT(std::ranges::equal(bots, set));
+    AWL_ASSERT(std::ranges::equal(bots, set));
 
     {
         //auto r = std::ranges::common_view{ set };
@@ -142,24 +144,24 @@ AWT_TEST(RowIdSet)
     {
         Bot actual;
 
-        AWT_ASSERT(set.Find(bot.rowId, actual));
+        AWL_ASSERT(set.Find(bot.botId, actual));
 
-        AWT_ASSERT(actual == bot);
+        AWL_ASSERT(actual == bot);
     }
 
-    bot1.rowId = bots[0].rowId;
+    bot1.botId = bots[0].botId;
     
     {
         set.Update(bot1);
 
         Bot actual;
 
-        AWT_ASSERT(set.Find(bot1.rowId, actual));
+        AWL_ASSERT(set.Find(bot1.botId, actual));
 
-        AWT_ASSERT(actual == bot1);
+        AWL_ASSERT(actual == bot1);
     }
 
-    bot2.rowId = bots[1].rowId;
+    bot2.botId = bots[1].botId;
 
     {
         sqlite::Updater up = set.CreateUpdater(std::make_tuple(&Bot::state));
@@ -169,23 +171,45 @@ AWT_TEST(RowIdSet)
 
             Bot actual;
 
-            AWT_ASSERT(set.Find(bot2.rowId, actual));
+            AWL_ASSERT(set.Find(bot2.botId, actual));
 
-            AWT_ASSERT(actual == bot2);
+            AWL_ASSERT(actual == bot2);
         }
 
         {
             const std::vector<uint8_t> state = { 33u, 35u };
 
-            up.Update(std::make_tuple(bot2.rowId), std::make_tuple(state));
+            up.Update(std::make_tuple(bot2.botId), std::make_tuple(state));
 
             bot2.state = state;
 
             Bot actual;
 
-            AWT_ASSERT(set.Find(bot2.rowId, actual));
+            AWL_ASSERT(set.Find(bot2.botId, actual));
 
-            AWT_ASSERT(actual == bot2);
+            AWL_ASSERT(actual == bot2);
         }
+    }
+}
+
+AWL_TEST(RowIdSequence)
+{
+    const std::string table_name = "bots";
+
+    DbContainer c(context);
+
+    auto set = MakeAutoincrementSet(c.m_db, table_name, &Bot::botId);
+
+    for (size_t i = 0; i < bots.size(); ++i)
+    {
+        set.Insert(bots[i]);
+
+        AWL_ASSERT_EQUAL(static_cast<sqlite::RowId>(i) * 2 + 1, bots[i].botId);
+
+        set.Delete(bots[i]);
+
+        set.Insert(bots[i]);
+
+        AWL_ASSERT_EQUAL(static_cast<sqlite::RowId>(i) * 2 + 2, bots[i].botId);
     }
 }

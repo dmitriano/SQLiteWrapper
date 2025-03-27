@@ -8,7 +8,7 @@ namespace sqlite
 
         virtual void Create() = 0;
 
-        virtual void Prepare() = 0;
+        virtual void Delete() = 0;
 
         virtual ~Element() = default;
     };

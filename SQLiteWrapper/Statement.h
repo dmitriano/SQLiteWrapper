@@ -1,7 +1,8 @@
 #pragma once
 
+#include "sqlite3.h"
+
 #include "SQLiteWrapper/Exception.h"
-#include "SQLiteWrapper/Database.h"
 
 #include "Awl/TupleHelpers.h"
 #include "Awl/QuickList.h"
@@ -15,6 +16,8 @@
 
 namespace sqlite
 {
+    class Database;
+
     class Statement
     {
     public:
@@ -26,9 +29,7 @@ namespace sqlite
             Open(db, query);
         }
 
-        Statement(Database& db, const std::string& query) : Statement(db, query.c_str())
-        {
-        }
+        Statement(Database& db, const std::string& query) : Statement(db, query.c_str()) {}
             
         Statement(const Statement&) = delete;
 
@@ -71,15 +72,7 @@ namespace sqlite
             return m_stmt != nullptr;
         }
         
-        void Open(Database& db, const char* query)
-        {
-            const int rc = sqlite3_prepare(db.m_db, query, -1, &m_stmt, NULL);
-
-            if (rc != SQLITE_OK)
-            {
-                sqlite::RaiseError(db.m_db, rc, awl::aformat() << "Error while preparing SQL query: '" << query << "'.");
-            }
-        }
+        void Open(Database& db, const char* query);
 
         void Open(Database& db, const std::string& query)
         {

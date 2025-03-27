@@ -4,8 +4,9 @@
 #include <vector>
 #include <optional>
 #include <chrono>
+#include <optional>
 
-namespace exchange
+namespace exchange::data
 {
     using Decimal = awl::decimal<uint64_t, 4>;
     
@@ -115,4 +116,151 @@ namespace exchange
     };
 
     AWL_MEMBERWISE_EQUATABLE(Order)
+
+    namespace v2
+    {
+        AWL_SEQUENTIAL_ENUM(AccountType, Spot, CrossMargin, IsolatedMargin)
+
+        struct Order
+        {
+            std::string exchangeId;
+            std::string marketId;
+            OrderId id;
+            int64_t listId;
+            std::string clientId;
+
+            AccountType accountType;
+
+            OrderSide side;
+            OrderType type;
+            OrderStatus status;
+
+            Decimal price;
+            Decimal stopPrice;
+            Decimal amount;
+            Decimal filled;
+            Decimal cost;
+            Decimal reserved;
+
+            TimePoint createTime;
+            TimePoint updateTime;
+
+            AWL_REFLECT(exchangeId, marketId, id, accountType, listId, clientId, side, type, status, price, stopPrice,
+                amount, filled, cost, createTime, updateTime)
+        };
+
+        AWL_MEMBERWISE_EQUATABLE(Order)
+    }
+
+    namespace v3
+    {
+        using AccountType = int;
+
+        constexpr AccountType Spot = 0;
+
+        struct Order
+        {
+            std::string exchangeId;
+            std::string marketId;
+            OrderId id;
+            int64_t listId;
+            std::string clientId;
+
+            int accountType;
+
+            OrderSide side;
+            OrderType type;
+            OrderStatus status;
+
+            Decimal price;
+            Decimal stopPrice;
+            Decimal amount;
+            Decimal filled;
+            Decimal cost;
+            Decimal reserved;
+
+            TimePoint createTime;
+            TimePoint updateTime;
+
+            AWL_REFLECT(exchangeId, marketId, id, accountType, listId, clientId, side, type, status, price, stopPrice,
+                amount, filled, cost, createTime, updateTime)
+        };
+
+        AWL_MEMBERWISE_EQUATABLE(Order)
+    }
+
+    namespace v4
+    {
+        AWL_SEQUENTIAL_ENUM(AccountType, Spot, CrossMargin, IsolatedMargin)
+            
+        struct Order
+        {
+            int64_t clientId;
+
+            std::string exchangeId;
+            std::string marketId;
+            OrderId id;
+            int64_t listId;
+            std::string clientGuid;
+
+            AccountType accountType;
+
+            OrderSide side;
+            OrderType type;
+            OrderStatus status;
+
+            Decimal price;
+            Decimal stopPrice;
+            Decimal amount;
+            Decimal filled;
+            Decimal cost;
+            Decimal reserved;
+
+            TimePoint createTime;
+            TimePoint updateTime;
+
+            AWL_REFLECT(clientId, exchangeId, marketId, id, accountType, listId, clientGuid, side, type, status, price, stopPrice,
+                amount, filled, cost, createTime, updateTime)
+        };
+
+        AWL_MEMBERWISE_EQUATABLE(Order)
+    }
+
+    namespace v5
+    {
+        AWL_SEQUENTIAL_ENUM(AccountType, Spot, CrossMargin, IsolatedMargin)
+
+        struct Order
+        {
+            int64_t clientId;
+            std::optional<int64_t> clientListId;
+
+            std::string exchangeId;
+            std::string marketId;
+            OrderId id;
+            int64_t listId;
+            std::string clientGuid;
+
+            AccountType accountType;
+
+            OrderSide side;
+            OrderType type;
+            OrderStatus status;
+
+            Decimal price;
+            Decimal stopPrice;
+            Decimal amount;
+            Decimal filled;
+            Decimal cost;
+            Decimal reserved;
+
+            std::optional<TimePoint> createTime;
+            std::optional<TimePoint> updateTime;
+
+            AWL_REFLECT(clientId, clientListId, exchangeId, marketId, id, accountType, listId, clientGuid, side, type, status, price, stopPrice,
+                amount, filled, cost, createTime, updateTime)
+        };
+
+        AWL_MEMBERWISE_EQUATABLE(Order)
+    }
 }

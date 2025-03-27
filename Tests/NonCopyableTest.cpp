@@ -1,8 +1,10 @@
-#include "DbContainer.h"
+#include "Tests/DbContainer.h"
+#include "Tests/TableHelper.h"
+
 #include "SQLiteWrapper/Bind.h"
 #include "SQLiteWrapper/Get.h"
 #include "SQLiteWrapper/QueryBuilder.h"
-#include "SQLiteWrapper/SetStorage.h"
+#include "SQLiteWrapper/Set.h"
 
 #include "Awl/IntRange.h"
 
@@ -77,7 +79,7 @@ namespace
 
     struct Bot
     {
-        sqlite::RowId rowId;
+        sqlite::RowId botId;
         std::string name;
         std::vector<uint8_t> state;
         Nc nc;
@@ -85,7 +87,7 @@ namespace
         Bot() = default;
         
         Bot(sqlite::RowId rid, std::string n, std::vector<uint8_t> s, Nc c) :
-            rowId(std::move(rid)), name(std::move(n)), state(std::move(s)), nc(std::move(c))
+            botId(std::move(rid)), name(std::move(n)), state(std::move(s)), nc(std::move(c))
         {}
 
         Bot(const Bot&) = delete;
@@ -94,7 +96,7 @@ namespace
         Bot(Bot&&) = default;
         Bot& operator = (Bot&&) = default;
 
-        AWL_REFLECT(name, rowId, state, nc)
+        AWL_REFLECT(name, botId, state, nc)
     };
 
     AWL_MEMBERWISE_EQUATABLE(Bot);
@@ -112,9 +114,9 @@ namespace sqlite
     }
 }
 
-AWT_TEST(NonCopyable)
+AWL_TEST(NonCopyable)
 {
-    AWT_UNUSED_CONTEXT;
+    AWL_UNUSED_CONTEXT;
     
     //Check if helper functions do not require copy constructor and copy assignment.
     {
@@ -134,9 +136,7 @@ AWT_TEST(NonCopyable)
         
         DbContainer c(context);
 
-        sqlite::SetStorage set(c.m_db, table_name, std::make_tuple(&Bot::rowId));
-        set.Create();
-        set.Prepare();
+        auto set = MakeSet(c.m_db, table_name, std::make_tuple(&Bot::botId));
 
         set.Insert(Bot{ 0, "BTC_USDT", {}, Nc(0) });
         

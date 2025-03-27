@@ -1,6 +1,9 @@
 #include "DbContainer.h"
 #include "SQLiteWrapper/Bind.h"
 
+#include "Awl/Testing/UnitTest.h"
+#include "Awl/String.h"
+
 namespace swtest
 {
     using namespace sqlite;
@@ -87,8 +90,8 @@ namespace swtest
 
     void DbContainer::SetAttributes(const awl::testing::TestContext & context)
     {
-        AWT_ATTRIBUTE(awl::String, synchronous, _T("FULL"));
-        AWT_ATTRIBUTE(awl::String, journal_mode, _T("DELETE"));
+        AWL_ATTRIBUTE(awl::String, synchronous, _T("FULL"));
+        AWL_ATTRIBUTE(awl::String, journal_mode, _T("DELETE"));
 
         m_db->Exec(awl::aformat() << "PRAGMA synchronous = " << awl::ToAString(synchronous) << ";");
         m_db->Exec(awl::aformat() << "PRAGMA journal_mode = " << awl::ToAString(journal_mode) << ";");

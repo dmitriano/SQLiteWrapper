@@ -11,6 +11,7 @@
 #include <type_traits>
 #include <limits>
 #include <chrono>
+#include <optional>
 
 namespace sqlite
 {
@@ -139,40 +140,20 @@ namespace sqlite
         val = st.GetBlob(col);
     }
 
-    inline void NextScalar(Statement& st)
+    template <class T>
+    void Get(Statement& st, size_t col, std::optional<T>& opt_val)
     {
-        if (!st.Next())
+        if (st.IsNull(col))
         {
-            st.RaiseError("An empty recordset when a scalar is expected.");
-        }
-    }
-    
-    //A recordset with a single row and a value that is not null.
-    template <typename T>
-    void SelectScalar(Statement & st, T & val)
-    {
-        NextScalar(st);
-
-        Get(st, 0, val);
-    }
-
-    //A recordset with a single row and a value that can be null.
-    template <typename T>
-    void SelectOptionalScalar(Statement& st, std::optional<T>& opt)
-    {
-        NextScalar(st);
-
-        if (!st.IsNull(0))
-        {
-            T val;
-            
-            Get(st, 0, val);
-
-            opt = val;
+            opt_val = {};
         }
         else
         {
-            opt = {};
+            T val;
+            
+            Get(st, col, val);
+
+            opt_val = std::move(val);
         }
     }
 }
