@@ -9,6 +9,7 @@
 #include "Awl/BitMap.h"
 #include "Awl/Separator.h"
 
+#include <type_traits>
 #include <array>
 #include <vector>
 #include <optional>
@@ -38,25 +39,25 @@ namespace sqlite::helpers
         return val ^ (static_cast<T>(1) << (sizeof(T) * 8 - 1));
     }
 
-    template <typename T> requires std::is_same_v<T, uint32_t> || std::is_same_v<T, uint64_t>
+    template <typename T> requires std::is_integral_v<T> && std::is_unsigned_v<T> && (sizeof(T) == 4 || sizeof(T) == 8)
     constexpr std::make_signed_t<T> MakeSigned(T val)
     {
         return FlipSignBit(val);
     }
 
-    template <typename T> requires std::is_same_v<T, int32_t> || std::is_same_v<T, int64_t>
+    template <typename T> requires std::is_integral_v<T> && std::is_signed_v<T> && (sizeof(T) == 4 || sizeof(T) == 8)
     constexpr std::make_unsigned_t<T> MakeUnsigned(T val)
     {
         return FlipSignBit(val);
     }
 
-    template <typename T> requires std::is_same_v<T, uint8_t> || std::is_same_v<T, uint16_t>
+    template <typename T> requires std::is_integral_v<T> && std::is_unsigned_v<T> && (sizeof(T) == 1 || sizeof(T) == 2)
     constexpr int32_t MakeSigned(T val)
     {
         return static_cast<int32_t>(val);
     }
 
-    template <typename T> requires std::is_same_v<T, int8_t> || std::is_same_v<T, int16_t>
+    template <typename T> requires std::is_integral_v<T> && std::is_signed_v<T> && (sizeof(T) == 1 || sizeof(T) == 2)
     constexpr uint32_t MakeUnsigned(T val)
     {
         return static_cast<uint32_t>(val);
