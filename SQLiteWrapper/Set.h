@@ -156,7 +156,7 @@ namespace sqlite
 
     private:
 
-        template <class Value, class Int> requires std::is_integral_v<Int>
+        template <class Value1, class Int> requires std::is_integral_v<Int>
         friend class AutoincrementSet;
 
         IndexFilter MakeValueFilter() const
