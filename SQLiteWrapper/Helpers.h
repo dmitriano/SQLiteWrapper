@@ -39,6 +39,10 @@ namespace sqlite::helpers
         return val ^ (static_cast<T>(1) << (sizeof(T) * 8 - 1));
     }
 
+    // The assertion below fails in Apple Clang 17.
+    // using T = size_t;
+    // static_assert(std::is_integral_v<T>&& std::is_unsigned_v<T> && sizeof(T) == 8);
+
     template <typename T> requires std::is_integral_v<T> && std::is_unsigned_v<T> && (sizeof(T) == 4 || sizeof(T) == 8)
     constexpr std::make_signed_t<T> MakeSigned(T val)
     {
