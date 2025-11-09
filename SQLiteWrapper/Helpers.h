@@ -136,7 +136,7 @@ namespace sqlite::helpers
 
             if constexpr (awl::is_reflectable_v<FieldType>)
             {
-                const auto& member_names = T::get_member_names();
+                const auto& member_names = T::member_names();
 
                 const std::string& name = member_names[fieldIndex];
 
@@ -200,7 +200,7 @@ namespace sqlite::helpers
     {
         const std::size_t index = FindFieldIndex(field_ptr);
 
-        return Struct::get_member_names()[index];
+        return Struct::member_names()[index];
     }
         
     template <class T>
@@ -366,7 +366,7 @@ namespace sqlite::helpers
 
                     using FieldType = typename decltype(fieldTd)::Type;
 
-                    const auto& member_names = StructType::get_member_names();
+                    const auto& member_names = StructType::member_names();
 
                     const std::string& member_name = member_names[memberIndex];
 

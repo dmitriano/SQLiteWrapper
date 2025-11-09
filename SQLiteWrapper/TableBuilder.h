@@ -143,7 +143,7 @@ namespace sqlite
             m_primaryKeyColumns.erase(
                 std::remove_if(m_primaryKeyColumns.begin(), m_primaryKeyColumns.end(), [](size_t field_index)
                 {
-                    const auto& memberNames = Struct::get_member_names();
+                    const auto& memberNames = Struct::member_names();
 
                     const std::string& name = memberNames[field_index];
 
@@ -170,7 +170,7 @@ namespace sqlite
                         m_out << " ,";
                     }
 
-                    const auto& memberNames = Struct::get_member_names();
+                    const auto& memberNames = Struct::member_names();
 
                     const std::string& name = memberNames[fieldIndex];
 
