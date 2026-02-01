@@ -62,9 +62,9 @@ namespace sqlite::helpers
     }
 
     template <typename T> requires std::is_integral_v<T> && std::is_signed_v<T> && (sizeof(T) == 1 || sizeof(T) == 2)
-    constexpr uint32_t MakeUnsigned(T val)
+    constexpr std::make_unsigned_t<T> MakeUnsigned(T val)
     {
-        return static_cast<uint32_t>(val);
+        return static_cast<std::make_unsigned_t<T>>(val);
     }
 
     static_assert(MakeSigned(std::numeric_limits<unsigned int>::min()) == std::numeric_limits<int>::min());
