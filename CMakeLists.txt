@@ -1,7 +1,12 @@
 cmake_minimum_required (VERSION 3.6.2)
 project (SQLiteWrapperTest)
 
-set(AWL_ROOT_DIR "${CMAKE_SOURCE_DIR}/lib/Awl")
+set(
+    AWL_ROOT_DIR
+    "${CMAKE_SOURCE_DIR}/lib/Awl"
+    CACHE PATH "Path to Awl root directory"
+)
+
 set(SQLITE_SRC_DIR $ENV{SQLITE_SRC_DIR})
 
 if(NOT EXISTS "${SQLITE_SRC_DIR}/sqlite3.h")
@@ -10,8 +15,8 @@ endif()
 
 include(${AWL_ROOT_DIR}/CMake/AwlConfig.cmake)
 
-#set(AWL_FIND_QT OFF)
-#set(AWL_STATIC_RUNTIME ON)
+set(AWL_FIND_QT OFF)
+set(AWL_STATIC_RUNTIME ON)
 set(AWL_COMPILE_MAIN ON)
 
 file(GLOB_RECURSE CPP_FILES

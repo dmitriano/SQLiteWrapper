@@ -62,9 +62,9 @@ namespace sqlite::helpers
     }
 
     template <typename T> requires std::is_integral_v<T> && std::is_signed_v<T> && (sizeof(T) == 1 || sizeof(T) == 2)
-    constexpr uint32_t MakeUnsigned(T val)
+    constexpr std::make_unsigned_t<T> MakeUnsigned(T val)
     {
-        return static_cast<uint32_t>(val);
+        return static_cast<std::make_unsigned_t<T>>(val);
     }
 
     static_assert(MakeSigned(std::numeric_limits<unsigned int>::min()) == std::numeric_limits<int>::min());
@@ -136,7 +136,7 @@ namespace sqlite::helpers
 
             if constexpr (awl::is_reflectable_v<FieldType>)
             {
-                const auto& member_names = T::get_member_names();
+                const auto& member_names = T::member_names();
 
                 const std::string& name = member_names[fieldIndex];
 
@@ -200,7 +200,7 @@ namespace sqlite::helpers
     {
         const std::size_t index = FindFieldIndex(field_ptr);
 
-        return Struct::get_member_names()[index];
+        return Struct::member_names()[index];
     }
         
     template <class T>
@@ -366,7 +366,7 @@ namespace sqlite::helpers
 
                     using FieldType = typename decltype(fieldTd)::Type;
 
-                    const auto& member_names = StructType::get_member_names();
+                    const auto& member_names = StructType::member_names();
 
                     const std::string& member_name = member_names[memberIndex];
 
