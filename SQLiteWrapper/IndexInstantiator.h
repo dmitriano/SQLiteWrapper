@@ -31,7 +31,7 @@ namespace sqlite
             idPtrs(id_ptrs),
             m_unique(unique)
         {
-            m_db->Subscribe(this);
+            m_db->subscribe(this);
         }
 
         void Create() override

@@ -16,7 +16,7 @@ void Database::Open(const char* fileName)
         RaiseError(m_db, rc, awl::aformat() << "Can't open database '" << fileName << "'");
     }
 
-    Notify(&Element::Create);
+    notify(&Element::Create);
 }
 
 void Database::Close()
