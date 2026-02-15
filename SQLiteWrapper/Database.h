@@ -54,7 +54,7 @@ namespace sqlite
 
         void Clear()
         {
-            Notify(&Element::Delete);
+            notify(&Element::Delete);
         }
 
         void Begin()

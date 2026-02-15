@@ -29,7 +29,7 @@ namespace sqlite
             idPtr(id_ptr),
             addConstraints(std::move(add_constraints))
         {
-            m_db->Subscribe(this);
+            m_db->subscribe(this);
         }
 
         void Create() override
