@@ -22,7 +22,7 @@ namespace sqlite
 
         awl::String What() const override
         {
-            return (awl::format() << _T("SQlite error code: ") << m_code << _T(", ") << awl::FromAString(m_Message));
+            return (awl::format() << _T("SQlite error code: ") << m_code << _T(", ") << awl::fromAString(m_Message));
         }
 
         int GetCode() const

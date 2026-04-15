@@ -93,7 +93,7 @@ namespace swtest
         AWL_ATTRIBUTE(awl::String, synchronous, _T("FULL"));
         AWL_ATTRIBUTE(awl::String, journal_mode, _T("DELETE"));
 
-        m_db->Exec(awl::aformat() << "PRAGMA synchronous = " << awl::ToAString(synchronous) << ";");
-        m_db->Exec(awl::aformat() << "PRAGMA journal_mode = " << awl::ToAString(journal_mode) << ";");
+        m_db->Exec(awl::aformat() << "PRAGMA synchronous = " << awl::toAString(synchronous) << ";");
+        m_db->Exec(awl::aformat() << "PRAGMA journal_mode = " << awl::toAString(journal_mode) << ";");
     }
 }

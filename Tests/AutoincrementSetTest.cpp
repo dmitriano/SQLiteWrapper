@@ -78,7 +78,7 @@ AWL_TEST(RowIdRawQueries)
             sqlite::Get(st, 1, bot.name);
             sqlite::Get(st, 2, bot.state);
 
-            context.logger.debug(awl::format() << bot.botId << ", " << awl::FromAString(bot.name) << ", " << bot.state.size());
+            context.logger.debug(awl::format() << bot.botId << ", " << awl::fromAString(bot.name) << ", " << bot.state.size());
         }
     }
 }

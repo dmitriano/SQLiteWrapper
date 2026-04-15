@@ -267,8 +267,8 @@ AWL_TEST(Mars)
     DbContainer c(context);
     Database & db = c.db();
 
-    db.Exec(awl::aformat() << "PRAGMA synchronous = " << awl::ToAString(synchronous) << ";");
-    db.Exec(awl::aformat() << "PRAGMA journal_mode = " << awl::ToAString(journal_mode) << ";");
+    db.Exec(awl::aformat() << "PRAGMA synchronous = " << awl::toAString(synchronous) << ";");
+    db.Exec(awl::aformat() << "PRAGMA journal_mode = " << awl::toAString(journal_mode) << ";");
 
     {
         CreateTable(db);
@@ -404,7 +404,7 @@ AWL_TEST(MarketInfo)
 
         const std::string query = builder.Create();
 
-        context.logger.debug(awl::format() << awl::FromAString(query));
+        context.logger.debug(awl::format() << awl::fromAString(query));
 
         db.Exec(query);
     }
@@ -421,7 +421,7 @@ AWL_TEST(MarketInfo)
     {
         const std::string query = sqlite::BuildParameterizedInsertQuery<MarketInfo>(table_name);
         
-        context.logger.debug(awl::format() << awl::FromAString(query));
+        context.logger.debug(awl::format() << awl::fromAString(query));
 
         sqlite::Statement insert_statement = sqlite::Statement(db, query);
 
@@ -434,7 +434,7 @@ AWL_TEST(MarketInfo)
     {
         const std::string query = sqlite::BuildTrivialSelectQuery<MarketInfo>(table_name);
 
-        context.logger.debug(awl::format() << awl::FromAString(query));
+        context.logger.debug(awl::format() << awl::fromAString(query));
 
         sqlite::Statement select_statement = sqlite::Statement(db, query);
 
@@ -450,11 +450,11 @@ AWL_TEST(MarketInfo)
     {
         const std::string query = BuildParameterizedUpdateQuery<MarketInfo>(table_name, value_filter, key_filter);
 
-        context.logger.debug(awl::format() << awl::FromAString(query));
+        context.logger.debug(awl::format() << awl::fromAString(query));
 
         sqlite::Statement update_statement = sqlite::Statement(db, query);
 
-        context.logger.debug(awl::format() << awl::FromAString(query));
+        context.logger.debug(awl::format() << awl::fromAString(query));
 
         if (whole_record)
         {
@@ -473,7 +473,7 @@ AWL_TEST(MarketInfo)
     {
         const std::string query = sqlite::BuildParameterizedSelectQuery<MarketInfo>(table_name, value_filter, key_filter);
 
-        context.logger.debug(awl::format() << awl::FromAString(query));
+        context.logger.debug(awl::format() << awl::fromAString(query));
 
         sqlite::Statement select_statement = sqlite::Statement(db, query);
 
@@ -506,7 +506,7 @@ AWL_EXAMPLE(Console)
         }
 
         try        {
-            std::string aline = awl::ToAString(line);
+            std::string aline = awl::toAString(line);
 
             awl::StopWatch sw;
 
