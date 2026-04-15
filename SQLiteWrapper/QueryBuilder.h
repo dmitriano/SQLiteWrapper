@@ -4,7 +4,7 @@
 #include "SQLiteWrapper/FieldListBuilder.h"
 
 #include "Awl/Separator.h"
-#include "Awl/StringFormat.h"
+#include "Awl/LegacyFormat.h"
 #include "Awl/BitMap.h"
 
 namespace sqlite
@@ -321,3 +321,4 @@ namespace sqlite
         return builder.str();
     }
 }
+

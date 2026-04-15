@@ -1,7 +1,7 @@
 #pragma once
 
 #include "Awl/Exception.h"
-#include "Awl/StringFormat.h"
+#include "Awl/LegacyFormat.h"
 
 #include <typeinfo>
 
@@ -37,3 +37,4 @@ namespace sqlite
         const std::string m_Message;
     };
 }
+

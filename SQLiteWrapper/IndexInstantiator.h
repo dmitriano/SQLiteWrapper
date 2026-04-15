@@ -7,7 +7,7 @@
 #include "SQLiteWrapper/Statement.h"
 #include "SQLiteWrapper/QueryBuilder.h"
 
-#include "Awl/StringFormat.h"
+#include "Awl/LegacyFormat.h"
 
 #include <memory>
 
@@ -100,3 +100,4 @@ namespace sqlite
         const bool m_unique;
     };
 }
+

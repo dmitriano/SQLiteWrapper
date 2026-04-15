@@ -5,7 +5,7 @@
 #include "SQLiteWrapper/Element.h"
 #include "SQLiteWrapper/Set.h"
 
-#include "Awl/StringFormat.h"
+#include "Awl/LegacyFormat.h"
 
 #include <memory>
 #include <functional>
@@ -85,3 +85,4 @@ namespace sqlite
         std::function<void(TableBuilder<Record>&)> addConstraints;
     };
 }
+

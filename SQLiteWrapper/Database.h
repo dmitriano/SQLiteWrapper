@@ -7,7 +7,7 @@
 #include "SQLiteWrapper/Element.h"
 #include "SQLiteWrapper/Statement.h"
 
-#include "Awl/StringFormat.h"
+#include "Awl/LegacyFormat.h"
 #include "Awl/Observable.h"
 #include "Awl/ScopeGuard.h"
 #include "Awl/Logger.h"
@@ -249,3 +249,4 @@ namespace sqlite
         friend Statement;
     };
 }
+

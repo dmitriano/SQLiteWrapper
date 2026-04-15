@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Awl/StringFormat.h"
+#include "Awl/LegacyFormat.h"
 #include "Awl/Separator.h"
 
 #include "SQLiteWrapper/Helpers.h"
@@ -250,3 +250,4 @@ namespace sqlite
         Statement iterateStatement;
     };
 }
+

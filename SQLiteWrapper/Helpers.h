@@ -5,7 +5,7 @@
 
 #include "Awl/Reflection.h"
 #include "Awl/TupleHelpers.h"
-#include "Awl/StringFormat.h"
+#include "Awl/LegacyFormat.h"
 #include "Awl/BitMap.h"
 #include "Awl/Separator.h"
 
@@ -382,3 +382,4 @@ namespace sqlite::helpers
             });
     }
 }
+

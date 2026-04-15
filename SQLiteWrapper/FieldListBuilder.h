@@ -3,7 +3,7 @@
 #include "SQLiteWrapper/Helpers.h"
 
 #include "Awl/Separator.h"
-#include "Awl/StringFormat.h"
+#include "Awl/LegacyFormat.h"
 #include "Awl/BitMap.h"
 
 #include <functional>
@@ -87,3 +87,4 @@ namespace sqlite
         awl::aseparator m_sep;
     };
 }
+

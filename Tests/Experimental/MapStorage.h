@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Awl/StringFormat.h"
+#include "Awl/LegacyFormat.h"
 
 #include "SQLiteWrapper/TableBuilder.h"
 #include "SQLiteWrapper/QueryBuilder.h"
@@ -108,3 +108,4 @@ namespace sqlite
         sqlite::Statement selectStatement;
     };
 }
+
