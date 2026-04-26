@@ -95,7 +95,7 @@ namespace
 
     void PrintStat(const awl::testing::TestContext & context, const awl::StopWatch & sw, size_t batch_index, size_t batch_size)
     {
-        const float seconds = sw.GetElapsedSeconds<float>();
+        const float seconds = sw.elapsedSeconds<float>();
 
         context.logger.debug(awl::format() << batch_size << _T(" / ") << (batch_index + 1) * batch_size << _T(" rows have been inserted within ") <<
             std::fixed << std::setprecision(2) << seconds <<
@@ -195,7 +195,7 @@ AWL_TEST(InsertMarketPrice)
                 db.Exec("CREATE INDEX i_market ON prices(marketId)");
 
                 context.logger.debug(awl::format() << _T("The indices have been create within ") <<
-                    std::fixed << std::setprecision(2) << sw.GetElapsedSeconds<float>()
+                    std::fixed << std::setprecision(2) << sw.elapsedSeconds<float>()
                     << _T(" seconds."));
             }
         }
@@ -514,7 +514,7 @@ AWL_EXAMPLE(Console)
             s.Next();
 
         context.logger.debug(awl::format() << _T("The query has taken ") <<
-            std::fixed << std::setprecision(6) << sw.GetElapsedSeconds<float>()
+            std::fixed << std::setprecision(6) << sw.elapsedSeconds<float>()
             << _T(" seconds."));
         }
         catch (const SQLiteException & e)

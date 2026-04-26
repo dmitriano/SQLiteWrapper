@@ -80,11 +80,11 @@ namespace swtest
 
             //std::ostringstream out;
 
-            //out << j << ": " << sw.GetElapsedSeconds<int>() << "s, ";
+            //out << j << ": " << sw.elapsedSeconds<int>() << "s, ";
 
             //Logger::WriteMessage(out.str().c_str());
 
-            sw.Reset();
+            sw.reset();
         }
     }
 
