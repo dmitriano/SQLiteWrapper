@@ -6,9 +6,9 @@ namespace sqlite
     {
     public:
 
-        virtual void Create() = 0;
+        virtual void create() = 0;
 
-        virtual void Delete() = 0;
+        virtual void deleteElement() = 0;
 
         virtual ~Element() = default;
     };

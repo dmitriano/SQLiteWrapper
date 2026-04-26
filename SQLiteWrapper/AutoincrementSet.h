@@ -14,7 +14,7 @@ namespace sqlite
         AutoincrementSet(const std::shared_ptr<Database>& db, std::string table_name, Int Value::* id_ptr) :
             m_storage(db, std::move(table_name), std::make_tuple(id_ptr))
         {
-            insertWithoutIdStatement = m_storage.MakeStatement("autoinsert", BuildParameterizedInsertQuery<Value>(m_storage.tableName, m_storage.MakeValueFilter()));
+            insertWithoutIdStatement = m_storage.makeStatement("autoinsert", buildParameterizedInsertQuery<Value>(m_storage.tableName, m_storage.valueFilter()));
         }
 
         AutoincrementSet(const AutoincrementSet&) = delete;
@@ -23,11 +23,11 @@ namespace sqlite
         AutoincrementSet& operator = (const AutoincrementSet&) = delete;
         AutoincrementSet& operator = (AutoincrementSet&&) = default;
 
-        void Close()
+        void close()
         {
-            m_storage.Close();
+            m_storage.close();
 
-            insertWithoutIdStatement.Close();
+            insertWithoutIdStatement.close();
         }
 
         Iterator<Value> begin()
@@ -40,89 +40,89 @@ namespace sqlite
             return m_storage.end();
         }
 
-        void Insert(Value& val)
+        void insert(Value& val)
         {
-            m_storage.BindValue(insertWithoutIdStatement, val, m_storage.MakeValueFilter());
+            m_storage.bindValue(insertWithoutIdStatement, val, m_storage.valueFilter());
 
-            insertWithoutIdStatement.Exec();
+            insertWithoutIdStatement.exec();
 
-            AssignLastRowId(val);
+            assignLastRowId(val);
         }
 
         // It may still violate some constraint like UNIQUE index on other columns.
-        bool TryInsert(Value& val)
+        bool tryinsert(Value& val)
         {
-            m_storage.BindValue(insertWithoutIdStatement, val, m_storage.MakeValueFilter());
+            m_storage.bindValue(insertWithoutIdStatement, val, m_storage.valueFilter());
 
-            const bool success = insertWithoutIdStatement.Exec();
+            const bool success = insertWithoutIdStatement.exec();
 
             if (success)
             {
-                AssignLastRowId(val);
+                assignLastRowId(val);
             }
 
             return success;
         }
 
-        void InsertWithId(const Value& val)
+        void insertWithId(const Value& val)
         {
-            m_storage.Insert(val);
+            m_storage.insert(val);
         }
 
-        bool TryInsertWithId(const Value& val)
+        bool tryinsertWithId(const Value& val)
         {
-            return m_storage.TryInsert(val);
+            return m_storage.tryinsert(val);
         }
 
-        bool Find(Value& val)
+        bool find(Value& val)
         {
-            return m_storage.Find(val);
+            return m_storage.find(val);
         }
 
-        bool Find(Int id, Value& val)
+        bool find(Int id, Value& val)
         {
-            return m_storage.Find(std::make_tuple(id), val);
+            return m_storage.find(std::make_tuple(id), val);
         }
 
-        void Update(const Value& val)
+        void update(const Value& val)
         {
-            m_storage.Update(val);
+            m_storage.update(val);
         }
 
         template <class... Field>
-        Updater<Value> CreateUpdater(std::tuple<Field Value::*...> field_ptrs) const
+        Updater<Value> createUpdater(std::tuple<Field Value::*...> field_ptrs) const
         {
-            return m_storage.CreateUpdater(field_ptrs);
+            return m_storage.createUpdater(field_ptrs);
         }
 
-        void TryDelete(Int id)
+        void tryDeleteRecord(Int id)
         {
-            m_storage.TryDelete(std::make_tuple(id));
+            m_storage.tryDeleteRecord(std::make_tuple(id));
         }
 
-        void Delete(Int id)
+        void deleteElement(Int id)
         {
-            m_storage.Delete(std::make_tuple(id));
+            m_storage.deleteElement(std::make_tuple(id));
         }
 
-        void TryDelete(const Value& val)
+        void tryDeleteRecord(const Value& val)
         {
-            m_storage.TryDelete(val);
+            m_storage.tryDeleteRecord(val);
         }
 
-        void Delete(const Value& val)
+        void deleteElement(const Value& val)
         {
-            m_storage.Delete(val);
+            m_storage.deleteElement(val);
         }
 
     private:
 
-        void AssignLastRowId(Value& val) const
+        void assignLastRowId(Value& val) const
         {
             Int Value::* id_ptr = std::get<0>(m_storage.idPtrs);
 
             // TODO: What about signed/unsigned?
-            val.*id_ptr = static_cast<Int>(m_storage.m_db->GetLastRowId());
+            val.*id_ptr = static_cast<Int>(m_storage.m_db->lastRowId());
         }
 
         Set<Value, Int> m_storage;

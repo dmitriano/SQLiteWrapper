@@ -13,7 +13,7 @@ AWL_TEST(IteratorEmptyRange)
 {
     DbContainer c(context);
 
-    auto storage = MakeSet(c.m_db, "orders", std::make_tuple(&v5::Order::exchangeId, &v5::Order::marketId, &v5::Order::accountType));
+    auto storage = makeSet(c.m_db, "orders", std::make_tuple(&v5::Order::exchangeId, &v5::Order::marketId, &v5::Order::accountType));
 
     {
         sqlite::Statement st(*c.m_db, "SELECT * FROM orders;");

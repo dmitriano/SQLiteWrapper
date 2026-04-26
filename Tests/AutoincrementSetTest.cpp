@@ -49,22 +49,22 @@ AWL_TEST(RowIdRawQueries)
     {
         sqlite::TableBuilder<Bot> builder(table_name);
 
-        builder.AddColumns();
+        builder.addColumns();
 
-        builder.SetPrimaryKey(&Bot::botId);
+        builder.setPrimaryKey(&Bot::botId);
 
-        const std::string query = builder.Build();
+        const std::string query = builder.build();
 
-        db.Exec(query);
+        db.exec(query);
     }
     
     {
         sqlite::Statement st(db, awl::aformat() << "INSERT INTO " << table_name << " (name, state) VALUES (?2, ?3);");
 
-        sqlite::Bind(st, 1, bots[1].name);
-        sqlite::Bind(st, 2, bots[2].state);
+        sqlite::bind(st, 1, bots[1].name);
+        sqlite::bind(st, 2, bots[2].state);
 
-        st.Exec();
+        st.exec();
     }
 
     {
@@ -74,9 +74,9 @@ AWL_TEST(RowIdRawQueries)
         {
             Bot bot;
 
-            sqlite::Get(st, 0, bot.botId);
-            sqlite::Get(st, 1, bot.name);
-            sqlite::Get(st, 2, bot.state);
+            sqlite::get(st, 0, bot.botId);
+            sqlite::get(st, 1, bot.name);
+            sqlite::get(st, 2, bot.state);
 
             context.logger.debug(awl::format() << bot.botId << ", " << awl::fromAString(bot.name) << ", " << bot.state.size());
         }
@@ -87,14 +87,14 @@ AWL_TEST(RowIdRaw)
 {
     DbContainer c(context);
 
-    c.m_db->Exec("CREATE TABLE raw_bots (name TEXT NOT NULL COLLATE NOCASE, state BLOB);");
+    c.m_db->exec("CREATE TABLE raw_bots (name TEXT NOT NULL COLLATE NOCASE, state BLOB);");
 
     sqlite::Statement insert_statement(*c.m_db, "INSERT INTO raw_bots (name, state) VALUES (?1, ?3);");
 
-    insert_statement.BindText(0, "BTCUSDT");
-    insert_statement.BindBlob(2, { 0, 1, 3 });
+    insert_statement.bindText(0, "BTCUSDT");
+    insert_statement.bindBlob(2, { 0, 1, 3 });
 
-    insert_statement.Exec();
+    insert_statement.exec();
 }
 
 AWL_TEST(RowIdSet)
@@ -107,9 +107,9 @@ AWL_TEST(RowIdSet)
 
     for (Bot& bot : bots)
     {
-        set.Insert(bot);
+        set.insert(bot);
 
-        // bot.botId = c.db().GetLastRowId();
+        // bot.botId = c.db().lastRowId();
     }
 
     {
@@ -144,7 +144,7 @@ AWL_TEST(RowIdSet)
     {
         Bot actual;
 
-        AWL_ASSERT(set.Find(bot.botId, actual));
+        AWL_ASSERT(set.find(bot.botId, actual));
 
         AWL_ASSERT(actual == bot);
     }
@@ -152,11 +152,11 @@ AWL_TEST(RowIdSet)
     bot1.botId = bots[0].botId;
     
     {
-        set.Update(bot1);
+        set.update(bot1);
 
         Bot actual;
 
-        AWL_ASSERT(set.Find(bot1.botId, actual));
+        AWL_ASSERT(set.find(bot1.botId, actual));
 
         AWL_ASSERT(actual == bot1);
     }
@@ -164,14 +164,14 @@ AWL_TEST(RowIdSet)
     bot2.botId = bots[1].botId;
 
     {
-        sqlite::Updater up = set.CreateUpdater(std::make_tuple(&Bot::state));
+        sqlite::Updater up = set.createUpdater(std::make_tuple(&Bot::state));
 
         {
-            up.Update(bot2);
+            up.update(bot2);
 
             Bot actual;
 
-            AWL_ASSERT(set.Find(bot2.botId, actual));
+            AWL_ASSERT(set.find(bot2.botId, actual));
 
             AWL_ASSERT(actual == bot2);
         }
@@ -179,13 +179,13 @@ AWL_TEST(RowIdSet)
         {
             const std::vector<uint8_t> state = { 33u, 35u };
 
-            up.Update(std::make_tuple(bot2.botId), std::make_tuple(state));
+            up.update(std::make_tuple(bot2.botId), std::make_tuple(state));
 
             bot2.state = state;
 
             Bot actual;
 
-            AWL_ASSERT(set.Find(bot2.botId, actual));
+            AWL_ASSERT(set.find(bot2.botId, actual));
 
             AWL_ASSERT(actual == bot2);
         }
@@ -202,13 +202,13 @@ AWL_TEST(RowIdSequence)
 
     for (size_t i = 0; i < bots.size(); ++i)
     {
-        set.Insert(bots[i]);
+        set.insert(bots[i]);
 
         AWL_ASSERT_EQUAL(static_cast<sqlite::RowId>(i) * 2 + 1, bots[i].botId);
 
-        set.Delete(bots[i]);
+        set.deleteElement(bots[i]);
 
-        set.Insert(bots[i]);
+        set.insert(bots[i]);
 
         AWL_ASSERT_EQUAL(static_cast<sqlite::RowId>(i) * 2 + 2, bots[i].botId);
     }

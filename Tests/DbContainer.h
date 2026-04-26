@@ -38,7 +38,7 @@ namespace swtest
 
         ~DbContainer()
         {
-            m_db->Close();
+            m_db->close();
             RemoveFile();
         }
 

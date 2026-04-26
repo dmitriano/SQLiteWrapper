@@ -17,12 +17,12 @@ AWL_ENUM_TRAITS(sqlite, FieldOption)
 
 namespace sqlite
 {
-    inline awl::aseparator MakeCommaSeparator()
+    inline awl::aseparator makeCommaSeparator()
     {
         return awl::aseparator(',');
     }
 
-    inline awl::aseparator MakeAndSeparator()
+    inline awl::aseparator makeAndSeparator()
     {
         return awl::aseparator(" AND ");
     }
@@ -38,13 +38,13 @@ namespace sqlite
             m_sep(std::move(sep))
         {}
 
-        bool ContainsColumn(size_t field_index) const
+        bool containsColumn(size_t field_index) const
         {
             return !filter || filter->contains(field_index);
         }
 
         template <class FieldType>
-        void AddColumn(const std::string& full_name, size_t field_index)
+        void addColumn(const std::string& full_name, size_t field_index)
         {
             out() << m_sep;
 
@@ -65,7 +65,7 @@ namespace sqlite
             }
         }
 
-        void SetFilter(OptionalIndexFilter optional_filter)
+        void setFilter(OptionalIndexFilter optional_filter)
         {
             filter = std::move(optional_filter);
         }

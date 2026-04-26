@@ -27,7 +27,7 @@ namespace sqlite
 
         HeterogeneousIterator& operator = (HeterogeneousIterator&& other) noexcept
         {
-            Close();
+            close();
 
             m_s = std::move(other.m_s);
 
@@ -45,31 +45,31 @@ namespace sqlite
         }
 
         template <class T>
-        void Get(size_t col, T& val)
+        void get(size_t col, T& val)
         {
-            sqlite::Get(*m_s, col, val);
+            sqlite::get(*m_s, col, val);
         }
 
         template <class T>
-        void Get(T& val)
+        void get(T& val)
         {
-            Get(0, val);
+            get(0, val);
         }
 
         ~HeterogeneousIterator()
         {
-            Close();
+            close();
         }
 
     private:
 
-        void Close()
+        void close()
         {
             //Allow the statement to be reused with new parameters, for example.
             if (m_s != nullptr)
             {
-                m_s->ClearBindings();
-                m_s->Reset();
+                m_s->clearBindings();
+                m_s->reset();
 
                 m_s = nullptr;
             }

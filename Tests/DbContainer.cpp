@@ -11,13 +11,13 @@ namespace swtest
     //Inserts 1000 row by default.
     void DbContainer::FillDatabase(size_t batchCount, size_t transactionCount)
     {
-        //db().Exec("PRAGMA synchronous = OFF;");
+        //db().exec("PRAGMA synchronous = OFF;");
 
-        db().Exec("create table myTable (id INTEGER PRIMARY KEY AUTOINCREMENT, FirstName varchar(30), LastName varchar(30), Age smallint, Hometown varchar(30), Job varchar(30))");
+        db().exec("create table myTable (id INTEGER PRIMARY KEY AUTOINCREMENT, FirstName varchar(30), LastName varchar(30), Age smallint, Hometown varchar(30), Job varchar(30))");
 
         //exec("CREATE INDEX i_fn ON myTable(FirstName)");
         //exec("CREATE INDEX i_ln ON myTable(LastName)");
-        db().Exec("CREATE INDEX i_ln ON myTable(Age)");
+        db().exec("CREATE INDEX i_ln ON myTable(Age)");
 
         Statement stmt(db(), "insert into myTable (FirstName, LastName, Age, Hometown, Job) values (?, ?, ?, ?, ?);");
 
@@ -35,24 +35,24 @@ namespace swtest
 
             if (m_insertWithBinding)
             {
-                Bind(stmt, 0, randomFirstName);
-                Bind(stmt, 1, randomLastName);
-                Bind(stmt, 2, randomAge);
-                Bind(stmt, 3, home_town);
-                Bind(stmt, 4, job);
+                sqlite::bind(stmt, 0, randomFirstName);
+                sqlite::bind(stmt, 1, randomLastName);
+                sqlite::bind(stmt, 2, randomAge);
+                sqlite::bind(stmt, 3, home_town);
+                sqlite::bind(stmt, 4, job);
 
-                stmt.Exec();
+                stmt.exec();
             }
             else
             {
                 std::string query(awl::aformat() << "insert into myTable (FirstName, LastName, Age, Hometown, Job) values ('" <<
                     randomFirstName << "', '" <<
                     randomLastName << "', " <<
-                    sqlite::helpers::MakeSigned(randomAge) << ", '" <<
+                    sqlite::helpers::makeSigned(randomAge) << ", '" <<
                     home_town << "', '" <<
                     job << "');");
 
-                db().Exec(query.c_str());
+                db().exec(query.c_str());
             }
         };
 
@@ -69,14 +69,14 @@ namespace swtest
 
         for (size_t j = 0; j < transactionCount; ++j)
         {
-            db().Begin();
+            db().beginTransaction();
 
             for (size_t i = 0; i < batchCount; ++i)
             {
                 insertBatch();
             }
 
-            db().Commit();
+            db().commit();
 
             //std::ostringstream out;
 
@@ -93,7 +93,7 @@ namespace swtest
         AWL_ATTRIBUTE(awl::String, synchronous, _T("FULL"));
         AWL_ATTRIBUTE(awl::String, journal_mode, _T("DELETE"));
 
-        m_db->Exec(awl::aformat() << "PRAGMA synchronous = " << awl::toAString(synchronous) << ";");
-        m_db->Exec(awl::aformat() << "PRAGMA journal_mode = " << awl::toAString(journal_mode) << ";");
+        m_db->exec(awl::aformat() << "PRAGMA synchronous = " << awl::toAString(synchronous) << ";");
+        m_db->exec(awl::aformat() << "PRAGMA journal_mode = " << awl::toAString(journal_mode) << ";");
     }
 }

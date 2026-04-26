@@ -15,51 +15,51 @@ namespace sqlite
     {
     public:
 
-        void StartSelect(const std::string& table_name, const OptionalIndexFilter& filter = {})
+        void Startselect(const std::string& table_name, const OptionalIndexFilter& filter = {})
         {
-            FieldListBuilder<Struct> builder = MakeFieldBuilder();
+            FieldListBuilder<Struct> builder = makeFieldBuilder();
 
-            builder.SetFilter(filter);
+            builder.setFilter(filter);
 
-            StartSelect(table_name, builder);
+            Startselect(table_name, builder);
         }
 
-        void StartSelect(const std::string& table_name, FieldListBuilder<Struct>& builder)
+        void Startselect(const std::string& table_name, FieldListBuilder<Struct>& builder)
         {
             m_out << "SELECT ";
 
-            AddFieldNames(builder);
+            addFieldNames(builder);
 
             m_out << " FROM " << table_name;
         }
 
-        void StartInsert(const std::string& table_name, const OptionalIndexFilter& filter = {})
+        void Startinsert(const std::string& table_name, const OptionalIndexFilter& filter = {})
         {
             m_out << "INSERT INTO " << table_name << " (";
 
-            AddFieldNames(filter);
+            addFieldNames(filter);
 
             m_out << ") VALUES";
         }
 
-        void StartUpdate(const std::string& table_name, const OptionalIndexFilter& filter = {})
+        void Startupdate(const std::string& table_name, const OptionalIndexFilter& filter = {})
         {
             m_out << "UPDATE " << table_name << " SET ";
 
-            AddFieldNames(filter, { FieldOption::Parametized });
+            addFieldNames(filter, { FieldOption::Parametized });
         }
 
-        void StartDelete(const std::string& table_name)
+        void StartdeleteElement(const std::string& table_name)
         {
             m_out << "DELETE FROM " << table_name;
         }
 
-        void CreateView(const std::string& view_name)
+        void createView(const std::string& view_name)
         {
             m_out << "CREATE VIEW " << view_name << " AS ";
         }
 
-        FieldListBuilder<Struct> MakeFieldBuilder(awl::aseparator sep = MakeCommaSeparator())
+        FieldListBuilder<Struct> makeFieldBuilder(awl::aseparator sep = makeCommaSeparator())
         {
             return FieldListBuilder<Struct>(m_out, std::move(sep));
         }
@@ -67,31 +67,31 @@ namespace sqlite
         //We need to convert some tuple of field pointers to std::set<size_t>.
         //So it currently works fine for trivial insert and select,
         //but for trivial updates we need the filter with transparent indices.
-        void AddFieldNames(const OptionalIndexFilter& filter, awl::bitmap<FieldOption> options = {}, awl::aseparator sep = MakeCommaSeparator())
+        void addFieldNames(const OptionalIndexFilter& filter, awl::bitmap<FieldOption> options = {}, awl::aseparator sep = makeCommaSeparator())
         {
-            FieldListBuilder<Struct> builder = MakeFieldBuilder(std::move(sep));
+            FieldListBuilder<Struct> builder = makeFieldBuilder(std::move(sep));
 
-            builder.SetFilter(filter);
+            builder.setFilter(filter);
             builder.options = std::move(options);
 
-            helpers::ForEachColumn<Struct>(builder);
+            helpers::forEachColumn<Struct>(builder);
         }
 
-        void AddFieldNames(FieldListBuilder<Struct>& builder)
+        void addFieldNames(FieldListBuilder<Struct>& builder)
         {
-            helpers::ForEachColumn<Struct>(builder);
+            helpers::forEachColumn<Struct>(builder);
         }
 
-        void AddText(const std::string_view& text)
+        void addText(const std::string_view& text)
         {
             m_out << text;
         }
 
-        void AddParameters(const OptionalIndexFilter& filter = {})
+        void addParameters(const OptionalIndexFilter& filter = {})
         {
             m_out << " (";
 
-            auto sep = MakeCommaSeparator();
+            auto sep = makeCommaSeparator();
 
             auto add = [this, &sep](size_t i)
             {
@@ -107,7 +107,7 @@ namespace sqlite
             }
             else
             {
-                const size_t count = helpers::GetFieldCount<Struct>();
+                const size_t count = helpers::fieldCount<Struct>();
 
                 for (size_t i = 0; i < count; ++i)
                 {
@@ -118,42 +118,42 @@ namespace sqlite
             m_out << ")";
         }
 
-        void AddWhere()
+        void addWhere()
         {
-            AddText(" WHERE ");
+            addText(" WHERE ");
         }
 
-        void AddWhereParam(size_t index)
+        void addWhereParam(size_t index)
         {
             m_out << "=?" << index + 1;
         }
 
-        void AddLimit(size_t n)
+        void addLimit(size_t n)
         {
             m_out << " LIMIT " << n;
         }
 
-        void AddOffset(size_t n)
+        void addOffset(size_t n)
         {
             m_out << " OFFSET " << n;
         }
 
-        void AddTerminator()
+        void addTerminator()
         {
             m_out << ";";
         }
 
-        void AddJoinOn(const std::string& right_table)
+        void addJoinOn(const std::string& right_table)
         {
             m_out << " JOIN " << right_table << " ON ";
         }
 
-        void AddLeftJoinOn(const std::string& right_table)
+        void addLeftJoinOn(const std::string& right_table)
         {
             m_out << " LEFT JOIN " << right_table << " ON ";
         }
 
-        void AddJoinCondition(const std::string& left_table, const std::string& right_table,
+        void addJoinCondition(const std::string& left_table, const std::string& right_table,
             const std::string& left_id, const std::string& right_id)
         {
             m_out << left_table << "." << left_id << "=" << right_table << "." << right_id;
@@ -185,28 +185,28 @@ namespace sqlite
     };
 
     template <class Struct>
-    std::string BuildTrivialSelectQuery(const std::string& table_name)
+    std::string buildTrivialSelectQuery(const std::string& table_name)
     {
         QueryBuilder<Struct> builder;
 
-        builder.StartSelect(table_name);
+        builder.Startselect(table_name);
 
-        builder.AddTerminator();
+        builder.addTerminator();
 
         return builder.str();
     }
 
     template <class Struct>
-    std::string BuildParameterizedSelectQuery(const std::string& table_name, const OptionalIndexFilter& select_fields,
+    std::string buildParameterizedSelectQuery(const std::string& table_name, const OptionalIndexFilter& select_fields,
         const OptionalIndexFilter& where_fields = {}, bool sequential_binding_indices = false)
     {
         QueryBuilder<Struct> builder;
 
-        builder.StartSelect(table_name, select_fields);
+        builder.Startselect(table_name, select_fields);
 
         if (where_fields)
         {
-            builder.AddWhere();
+            builder.addWhere();
 
             awl::bitmap<FieldOption> options = { FieldOption::Parametized };
 
@@ -215,16 +215,16 @@ namespace sqlite
                 options |= FieldOption::SequentialBindingIndices;
             }
 
-            builder.AddFieldNames(where_fields, options, MakeAndSeparator());
+            builder.addFieldNames(where_fields, options, makeAndSeparator());
         }
 
-        builder.AddTerminator();
+        builder.addTerminator();
 
         return builder.str();
     }
 
     template <class LeftStruct, class RightStruct, class T>
-    std::string BuildListJoinQuery(const std::string& left_table_name, const std::string& right_table_name,
+    std::string buildListJoinQuery(const std::string& left_table_name, const std::string& right_table_name,
         T LeftStruct::* left_id_ptr, T RightStruct::* right_id_ptr,
         const OptionalIndexFilter& right_filter = {}, T LeftStruct::* where_id_ptr = nullptr)
     {
@@ -232,91 +232,91 @@ namespace sqlite
 
         // disambiguate column names
         {
-            FieldListBuilder<RightStruct> field_builder = builder.MakeFieldBuilder();
+            FieldListBuilder<RightStruct> field_builder = builder.makeFieldBuilder();
 
-            field_builder.SetFilter(right_filter);
+            field_builder.setFilter(right_filter);
             field_builder.table_name = right_table_name;
 
-            builder.StartSelect(left_table_name, field_builder);
+            builder.Startselect(left_table_name, field_builder);
         }
 
-        builder.AddLeftJoinOn(right_table_name);
+        builder.addLeftJoinOn(right_table_name);
 
         // We do not need transparent indices to get names.
         // Key ids can't be in nested structures (this is not supported yet).
-        builder.AddJoinCondition(left_table_name, right_table_name,
-            helpers::FindFieldName(left_id_ptr), helpers::FindFieldName(right_id_ptr));
+        builder.addJoinCondition(left_table_name, right_table_name,
+            helpers::findFieldName(left_id_ptr), helpers::findFieldName(right_id_ptr));
 
         if (where_id_ptr != nullptr)
         {
-            builder.AddWhere();
+            builder.addWhere();
 
-            builder.AddText(left_table_name);
+            builder.addText(left_table_name);
             
-            builder.AddText(".");
+            builder.addText(".");
 
-            builder.AddText(helpers::FindFieldName(where_id_ptr));
+            builder.addText(helpers::findFieldName(where_id_ptr));
 
-            builder.AddWhereParam(0);
+            builder.addWhereParam(0);
         }
 
-        builder.AddTerminator();
+        builder.addTerminator();
 
         return builder.str();
     }
 
     template <class Struct, class T>
-    std::string BuildListWhereQuery(const std::string& table_name, T Struct::* where_id_ptr)
+    std::string buildListWhereQuery(const std::string& table_name, T Struct::* where_id_ptr)
     {
-        return sqlite::BuildParameterizedSelectQuery<Struct>(table_name, {},
-            helpers::FindTransparentFieldIndices(std::make_tuple(where_id_ptr)), true);
+        return sqlite::buildParameterizedSelectQuery<Struct>(table_name, {},
+            helpers::findTransparentFieldIndices(std::make_tuple(where_id_ptr)), true);
     }
         
     template <class Struct>
-    std::string BuildParameterizedInsertQuery(const std::string& table_name, const OptionalIndexFilter& filter = {})
+    std::string buildParameterizedInsertQuery(const std::string& table_name, const OptionalIndexFilter& filter = {})
     {
         QueryBuilder<Struct> builder;
 
-        builder.StartInsert(table_name, filter);
+        builder.Startinsert(table_name, filter);
         
-        builder.AddParameters(filter);
+        builder.addParameters(filter);
 
-        builder.AddTerminator();
+        builder.addTerminator();
 
         return builder.str();
     }
 
     template <class Struct>
-    std::string BuildParameterizedUpdateQuery(const std::string& table_name, const IndexFilter& set_fields, const OptionalIndexFilter& where_fields)
+    std::string buildParameterizedUpdateQuery(const std::string& table_name, const IndexFilter& set_fields, const OptionalIndexFilter& where_fields)
     {
         QueryBuilder<Struct> builder;
 
-        builder.StartUpdate(table_name, set_fields);
+        builder.Startupdate(table_name, set_fields);
 
         if (where_fields)
         {
-            builder.AddWhere();
+            builder.addWhere();
 
-            builder.AddFieldNames(where_fields, { FieldOption::Parametized }, MakeAndSeparator());
+            builder.addFieldNames(where_fields, { FieldOption::Parametized }, makeAndSeparator());
         }
 
-        builder.AddTerminator();
+        builder.addTerminator();
 
         return builder.str();
     }
 
     template <class Struct>
-    std::string BuildParameterizedDeleteQuery(const std::string& table_name, const IndexFilter& where_fields)
+    std::string buildParameterizedDeleteQuery(const std::string& table_name, const IndexFilter& where_fields)
     {
         QueryBuilder<Struct> builder;
 
-        builder.StartDelete(table_name);
+        builder.StartdeleteElement(table_name);
 
-        builder.AddWhere();
+        builder.addWhere();
 
-        builder.AddFieldNames(where_fields, { FieldOption::Parametized }, MakeAndSeparator());
+        builder.addFieldNames(where_fields, { FieldOption::Parametized }, makeAndSeparator());
 
-        builder.AddTerminator();
+        builder.addTerminator();
 
         return builder.str();
     }

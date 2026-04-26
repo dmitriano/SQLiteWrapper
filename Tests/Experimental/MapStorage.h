@@ -37,13 +37,13 @@ namespace sqlite
 
         void CreateTable()
         {
-            if (!m_db.TableExists(tableName))
+            if (!m_db.tableExists(tableName))
             {
                 sqlite::TableBuilder<Record> builder(tableName);
 
-                builder.SetColumnConstraint(&Record::id, "INTEGER NOT NULL PRIMARY KEY");
+                builder.setColumnConstraint(&Record::id, "INTEGER NOT NULL PRIMARY KEY");
 
-                m_db.Exec(builder.Create());
+                m_db.exec(builder.create());
             }
         }
 
@@ -53,48 +53,48 @@ namespace sqlite
 
             sqlite::IndexFilter value_filter;
                 
-            for (size_t i = 1; i < sqlite::helpers::GetFieldCount<Record>(); ++i)
+            for (size_t i = 1; i < sqlite::helpers::fieldCount<Record>(); ++i)
             {
                 value_filter.insert(i);
             }
 
-            insertStatement = sqlite::Statement(m_db, sqlite::BuildParameterizedInsertQuery<Record>(tableName));
+            insertStatement = sqlite::Statement(m_db, sqlite::buildParameterizedInsertQuery<Record>(tableName));
 
-            updateStatement = sqlite::Statement(m_db, sqlite::BuildParameterizedUpdateQuery<Record>(tableName, value_filter, id_filter));
+            updateStatement = sqlite::Statement(m_db, sqlite::buildParameterizedUpdateQuery<Record>(tableName, value_filter, id_filter));
 
-            selectStatement = sqlite::Statement(m_db, sqlite::BuildParameterizedSelectQuery<Record>(tableName, value_filter, id_filter));
+            selectStatement = sqlite::Statement(m_db, sqlite::buildParameterizedSelectQuery<Record>(tableName, value_filter, id_filter));
         }
 
-        void Insert(const Key& id, const Value& val)
+        void insert(const Key& id, const Value& val)
         {
-            sqlite::Bind(insertStatement, 0, id);
-            sqlite::Bind(insertStatement, 1, val);
+            sqlite::bind(insertStatement, 0, id);
+            sqlite::bind(insertStatement, 1, val);
 
-            insertStatement.Exec();
+            insertStatement.exec();
         }
 
-        bool Find(const Key& id, Value& val)
+        bool find(const Key& id, Value& val)
         {
-            sqlite::Bind(selectStatement, 0, id);
+            sqlite::bind(selectStatement, 0, id);
 
             const bool exists = selectStatement.Next();
             
             if (exists)
             {
-                sqlite::Get(selectStatement, 0, val);
+                sqlite::get(selectStatement, 0, val);
             }
 
-            selectStatement.Reset();
+            selectStatement.reset();
 
             return exists;
         }
 
-        void Update(const Key& id, const Value& val)
+        void update(const Key& id, const Value& val)
         {
-            sqlite::Bind(updateStatement, 0, id);
-            sqlite::Bind(updateStatement, 1, val);
+            sqlite::bind(updateStatement, 0, id);
+            sqlite::bind(updateStatement, 1, val);
 
-            updateStatement.Exec();
+            updateStatement.exec();
         }
 
     private:

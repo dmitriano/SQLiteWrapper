@@ -68,7 +68,7 @@ namespace sqlite
             if (m_i.Next())
             {
                 T val;
-                m_i.Get(val);
+                m_i.get(val);
 
                 m_v = std::move(val);
 

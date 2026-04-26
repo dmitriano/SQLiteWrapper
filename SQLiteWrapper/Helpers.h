@@ -27,14 +27,14 @@ namespace sqlite
 
 namespace sqlite::helpers
 {
-    // Functions MakeSigned and MakeUnsigned should satisfy the following criteria:
+    // Functions makeSigned and makeUnsigned should satisfy the following criteria:
     // For a given pair of parameters a, b and return values a1, b1, if a <= b then a1 <= b1.
     // and for a given unsigned a
-    // MakeUnsigned(MakeSigned(a)) == a
-    // For example, MakeSigned(static_cast<unsigned int>(0)) != 0
+    // makeUnsigned(makeSigned(a)) == a
+    // For example, makeSigned(static_cast<unsigned int>(0)) != 0
 
     template <typename T>
-    constexpr T FlipSignBit(T val)
+    constexpr T flipSignBit(T val)
     {
         return val ^ (static_cast<T>(1) << (sizeof(T) * 8 - 1));
     }
@@ -44,48 +44,48 @@ namespace sqlite::helpers
     // static_assert(std::is_integral_v<T>&& std::is_unsigned_v<T> && sizeof(T) == 8);
 
     template <typename T> requires std::is_integral_v<T> && std::is_unsigned_v<T> && (sizeof(T) == 4 || sizeof(T) == 8)
-    constexpr std::make_signed_t<T> MakeSigned(T val)
+    constexpr std::make_signed_t<T> makeSigned(T val)
     {
-        return FlipSignBit(val);
+        return flipSignBit(val);
     }
 
     template <typename T> requires std::is_integral_v<T> && std::is_signed_v<T> && (sizeof(T) == 4 || sizeof(T) == 8)
-    constexpr std::make_unsigned_t<T> MakeUnsigned(T val)
+    constexpr std::make_unsigned_t<T> makeUnsigned(T val)
     {
-        return FlipSignBit(val);
+        return flipSignBit(val);
     }
 
     template <typename T> requires std::is_integral_v<T> && std::is_unsigned_v<T> && (sizeof(T) == 1 || sizeof(T) == 2)
-    constexpr int32_t MakeSigned(T val)
+    constexpr int32_t makeSigned(T val)
     {
         return static_cast<int32_t>(val);
     }
 
     template <typename T> requires std::is_integral_v<T> && std::is_signed_v<T> && (sizeof(T) == 1 || sizeof(T) == 2)
-    constexpr std::make_unsigned_t<T> MakeUnsigned(T val)
+    constexpr std::make_unsigned_t<T> makeUnsigned(T val)
     {
         return static_cast<std::make_unsigned_t<T>>(val);
     }
 
-    static_assert(MakeSigned(std::numeric_limits<unsigned int>::min()) == std::numeric_limits<int>::min());
-    static_assert(MakeSigned(std::numeric_limits<unsigned int>::max()) == std::numeric_limits<int>::max());
-    static_assert(MakeSigned(std::numeric_limits<uint64_t>::min()) == std::numeric_limits<int64_t>::min());
-    static_assert(MakeSigned(std::numeric_limits<uint64_t>::max()) == std::numeric_limits<int64_t>::max());
+    static_assert(makeSigned(std::numeric_limits<unsigned int>::min()) == std::numeric_limits<int>::min());
+    static_assert(makeSigned(std::numeric_limits<unsigned int>::max()) == std::numeric_limits<int>::max());
+    static_assert(makeSigned(std::numeric_limits<uint64_t>::min()) == std::numeric_limits<int64_t>::min());
+    static_assert(makeSigned(std::numeric_limits<uint64_t>::max()) == std::numeric_limits<int64_t>::max());
 
-    static_assert(MakeUnsigned(std::numeric_limits<int>::min()) == std::numeric_limits<unsigned int>::min());
-    static_assert(MakeUnsigned(std::numeric_limits<int>::max()) == std::numeric_limits<unsigned int>::max());
-    static_assert(MakeUnsigned(std::numeric_limits<int64_t>::min()) == std::numeric_limits<uint64_t>::min());
-    static_assert(MakeUnsigned(std::numeric_limits<int64_t>::max()) == std::numeric_limits<uint64_t>::max());
+    static_assert(makeUnsigned(std::numeric_limits<int>::min()) == std::numeric_limits<unsigned int>::min());
+    static_assert(makeUnsigned(std::numeric_limits<int>::max()) == std::numeric_limits<unsigned int>::max());
+    static_assert(makeUnsigned(std::numeric_limits<int64_t>::min()) == std::numeric_limits<uint64_t>::min());
+    static_assert(makeUnsigned(std::numeric_limits<int64_t>::max()) == std::numeric_limits<uint64_t>::max());
 
-    static_assert(MakeUnsigned(std::numeric_limits<int>::min() + 25) == 25u);
-    static_assert(MakeUnsigned(std::numeric_limits<int>::max() - 25) == std::numeric_limits<unsigned int>::max() - 25u);
-    static_assert(MakeUnsigned(std::numeric_limits<int64_t>::min() + 25) == 25u);
-    static_assert(MakeUnsigned(std::numeric_limits<int64_t>::max() - 25) == std::numeric_limits<uint64_t>::max() - 25u);
+    static_assert(makeUnsigned(std::numeric_limits<int>::min() + 25) == 25u);
+    static_assert(makeUnsigned(std::numeric_limits<int>::max() - 25) == std::numeric_limits<unsigned int>::max() - 25u);
+    static_assert(makeUnsigned(std::numeric_limits<int64_t>::min() + 25) == 25u);
+    static_assert(makeUnsigned(std::numeric_limits<int64_t>::max() - 25) == std::numeric_limits<uint64_t>::max() - 25u);
 
-    static_assert(MakeSigned(25u) == std::numeric_limits<int>::min() + 25);
-    static_assert(MakeSigned(std::numeric_limits<unsigned int>::max() - 25u) == std::numeric_limits<int>::max() - 25);
-    static_assert(MakeSigned(std::numeric_limits<uint64_t>::min() + 25u) == std::numeric_limits<int64_t>::min() + 25);
-    static_assert(MakeSigned(std::numeric_limits<uint64_t>::max() - 25u) == std::numeric_limits<int64_t>::max() - 25);
+    static_assert(makeSigned(25u) == std::numeric_limits<int>::min() + 25);
+    static_assert(makeSigned(std::numeric_limits<unsigned int>::max() - 25u) == std::numeric_limits<int>::max() - 25);
+    static_assert(makeSigned(std::numeric_limits<uint64_t>::min() + 25u) == std::numeric_limits<int64_t>::min() + 25);
+    static_assert(makeSigned(std::numeric_limits<uint64_t>::max() - 25u) == std::numeric_limits<int64_t>::max() - 25);
 
     template <typename T>
     struct IsOptional : std::false_type {};
@@ -106,15 +106,15 @@ namespace sqlite::helpers
     using RemoveOptionalT = typename RemoveOptional<T>::type;
 
     template <class Tuple, class Func, std::size_t... index>
-    constexpr void ForEachTF(Func f, std::index_sequence<index...>)
+    constexpr void forEachTF(Func f, std::index_sequence<index...>)
     {
         (f(std::integral_constant<std::size_t, index>()), ...);
     }
 
     template <class Tuple, class Func>
-    constexpr void ForEachTF(Func f)
+    constexpr void forEachTF(Func f)
     {
-        ForEachTF<Tuple>(f, std::make_index_sequence<std::tuple_size_v<Tuple>>());
+        forEachTF<Tuple>(f, std::make_index_sequence<std::tuple_size_v<Tuple>>());
     }
 
     template <class T>
@@ -124,13 +124,13 @@ namespace sqlite::helpers
     };
 
     template <class T, typename Func>
-    size_t ForEachFieldTypeImpl(std::vector<std::string_view>& prefixes, Func&& func, size_t startIndex)
+    size_t forEachFieldTypeImpl(std::vector<std::string_view>& prefixes, Func&& func, size_t startIndex)
     {
         size_t count = 0;
 
         using Tie = typename awl::tuplizable_traits<T>::Tie;
 
-        ForEachTF<Tie>([&prefixes, &count, &startIndex, &func](auto fieldIndex)
+        forEachTF<Tie>([&prefixes, &count, &startIndex, &func](auto fieldIndex)
         {
             using FieldType = std::remove_reference_t<std::tuple_element_t<fieldIndex, Tie>>;
 
@@ -143,7 +143,7 @@ namespace sqlite::helpers
                 prefixes.push_back(name);
 
                 //It returns std::tuple_size_v<Tie> + subtree size.
-                count += ForEachFieldTypeImpl<FieldType>(prefixes, func, startIndex + count);
+                count += forEachFieldTypeImpl<FieldType>(prefixes, func, startIndex + count);
 
                 prefixes.pop_back();
             }
@@ -159,15 +159,15 @@ namespace sqlite::helpers
     }
 
     template <class T, typename Func>
-    size_t ForEachFieldType(Func&& func)
+    size_t forEachFieldType(Func&& func)
     {
         std::vector<std::string_view> prefixes;
 
-        return ForEachFieldTypeImpl<T>(prefixes, func, 0);
+        return forEachFieldTypeImpl<T>(prefixes, func, 0);
     }
 
     template <class Struct, class T>
-    size_t FindFieldIndex(T Struct::* fieldPtr)
+    size_t findFieldIndex(T Struct::* fieldPtr)
     {
         Struct instance = {};
 
@@ -196,27 +196,27 @@ namespace sqlite::helpers
     }
 
     template <class Struct, class T>
-    const std::string& FindFieldName(T Struct::* field_ptr)
+    const std::string& findFieldName(T Struct::* field_ptr)
     {
-        const std::size_t index = FindFieldIndex(field_ptr);
+        const std::size_t index = findFieldIndex(field_ptr);
 
         return Struct::member_names()[index];
     }
         
     template <class T>
-    constexpr inline size_t GetFieldCount()
+    constexpr inline size_t fieldCount()
     {
         size_t count = 0;
         
         using Tie = typename awl::tuplizable_traits<T>::Tie;
 
-        ForEachTF<Tie>([&count](auto fieldIndex)
+        forEachTF<Tie>([&count](auto fieldIndex)
         {
             using FieldType = std::remove_reference_t<std::tuple_element_t<fieldIndex, Tie>>;
 
             if constexpr (awl::is_reflectable_v<FieldType>)
             {
-                count += GetFieldCount<FieldType>();
+                count += fieldCount<FieldType>();
             }
             else
             {
@@ -230,7 +230,7 @@ namespace sqlite::helpers
     //TO DO: Make it possible to find an index of the tuple of field pointers.
     //Now it finds only a top-level index.
     template <class Struct, class T>
-    size_t FindTransparentFieldIndex(T Struct::* fieldPtr)
+    size_t findTransparentFieldIndex(T Struct::* fieldPtr)
     {
         Struct instance = {};
 
@@ -244,7 +244,7 @@ namespace sqlite::helpers
 
             if constexpr (awl::is_reflectable_v<FieldType>)
             {
-                count += GetFieldCount<FieldType>();
+                count += fieldCount<FieldType>();
             }
             else
             {
@@ -266,13 +266,13 @@ namespace sqlite::helpers
     }
 
     template <class Value, class... Field>
-    IndexFilter FindTransparentFieldIndices(std::tuple<Field Value::*...> field_ptrs)
+    IndexFilter findTransparentFieldIndices(std::tuple<Field Value::*...> field_ptrs)
     {
         IndexFilter indices;
 
         awl::for_each(field_ptrs, [&indices](auto& field_ptr)
         {
-            const size_t index = helpers::FindTransparentFieldIndex(field_ptr);
+            const size_t index = helpers::findTransparentFieldIndex(field_ptr);
 
             indices.insert(index);
         });
@@ -282,19 +282,19 @@ namespace sqlite::helpers
 
     /*
     template <class T, class Tuple, std::size_t level_index>
-    constexpr inline size_t FindFieldIndexImpl(Tuple t)
+    constexpr inline size_t findFieldIndexImpl(Tuple t)
     {
         size_t count = 0;
 
         using Tie = typename awl::tuplizable_traits<T>::Tie;
 
-        ForEachTF<Tie>([&count](auto fieldIndex)
+        forEachTF<Tie>([&count](auto fieldIndex)
         {
             using FieldType = std::remove_reference_t<std::tuple_element_t<fieldIndex, Tie>>;
 
             if constexpr (awl::is_reflectable_v<FieldType>)
             {
-                return FindFieldIndex<FieldType, Tuple, level_index>(t);
+                return findFieldIndex<FieldType, Tuple, level_index>(t);
             }
             else
             {
@@ -309,7 +309,7 @@ namespace sqlite::helpers
     */
 
     template <class T, typename Func>
-    constexpr size_t ForEachFieldValueImpl(T& val, Func&& func, size_t start_index)
+    constexpr size_t forEachFieldValueImpl(T& val, Func&& func, size_t start_index)
     {
         size_t count = 0;
 
@@ -319,7 +319,7 @@ namespace sqlite::helpers
 
             if constexpr (awl::is_reflectable_v<FieldType>)
             {
-                count += ForEachFieldValueImpl(field, func, start_index + count);
+                count += forEachFieldValueImpl(field, func, start_index + count);
             }
             else
             {
@@ -333,12 +333,12 @@ namespace sqlite::helpers
     }
 
     template <class T, typename Func>
-    constexpr void ForEachFieldValue(T& val, Func&& func)
+    constexpr void forEachFieldValue(T& val, Func&& func)
     {
-        ForEachFieldValueImpl(val, func, 0);
+        forEachFieldValueImpl(val, func, 0);
     }
 
-    inline std::string MakeFullFieldName(std::vector<std::string_view>& prefixes, std::string_view name)
+    inline std::string makeFullFieldName(std::vector<std::string_view>& prefixes, std::string_view name)
     {
         std::ostringstream out;
 
@@ -355,12 +355,12 @@ namespace sqlite::helpers
     }
 
     template <class Struct, class ColumnVisitor>
-    void ForEachColumn(ColumnVisitor& visitor)
+    void forEachColumn(ColumnVisitor& visitor)
     {
         //memberNames capture parameter makes lambdas different.
-        ForEachFieldType<Struct>([&visitor](std::vector<std::string_view>& prefixes, size_t memberIndex, size_t fieldIndex, auto structTd, auto fieldTd)
+        forEachFieldType<Struct>([&visitor](std::vector<std::string_view>& prefixes, size_t memberIndex, size_t fieldIndex, auto structTd, auto fieldTd)
             {
-                if (visitor.ContainsColumn(fieldIndex))
+                if (visitor.containsColumn(fieldIndex))
                 {
                     using StructType = typename decltype(structTd)::Type;
 
@@ -375,9 +375,9 @@ namespace sqlite::helpers
                         throw SQLiteException(0, "A field with name ROWID is not allowed.");
                     }
 
-                    std::string full_name = helpers::MakeFullFieldName(prefixes, member_name);
+                    std::string full_name = helpers::makeFullFieldName(prefixes, member_name);
 
-                    visitor.template AddColumn<FieldType>(full_name, fieldIndex);
+                    visitor.template addColumn<FieldType>(full_name, fieldIndex);
                 }
             });
     }

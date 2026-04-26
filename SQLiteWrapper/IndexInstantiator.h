@@ -34,9 +34,9 @@ namespace sqlite
             m_db->subscribe(this);
         }
 
-        void Create() override
+        void create() override
         {
-            if (!m_db->IndexExists(indexName))
+            if (!m_db->indexExists(indexName))
             {
                 std::ostringstream out;
 
@@ -50,11 +50,11 @@ namespace sqlite
                 out << "INDEX '" << indexName << "' ON '" << tableName << "' (";
 
                 {
-                    FieldListBuilder<Record> field_builder(out, MakeCommaSeparator());
+                    FieldListBuilder<Record> field_builder(out, makeCommaSeparator());
 
-                    field_builder.SetFilter(helpers::FindTransparentFieldIndices(idPtrs));
+                    field_builder.setFilter(helpers::findTransparentFieldIndices(idPtrs));
 
-                    helpers::ForEachColumn<Record>(field_builder);
+                    helpers::forEachColumn<Record>(field_builder);
                 }
                 
                 out << ");";
@@ -63,9 +63,9 @@ namespace sqlite
 
                 m_db->logger().debug(awl::format() << "Creating index '" << indexName << "': \n" << query);
 
-                m_db->Exec(query);
+                m_db->exec(query);
 
-                m_db->InvalidateScheme();
+                m_db->invalidateScheme();
             }
             else
             {
@@ -73,15 +73,15 @@ namespace sqlite
             }
         }
 
-        void Delete() override
+        void deleteElement() override
         {
-            m_db->DropIndex(indexName);
+            m_db->dropIndex(indexName);
         }
 
-        Statement MakeSelectStatement() const
+        Statement makeSelectStatement() const
         {
             // Where clause with sequential indices.
-            const std::string query = BuildParameterizedSelectQuery<Record>(tableName, {}, helpers::FindTransparentFieldIndices(idPtrs), true);
+            const std::string query = buildParameterizedSelectQuery<Record>(tableName, {}, helpers::findTransparentFieldIndices(idPtrs), true);
 
             m_db->logger().debug(awl::format() << "'" << indexName << "' IndexInstantiator select query: " << query);
 

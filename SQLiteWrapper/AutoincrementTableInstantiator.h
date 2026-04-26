@@ -32,15 +32,15 @@ namespace sqlite
             m_db->subscribe(this);
         }
 
-        void Create() override
+        void create() override
         {
-            if (!m_db->TableExists(tableName))
+            if (!m_db->tableExists(tableName))
             {
                 TableBuilder<Record> builder(tableName);
 
                 // The ROWID chosen for the new row is at least one larger than the largest ROWID that has ever before existed in that same table.
                 // For this to apply, we need to explicilty use AUTOINCREMENT keyword:
-                builder.SetColumnConstraint(idPtr, "NOT NULL PRIMARY KEY AUTOINCREMENT");
+                builder.setColumnConstraint(idPtr, "NOT NULL PRIMARY KEY AUTOINCREMENT");
 
                 if (addConstraints)
                 {
@@ -48,13 +48,13 @@ namespace sqlite
                     addConstraints(builder);
                 }
 
-                const std::string query = builder.Create();
+                const std::string query = builder.create();
 
                 m_db->logger().debug(awl::format() << "Creating table '" << tableName << "': \n" << query);
 
-                m_db->Exec(query);
+                m_db->exec(query);
 
-                m_db->InvalidateScheme();
+                m_db->invalidateScheme();
             }
             else
             {
@@ -62,14 +62,14 @@ namespace sqlite
             }
         }
 
-        void Delete() override
+        void deleteElement() override
         {
-            m_db->DropTable(tableName);
+            m_db->dropTable(tableName);
         }
 
         using SetType = AutoincrementSet<Value, Int>;
 
-        SetType MakeSet() const
+        SetType makeSet() const
         {
             return SetType(m_db, tableName, idPtr);
         }

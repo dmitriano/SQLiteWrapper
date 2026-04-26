@@ -69,22 +69,22 @@ namespace
     {
         sqlite::TableBuilder<Price> builder(MakeTableName(i), true);
 
-        builder.SetColumnConstraint(&Price::dt, "INTEGER NOT NULL PRIMARY KEY");
+        builder.setColumnConstraint(&Price::dt, "INTEGER NOT NULL PRIMARY KEY");
 
-        db.Exec(builder.Create());
+        db.exec(builder.create());
     }
 
     template <class Price = PricePair>
     Statement MakeInsertStatement(Database & db, std::optional<size_t> i = {})
     {
-        return Statement(db, BuildParameterizedInsertQuery<Price>(MakeTableName(i)));
+        return Statement(db, buildParameterizedInsertQuery<Price>(MakeTableName(i)));
     }
 
     size_t GetCount(Database & db, std::optional<size_t> i = {})
     {
         Statement s(db, (awl::aformat() << "SELECT count(*) FROM " << MakeTableName(i) << ";"));
         int count;
-        sqlite::SelectScalar(s, count);
+        sqlite::selectScalar(s, count);
         return static_cast<size_t>(count);
     }
 
@@ -131,22 +131,22 @@ AWL_TEST(InsertPrice)
                     {
                         const size_t i = batch_index * batch_size + local_index;
 
-                        Bind(s, 0, MakePricePair(i));
+                        sqlite::bind(s, 0, MakePricePair(i));
 
-                        s.Select();
+                        s.select();
                         
-                        //if (!s.TryExec())
+                        //if (!s.tryexec())
                         //{
                         //    context.logger.debug(awl::format() << _T("Insertion error: ") << awl::FromACString(db.GetLastError()));
                         //}
 
-                        s.Reset();
+                        s.reset();
                     }
                 };
 
                 if (transaction)
                 {
-                    db.Try(func);
+                    db.tryRun(func);
                 }
                 else
                 {
@@ -177,7 +177,7 @@ AWL_TEST(InsertMarketPrice)
     {
         CreateTable<MarketPricePair>(db);
 
-        const bool index_exists = db.IndexExists("i_exchange");
+        const bool index_exists = db.indexExists("i_exchange");
 
         context.logger.debug(awl::format() << _T("The number of rows: ") << GetCount(db));
 
@@ -191,8 +191,8 @@ AWL_TEST(InsertMarketPrice)
             {
                 awl::StopWatch sw;
 
-                db.Exec("CREATE INDEX i_exchange ON prices(exchangeId)");
-                db.Exec("CREATE INDEX i_market ON prices(marketId)");
+                db.exec("CREATE INDEX i_exchange ON prices(exchangeId)");
+                db.exec("CREATE INDEX i_market ON prices(marketId)");
 
                 context.logger.debug(awl::format() << _T("The indices have been create within ") <<
                     std::fixed << std::setprecision(2) << sw.elapsedSeconds<float>()
@@ -203,8 +203,8 @@ AWL_TEST(InsertMarketPrice)
         {
             if (index_exists)
             {
-                db.Exec("DROP INDEX i_exchange");
-                db.Exec("DROP INDEX i_market");
+                db.exec("DROP INDEX i_exchange");
+                db.exec("DROP INDEX i_market");
 
                 context.logger.debug(awl::format() << _T("The indices have been dropped."));
             }
@@ -227,22 +227,22 @@ AWL_TEST(InsertMarketPrice)
                     {
                         const size_t i = batch_index * batch_size + local_index;
 
-                        Bind(s, 0, MakeMarketPricePair(i));
+                        sqlite::bind(s, 0, MakeMarketPricePair(i));
 
-                        s.Select();
+                        s.select();
 
-                        //if (!s.TryExec())
+                        //if (!s.tryexec())
                         //{
                         //    context.logger.debug(awl::format() << _T("Insertion error: ") << awl::FromACString(db.GetLastError()));
                         //}
 
-                        s.Reset();
+                        s.reset();
                     }
                 };
 
                 if (transaction)
                 {
-                    db.Try(func);
+                    db.tryRun(func);
                 }
                 else
                 {
@@ -267,8 +267,8 @@ AWL_TEST(Mars)
     DbContainer c(context);
     Database & db = c.db();
 
-    db.Exec(awl::aformat() << "PRAGMA synchronous = " << awl::toAString(synchronous) << ";");
-    db.Exec(awl::aformat() << "PRAGMA journal_mode = " << awl::toAString(journal_mode) << ";");
+    db.exec(awl::aformat() << "PRAGMA synchronous = " << awl::toAString(synchronous) << ";");
+    db.exec(awl::aformat() << "PRAGMA journal_mode = " << awl::toAString(journal_mode) << ";");
 
     {
         CreateTable(db);
@@ -293,9 +293,9 @@ AWL_TEST(Mars)
 
                 const size_t i = batch_index * batch_size + local_index;
 
-                Bind(s, 0, MakePricePair(i));
-                s.Select();
-                s.Reset();
+                sqlite::bind(s, 0, MakePricePair(i));
+                s.select();
+                s.reset();
             }
 
             PrintStat(context, sw, batch_index, batch_size);
@@ -341,9 +341,9 @@ AWL_TEST(MarsMt)
 
                 try
                 {
-                    Bind(s, 0, MakePricePair(i));
-                    s.Select();
-                    s.Reset();
+                    sqlite::bind(s, 0, MakePricePair(i));
+                    s.select();
+                    s.reset();
                 }
                 catch (const SQLiteException & e)
                 {
@@ -400,13 +400,13 @@ AWL_TEST(MarketInfo)
     {
         sqlite::TableBuilder<MarketInfo> builder(table_name, true);
 
-        builder.SetColumnConstraint(&MarketInfo::id, "INTEGER NOT NULL PRIMARY KEY");
+        builder.setColumnConstraint(&MarketInfo::id, "INTEGER NOT NULL PRIMARY KEY");
 
-        const std::string query = builder.Create();
+        const std::string query = builder.create();
 
         context.logger.debug(awl::format() << awl::fromAString(query));
 
-        db.Exec(query);
+        db.exec(query);
     }
 
     Precision precision_sample{1, 2, 3, 4 };
@@ -419,20 +419,20 @@ AWL_TEST(MarketInfo)
     const IndexFilter value_filter{ 1, 2, 3, 4 };
 
     {
-        const std::string query = sqlite::BuildParameterizedInsertQuery<MarketInfo>(table_name);
+        const std::string query = sqlite::buildParameterizedInsertQuery<MarketInfo>(table_name);
         
         context.logger.debug(awl::format() << awl::fromAString(query));
 
         sqlite::Statement insert_statement = sqlite::Statement(db, query);
 
-        sqlite::Bind(insert_statement, 0, mi_sample);
+        sqlite::bind(insert_statement, 0, mi_sample);
 
-        insert_statement.Select();
-        //insert_statement.Reset();
+        insert_statement.select();
+        //insert_statement.reset();
     }
 
     {
-        const std::string query = sqlite::BuildTrivialSelectQuery<MarketInfo>(table_name);
+        const std::string query = sqlite::buildTrivialSelectQuery<MarketInfo>(table_name);
 
         context.logger.debug(awl::format() << awl::fromAString(query));
 
@@ -442,13 +442,13 @@ AWL_TEST(MarketInfo)
 
         MarketInfo mi_actual;
 
-        sqlite::Get(select_statement, 0, mi_actual);
+        sqlite::get(select_statement, 0, mi_actual);
 
         AWL_ASSERT(mi_actual == mi_sample);
     }
 
     {
-        const std::string query = BuildParameterizedUpdateQuery<MarketInfo>(table_name, value_filter, key_filter);
+        const std::string query = buildParameterizedUpdateQuery<MarketInfo>(table_name, value_filter, key_filter);
 
         context.logger.debug(awl::format() << awl::fromAString(query));
 
@@ -458,32 +458,32 @@ AWL_TEST(MarketInfo)
 
         if (whole_record)
         {
-            sqlite::Bind(update_statement, 0, mi_result);
+            sqlite::bind(update_statement, 0, mi_result);
         }
         else
         {
-            sqlite::Bind(update_statement, 1, precision_result);
+            sqlite::bind(update_statement, 1, precision_result);
 
-            sqlite::Bind(update_statement, 0, mi_sample.id);
+            sqlite::bind(update_statement, 0, mi_sample.id);
         }
 
-        update_statement.Select();
+        update_statement.select();
     }
 
     {
-        const std::string query = sqlite::BuildParameterizedSelectQuery<MarketInfo>(table_name, value_filter, key_filter);
+        const std::string query = sqlite::buildParameterizedSelectQuery<MarketInfo>(table_name, value_filter, key_filter);
 
         context.logger.debug(awl::format() << awl::fromAString(query));
 
         sqlite::Statement select_statement = sqlite::Statement(db, query);
 
-        sqlite::Bind(select_statement, 0, mi_sample.id);
+        sqlite::bind(select_statement, 0, mi_sample.id);
 
         AWL_ASSERT(select_statement.Next());
 
         Precision actual;
 
-        sqlite::Get(select_statement, 0, actual);
+        sqlite::get(select_statement, 0, actual);
 
         AWL_ASSERT(actual == precision_result);
     }

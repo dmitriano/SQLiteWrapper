@@ -22,12 +22,12 @@ namespace sqlite
         
         Database(const char * fileName, awl::Logger& logger) : Database(logger)
         {
-            Open(fileName);
+            open(fileName);
         }
         
         ~Database()
         {
-            Close();
+            close();
         }
 
         Database(const Database&) = delete;
@@ -48,52 +48,52 @@ namespace sqlite
             return *this;
         }
 
-        void Open(const char* fileName);
+        void open(const char* fileName);
 
-        void Close();
+        void close();
 
-        void Clear()
+        void clear()
         {
-            notify(&Element::Delete);
+            notify(&Element::deleteElement);
         }
 
-        void Begin()
+        void beginTransaction()
         {
-            Exec("BEGIN;");
+            exec("BEGIN;");
         }
 
-        void Commit()
+        void commit()
         {
-            Exec("COMMIT;");
+            exec("COMMIT;");
         }
 
-        void Rollback()
+        void rollback()
         {
-            Exec("ROLLBACK;");
+            exec("ROLLBACK;");
         }
 
         // Begin transaction
-        void SavePoint(const char* savepoint)
+        void savePoint(const char* savepoint)
         {
-            Exec(awl::aformat() << "SAVEPOINT " << savepoint << ";");
+            exec(awl::aformat() << "SAVEPOINT " << savepoint << ";");
         }
 
         // Commit changes.
-        void Release(const char* savepoint)
+        void release(const char* savepoint)
         {
-            Exec(awl::aformat() << "RELEASE " << savepoint << ";");
+            exec(awl::aformat() << "RELEASE " << savepoint << ";");
         }
 
-        void RollbackTo(const char* savepoint)
+        void rollbackTo(const char* savepoint)
         {
-            Exec(awl::aformat() << "ROLLBACK TO " << savepoint << ";");
+            exec(awl::aformat() << "ROLLBACK TO " << savepoint << ";");
         }
 
         // The BEGIN command only works if the transaction stack is empty.
         template <class Func>
-        void TryOutermost(Func && func)
+        void tryOutermost(Func && func)
         {
-            Begin();
+            beginTransaction();
             
             try
             {
@@ -101,17 +101,17 @@ namespace sqlite
             }
             catch (const std::exception &)
             {
-                Rollback();
+                rollback();
 
                 throw;
             }
 
-            Commit();
+            commit();
         }
 
         // A thrown exception causes rollback.
         template <class Func>
-        void Try(Func&& func, std::string savepoint = {})
+        void tryRun(Func&& func, std::string savepoint = {})
         {
             ++m_transactionLevel;
 
@@ -122,7 +122,7 @@ namespace sqlite
                 savepoint = awl::aformat() << "sp" << m_transactionLevel;
             }
 
-            SavePoint(savepoint.c_str());
+            savePoint(savepoint.c_str());
 
             try
             {
@@ -130,78 +130,78 @@ namespace sqlite
             }
             catch (const std::exception&)
             {
-                RollbackTo(savepoint.c_str());
+                rollbackTo(savepoint.c_str());
 
                 throw;
             }
 
-            Release(savepoint.c_str());
+            release(savepoint.c_str());
         }
 
-        int ExecRaw(const char* query, char** errmsg = nullptr)
+        int execRaw(const char* query, char** errmsg = nullptr)
         {
             return sqlite3_exec(m_db, query, nullptr, 0, errmsg);
         }
 
-        void ExecRaw(const std::string& query, char** errmsg = nullptr)
+        void execRaw(const std::string& query, char** errmsg = nullptr)
         {
-            ExecRaw(query.c_str(), errmsg);
+            execRaw(query.c_str(), errmsg);
         }
 
-        void Exec(const std::string & query)
+        void exec(const std::string & query)
         {
-            Exec(query.c_str());
+            exec(query.c_str());
         }
         
-        void Exec(const char * query);
+        void exec(const char * query);
 
-        bool TableExists(const char * name);
+        bool tableExists(const char * name);
 
-        bool TableExists(const std::string & name)
+        bool tableExists(const std::string & name)
         {
-            return TableExists(name.c_str());
+            return tableExists(name.c_str());
         }
 
-        void DropTable(const char* name, bool exists = false);
+        void dropTable(const char* name, bool exists = false);
 
-        void DropTable(const std::string& name, bool exists = false)
+        void dropTable(const std::string& name, bool exists = false)
         {
-            DropTable(name.c_str(), exists);
+            dropTable(name.c_str(), exists);
         }
 
-        bool IndexExists(const char * name);
+        bool indexExists(const char * name);
 
-        bool IndexExists(const std::string & name)
+        bool indexExists(const std::string & name)
         {
-            return IndexExists(name.c_str());
+            return indexExists(name.c_str());
         }
 
-        void DropIndex(const char* name, bool exists = false);
+        void dropIndex(const char* name, bool exists = false);
 
-        void DropIndex(const std::string& name, bool exists = false)
+        void dropIndex(const std::string& name, bool exists = false)
         {
-            DropIndex(name.c_str(), exists);
+            dropIndex(name.c_str(), exists);
         }
 
-        void CreateFunction(const char* zFunc, int nArg, void (*xSFunc)(sqlite3_context*, int, sqlite3_value**))
+        void createFunction(const char* zFunc, int nArg, void (*xSFunc)(sqlite3_context*, int, sqlite3_value**))
         {
             const int rc = sqlite3_create_function(m_db, zFunc, nArg, SQLITE_UTF8, NULL, xSFunc, NULL, NULL);
 
             if (rc != SQLITE_OK)
             {
-                RaiseError(m_db, rc, awl::aformat() << "Can't create function '" << zFunc << "'");
+                raiseError(m_db, rc, awl::aformat() << "Can't create function '" << zFunc << "'");
             }
         }
 
         //Returns the number of rows modified, inserted or deleted by the most recently completed INSERT, UPDATE or DELETE statement.
-        int GetAffectedCount() const
+        int affectedCount() const
         {
             return sqlite3_changes(m_db);
         }
 
-        void EnsureAffected(int expected)
+        void ensureAffected(int expected)
         {
-            const int count = GetAffectedCount();
+            const int count = affectedCount();
 
             if (count != expected)
             {
@@ -209,7 +209,7 @@ namespace sqlite
             }
         }
 
-        RowId GetLastRowId() const
+        RowId lastRowId() const
         {
             return sqlite3_last_insert_rowid(m_db);
         }
@@ -220,21 +220,21 @@ namespace sqlite
         }
 
         // Should be called after CREATE TABLE.
-        void InvalidateScheme()
+        void invalidateScheme()
         {
-            tableExistsStatement.Close();
-            indexExistsStatement.Close();
+            tableExistsStatement.close();
+            indexExistsStatement.close();
         }
 
     private:
 
         [[noreturn]]
-        static void RaiseError(sqlite3* db, int code, std::string message);
+        static void raiseError(sqlite3* db, int code, std::string message);
 
         [[noreturn]]
-        static void RaiseError(sqlite3* db, std::string message)
+        static void raiseError(sqlite3* db, std::string message)
         {
-            RaiseError(db, 0, message);
+            raiseError(db, 0, message);
         }
 
         std::reference_wrapper<awl::Logger> m_logger;

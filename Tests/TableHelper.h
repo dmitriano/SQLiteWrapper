@@ -7,15 +7,15 @@
 namespace swtest
 {
     template <class Value, class... Keys>
-    Set<Value, Keys...> MakeSet(const std::shared_ptr<Database>& db, const std::string& table_name, std::tuple<Keys Value::*...> id_ptrs)
+    Set<Value, Keys...> makeSet(const std::shared_ptr<Database>& db, const std::string& table_name, std::tuple<Keys Value::*...> id_ptrs)
     {
         using namespace sqlite;
 
         TableInstantiator<Value, Keys...> instantiator(db, table_name, id_ptrs);
 
-        instantiator.Create();
+        instantiator.create();
 
-        return instantiator.MakeSet();
+        return instantiator.makeSet();
     }
 
     template <class Value, class Int> requires std::is_integral_v<Int>
@@ -25,8 +25,8 @@ namespace swtest
 
         AutoincrementTableInstantiator<Value, Int> instantiator(db, table_name, id_ptr);
 
-        instantiator.Create();
+        instantiator.create();
 
-        return instantiator.MakeSet();
+        return instantiator.makeSet();
     }
 }
