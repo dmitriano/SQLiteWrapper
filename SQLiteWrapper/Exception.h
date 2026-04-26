@@ -20,12 +20,12 @@ namespace sqlite
             return m_Message.c_str();
         }
 
-        awl::String What() const override
+        awl::String message() const override
         {
             return (awl::format() << _T("SQlite error code: ") << m_code << _T(", ") << awl::fromAString(m_Message));
         }
 
-        int GetCode() const
+        int code() const
         {
             return m_code;
         }

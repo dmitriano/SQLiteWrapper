@@ -347,7 +347,7 @@ AWL_TEST(MarsMt)
                 }
                 catch (const SQLiteException & e)
                 {
-                    context.logger.debug(e.What());
+                    context.logger.debug(e.message());
                     AWL_FAIL;
                 }
             }
@@ -519,7 +519,7 @@ AWL_EXAMPLE(Console)
         }
         catch (const SQLiteException & e)
         {
-            context.logger.debug(awl::format() << e.What() << _T(" [") << _T("]"));
+            context.logger.debug(awl::format() << e.message() << _T(" [") << _T("]"));
         }
     }
 }
