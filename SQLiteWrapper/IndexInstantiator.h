@@ -8,13 +8,15 @@
 #include "SQLiteWrapper/QueryBuilder.h"
 
 #include "Awl/LegacyFormat.h"
+#include "Awl/Observer.h"
 
 #include <memory>
+#include <cassert>
 
 namespace sqlite
 {
     template <class Value, class... Keys>
-    class IndexInstantiator : private awl::Observer<Element>
+    class IndexInstantiator : public awl::Observer<Element>
     {
     private:
 
@@ -34,9 +36,19 @@ namespace sqlite
             m_db->subscribe(this);
         }
 
-        void create() override
+        IndexInstantiator(std::string table_name, std::string index_name, PtrTuple id_ptrs, bool unique = false) :
+            tableName(std::move(table_name)),
+            indexName(std::move(index_name)),
+            idPtrs(id_ptrs),
+            m_unique(unique)
         {
-            if (!m_db->indexExists(indexName))
+        }
+
+        void create(DatabaseRef db_ref) override
+        {
+            Database& db = db_ref.get();
+
+            if (!db.indexExists(indexName))
             {
                 std::ostringstream out;
 
@@ -61,31 +73,40 @@ namespace sqlite
 
                 const std::string query = out.str();
 
-                m_db->logger().debug(awl::format() << "Creating index '" << indexName << "': \n" << query);
+                db.logger().debug(awl::format() << "Creating index '" << indexName << "': \n" << query);
 
-                m_db->exec(query);
+                db.exec(query);
 
-                m_db->invalidateScheme();
+                db.invalidateScheme();
             }
             else
             {
-                m_db->logger().debug(awl::format() << "Index '" << indexName << "' already exists.");
+                db.logger().debug(awl::format() << "Index '" << indexName << "' already exists.");
             }
         }
 
-        void deleteElement() override
+        void deleteElement(DatabaseRef db_ref) override
         {
-            m_db->dropIndex(indexName);
+            Database& db = db_ref.get();
+
+            db.dropIndex(indexName);
         }
 
         Statement makeSelectStatement() const
         {
+            assert(m_db != nullptr);
+
+            return makeSelectStatement(*m_db);
+        }
+
+        Statement makeSelectStatement(Database& db) const
+        {
             // Where clause with sequential indices.
             const std::string query = buildParameterizedSelectQuery<Record>(tableName, {}, helpers::findTransparentFieldIndices(idPtrs), true);
 
-            m_db->logger().debug(awl::format() << "'" << indexName << "' IndexInstantiator select query: " << query);
+            db.logger().debug(awl::format() << "'" << indexName << "' IndexInstantiator select query: " << query);
 
-            return Statement(*m_db, query);
+            return Statement(db, query);
         }
 
     private:

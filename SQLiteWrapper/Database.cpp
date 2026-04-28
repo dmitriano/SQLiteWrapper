@@ -16,7 +16,7 @@ void Database::open(const char* fileName)
         raiseError(m_db, rc, awl::aformat() << "Can't open database '" << fileName << "'");
     }
 
-    notify(&Element::create);
+    notify(&Element::create, std::ref(*this));
 }
 
 void Database::close()

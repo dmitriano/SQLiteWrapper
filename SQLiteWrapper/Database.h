@@ -54,7 +54,7 @@ namespace sqlite
 
         void clear()
         {
-            notify(&Element::deleteElement);
+            notify(&Element::deleteElement, std::ref(*this));
         }
 
         void beginTransaction()
