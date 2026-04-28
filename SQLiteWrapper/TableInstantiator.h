@@ -5,15 +5,17 @@
 #include "SQLiteWrapper/Element.h"
 #include "SQLiteWrapper/Set.h"
 
-#include "Awl/StringFormat.h"
+#include "Awl/LegacyFormat.h"
+#include "Awl/Observer.h"
 
 #include <memory>
 #include <functional>
+#include <cassert>
 
 namespace sqlite
 {
     template <class Value, class... Keys>
-    class TableInstantiator : private awl::Observer<Element>
+    class TableInstantiator : public awl::Observer<Element>
     {
     private:
 
@@ -34,13 +36,24 @@ namespace sqlite
             m_db->subscribe(this);
         }
 
-        void Create() override
+        TableInstantiator(std::string table_name, PtrTuple id_ptrs,
+            std::function<void(TableBuilder<Record>&)> add_constraints = {})
+        :
+            tableName(std::move(table_name)),
+            idPtrs(id_ptrs),
+            addConstraints(std::move(add_constraints))
         {
-            if (!m_db->TableExists(tableName))
+        }
+
+        void create(DatabaseRef db_ref) override
+        {
+            Database& db = db_ref.get();
+
+            if (!db.tableExists(tableName))
             {
                 TableBuilder<Record> builder(tableName);
 
-                builder.SetPrimaryKeyTuple(idPtrs);
+                builder.setPrimaryKeyTuple(idPtrs);
 
                 if (addConstraints)
                 {
@@ -48,30 +61,39 @@ namespace sqlite
                     addConstraints(builder);
                 }
 
-                const std::string query = builder.Create();
+                const std::string query = builder.create();
 
-                m_db->logger().debug(awl::format() << "Creating table '" << tableName << "': \n" << query);
+                db.logger().debug(awl::format() << "Creating table '" << tableName << "': \n" << query);
 
-                m_db->Exec(query);
+                db.exec(query);
 
-                m_db->InvalidateScheme();
+                db.invalidateScheme();
             }
             else
             {
-                m_db->logger().debug(awl::format() << "Table '" << tableName << "' already exists.");
+                db.logger().debug(awl::format() << "Table '" << tableName << "' already exists.");
             }
         }
 
-        void Delete() override
+        void deleteElement(DatabaseRef db_ref) override
         {
-            m_db->DropTable(tableName);
+            Database& db = db_ref.get();
+
+            db.dropTable(tableName);
         }
 
         using SetType = Set<Value, Keys...>;
 
-        SetType MakeSet() const
+        SetType makeSet() const
         {
-            return SetType(m_db, tableName, idPtrs);
+            assert(m_db != nullptr);
+
+            return makeSet(m_db);
+        }
+
+        SetType makeSet(const std::shared_ptr<Database>& db) const
+        {
+            return SetType(db, tableName, idPtrs);
         }
 
     private:
@@ -85,3 +107,4 @@ namespace sqlite
         std::function<void(TableBuilder<Record>&)> addConstraints;
     };
 }
+

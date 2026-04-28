@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Awl/StringFormat.h"
+#include "Awl/LegacyFormat.h"
 #include "Awl/Separator.h"
 
 #include "SQLiteWrapper/Helpers.h"
@@ -35,23 +35,23 @@ namespace sqlite
             m_db(db),
             tableName(std::move(table_name)),
             idPtrs(std::move(id_ptrs)),
-            idIndices(FindKeyIndices())
+            idIndices(findKeyIndices())
         {
-            insertStatement = MakeStatement("insert",  BuildParameterizedInsertQuery<Record>(tableName));
+            insertStatement = makeStatement("insert",  buildParameterizedInsertQuery<Record>(tableName));
 
-            IndexFilter value_filter = MakeValueFilter();
+            IndexFilter value_filter = valueFilter();
 
             // A table containins only key columns can't be updated.
             if (!value_filter.empty())
             {
-                updateStatement = MakeStatement("update", BuildParameterizedUpdateQuery<Record>(tableName, std::move(value_filter), idIndices));
+                updateStatement = makeStatement("update", buildParameterizedUpdateQuery<Record>(tableName, std::move(value_filter), idIndices));
 
-                selectStatement = MakeStatement("select", BuildParameterizedSelectQuery<Record>(tableName, {}, idIndices));
+                selectStatement = makeStatement("select", buildParameterizedSelectQuery<Record>(tableName, {}, idIndices));
             }
 
-            deleteStatement = MakeStatement("delete", BuildParameterizedDeleteQuery<Record>(tableName, idIndices));
+            deleteStatement = makeStatement("delete", buildParameterizedDeleteQuery<Record>(tableName, idIndices));
 
-            iterateStatement = MakeStatement("iterate", BuildTrivialSelectQuery<Value>(tableName));
+            iterateStatement = makeStatement("iterate", buildTrivialSelectQuery<Value>(tableName));
         }
 
         Set(const Set&) = delete;
@@ -60,13 +60,13 @@ namespace sqlite
         Set& operator = (const Set&) = delete;
         Set& operator = (Set&&) = default;
 
-        void Close()
+        void close()
         {
-            insertStatement.Close();
-            updateStatement.Close();
-            selectStatement.Close();
-            deleteStatement.Close();
-            iterateStatement.Close();
+            insertStatement.close();
+            updateStatement.close();
+            selectStatement.close();
+            deleteStatement.close();
+            iterateStatement.close();
         }
 
         Iterator<Value> begin()
@@ -79,79 +79,79 @@ namespace sqlite
             return IteratorSentinel<Value>{};
         }
 
-        void Insert(const Value& val)
+        void insert(const Value& val)
         {
-            BindInsertFields(insertStatement, val);
+            bindInsertFields(insertStatement, val);
 
-            insertStatement.Exec();
+            insertStatement.exec();
         }
 
-        bool TryInsert(const Value& val)
+        bool tryinsert(const Value& val)
         {
-            BindInsertFields(insertStatement, val);
+            bindInsertFields(insertStatement, val);
 
-            return insertStatement.TryExec();
+            return insertStatement.tryexec();
         }
 
-        bool Find(Value& val)
+        bool find(Value& val)
         {
-            BindKeyFromValue(selectStatement, val);
+            bindKeyFromValue(selectStatement, val);
 
-            return SelectValue(val);
+            return selectValue(val);
         }
 
-        bool Find(const KeyTuple& ids, Value& val)
+        bool find(const KeyTuple& ids, Value& val)
         {
-            BindKey(selectStatement, ids);
+            bindKey(selectStatement, ids);
 
-            return SelectValue(val);
+            return selectValue(val);
         }
 
-        void Update(const Value& val)
+        void update(const Value& val)
         {
-            Bind(updateStatement, 0, val);
+            bind(updateStatement, 0, val);
 
-            updateStatement.Exec();
+            updateStatement.exec();
 
-            m_db->EnsureAffected(1);
+            m_db->ensureAffected(1);
         }
 
         template <class... Field>
-        Updater<Record> CreateUpdater(std::tuple<Field Value::*...> field_ptrs) const
+        Updater<Record> createUpdater(std::tuple<Field Value::*...> field_ptrs) const
         {
-            IndexFilter value_filter = helpers::FindTransparentFieldIndices(field_ptrs);
+            IndexFilter value_filter = helpers::findTransparentFieldIndices(field_ptrs);
 
-            Statement stmt = MakeStatement("update", BuildParameterizedUpdateQuery<Record>(tableName, value_filter, idIndices));
+            Statement stmt = makeStatement("update", buildParameterizedUpdateQuery<Record>(tableName, value_filter, idIndices));
 
             return Updater<Record>(*m_db, std::move(stmt), idIndices, value_filter);
         }
 
-        void TryDelete(const KeyTuple& ids)
+        void tryDeleteRecord(const KeyTuple& ids)
         {
-            BindKey(deleteStatement, ids);
+            bindKey(deleteStatement, ids);
 
-            deleteStatement.Exec();
+            deleteStatement.exec();
         }
 
-        void Delete(const KeyTuple& ids)
+        void deleteElement(const KeyTuple& ids)
         {
-            TryDelete(ids);
+            tryDeleteRecord(ids);
 
-            m_db->EnsureAffected(1);
+            m_db->ensureAffected(1);
         }
 
-        void TryDelete(const Value& val)
+        void tryDeleteRecord(const Value& val)
         {
-            BindKeyFromValue(deleteStatement, val);
+            bindKeyFromValue(deleteStatement, val);
 
-            deleteStatement.Exec();
+            deleteStatement.exec();
         }
 
-        void Delete(const Value& val)
+        void deleteElement(const Value& val)
         {
-            TryDelete(val);
+            tryDeleteRecord(val);
 
-            m_db->EnsureAffected(1);
+            m_db->ensureAffected(1);
         }
 
     private:
@@ -159,11 +159,11 @@ namespace sqlite
         template <class Value1, class Int> requires std::is_integral_v<Int>
         friend class AutoincrementSet;
 
-        IndexFilter MakeValueFilter() const
+        IndexFilter valueFilter() const
         {
             IndexFilter value_filter;
 
-            for (size_t i = 0; i < helpers::GetFieldCount<Record>(); ++i)
+            for (size_t i = 0; i < helpers::fieldCount<Record>(); ++i)
             {
                 if (!idIndices.contains(i))
                 {
@@ -174,12 +174,12 @@ namespace sqlite
             return value_filter;
         }
 
-        IndexFilter FindKeyIndices() const
+        IndexFilter findKeyIndices() const
         {
-            return helpers::FindTransparentFieldIndices(idPtrs);
+            return helpers::findTransparentFieldIndices(idPtrs);
         }
 
-        void BindKey(Statement& stmt, const KeyTuple& ids)
+        void bindKey(Statement& stmt, const KeyTuple& ids)
         {
             auto i = idIndices.begin();
 
@@ -188,46 +188,46 @@ namespace sqlite
                 // This requires the indeces to be std::vector but not std::set.
                 const size_t id_index = *i++;
 
-                Bind(stmt, id_index, field_val);
+                sqlite::bind(stmt, id_index, field_val);
             });
         }
 
-        void BindValue(Statement& stmt, const Value& val, IndexFilter filter)
+        void bindValue(Statement& stmt, const Value& val, IndexFilter filter)
         {
-            helpers::ForEachFieldValue(val, [this, &stmt, &filter](auto& field, auto field_index)
+            helpers::forEachFieldValue(val, [this, &stmt, &filter](auto& field, auto field_index)
             {
                 if (filter.contains(field_index))
                 {
-                    Bind(stmt, field_index, field);
+                    sqlite::bind(stmt, field_index, field);
                 }
             });
         }
 
-        void BindKeyFromValue(Statement& stmt, const Value& val)
+        void bindKeyFromValue(Statement& stmt, const Value& val)
         {
-            BindValue(stmt, val, idIndices);
+            bindValue(stmt, val, idIndices);
         }
 
-        void BindInsertFields(Statement& stmt, const Value& val)
+        void bindInsertFields(Statement& stmt, const Value& val)
         {
-            Bind(stmt, 0, val);
+            sqlite::bind(stmt, 0, val);
         }
 
-        bool SelectValue(Value& val)
+        bool selectValue(Value& val)
         {
             const bool exists = selectStatement.Next();
 
             if (exists)
             {
-                Get(selectStatement, 0, val);
+                sqlite::get(selectStatement, 0, val);
             }
 
-            selectStatement.Reset();
+            selectStatement.reset();
 
             return exists;
         }
 
-        Statement MakeStatement(const std::string log_prefix, const std::string& query) const
+        Statement makeStatement(const std::string log_prefix, const std::string& query) const
         {
             m_db->logger().debug(awl::format() << "Set " << log_prefix << ": " << query);
 
@@ -236,7 +236,7 @@ namespace sqlite
 
         std::shared_ptr<Database> m_db;
 
-        // Used by CreateUpdater
+        // Used by createUpdater
         const std::string tableName;
 
         const PtrTuple idPtrs;
@@ -250,3 +250,4 @@ namespace sqlite
         Statement iterateStatement;
     };
 }
+

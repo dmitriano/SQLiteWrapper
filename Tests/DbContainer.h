@@ -6,7 +6,7 @@
 #include "Awl/StopWatch.h"
 #include "Awl/Random.h"
 #include "Awl/Reflection.h"
-#include "Awl/StringFormat.h"
+#include "Awl/LegacyFormat.h"
 
 #include "Awl/Testing/UnitTest.h"
 
@@ -31,14 +31,14 @@ namespace swtest
             m_db = std::make_shared<Database>(fileName, logger);
         }
 
-        DbContainer(const awl::testing::TestContext& context) : DbContainer(context.logger)
+        DbContainer(const awl::testing::TestContext& context) : DbContainer(*context.logger)
         {
             SetAttributes(context);
         }
 
         ~DbContainer()
         {
-            m_db->Close();
+            m_db->close();
             RemoveFile();
         }
 
@@ -68,3 +68,4 @@ namespace swtest
         static constexpr char fileName[] = "test.db";
     };
 }
+

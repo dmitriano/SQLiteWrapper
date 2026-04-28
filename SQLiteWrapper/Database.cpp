@@ -7,34 +7,34 @@
 
 using namespace sqlite;
 
-void Database::Open(const char* fileName)
+void Database::open(const char* fileName)
 {
     const int rc = sqlite3_open(fileName, &m_db);
 
     if (rc != SQLITE_OK)
     {
-        RaiseError(m_db, rc, awl::aformat() << "Can't open database '" << fileName << "'");
+        raiseError(m_db, rc, awl::aformat() << "Can't open database '" << fileName << "'");
     }
 
-    notify(&Element::Create);
+    notify(&Element::create, std::ref(*this));
 }
 
-void Database::Close()
+void Database::close()
 {
     if (m_db != nullptr)
     {
         // Close the statements.
-        InvalidateScheme();
+        invalidateScheme();
 
         sqlite3_close(m_db);
     }
 }
 
-void Database::Exec(const char * query)
+void Database::exec(const char * query)
 {
     char *zErrMsg = nullptr;
 
-    const int rc = ExecRaw(query, &zErrMsg);
+    const int rc = execRaw(query, &zErrMsg);
 
     if (rc != SQLITE_OK)
     {
@@ -45,23 +45,23 @@ void Database::Exec(const char * query)
     }
 }
 
-bool Database::TableExists(const char * name)
+bool Database::tableExists(const char * name)
 {
     int exists;
 
     // Creating a table invaidates prepared statements.
-    if (!tableExistsStatement.IsOpen())
+    if (!tableExistsStatement.Isopen())
     {
-        tableExistsStatement.Open(*this, "SELECT count(*) FROM sqlite_master WHERE type='table' AND name=?;");
+        tableExistsStatement.open(*this, "SELECT count(*) FROM sqlite_master WHERE type='table' AND name=?;");
     }
 
-    Bind(tableExistsStatement, 0, name);
-    SelectScalar(tableExistsStatement, exists);
+    bind(tableExistsStatement, 0, name);
+    selectScalar(tableExistsStatement, exists);
 
     return exists != 0;
 }
 
-void Database::DropTable(const char* name, bool exists)
+void Database::dropTable(const char* name, bool exists)
 {
     std::ostringstream out;
 
@@ -74,27 +74,27 @@ void Database::DropTable(const char* name, bool exists)
 
     out << " " << name << ";";
 
-    Exec(out.str());
+    exec(out.str());
 
-    InvalidateScheme();
+    invalidateScheme();
 }
 
-bool Database::IndexExists(const char * name)
+bool Database::indexExists(const char * name)
 {
     int exists;
 
-    if (!indexExistsStatement.IsOpen())
+    if (!indexExistsStatement.Isopen())
     {
-        indexExistsStatement.Open(*this, "SELECT count(*) FROM sqlite_master WHERE type='index' AND name=?;");
+        indexExistsStatement.open(*this, "SELECT count(*) FROM sqlite_master WHERE type='index' AND name=?;");
     }
 
-    Bind(indexExistsStatement, 0, name);
-    SelectScalar(indexExistsStatement, exists);
+    bind(indexExistsStatement, 0, name);
+    selectScalar(indexExistsStatement, exists);
 
     return exists != 0;
 }
 
-void Database::DropIndex(const char* name, bool exists)
+void Database::dropIndex(const char* name, bool exists)
 {
     std::ostringstream out;
 
@@ -107,13 +107,13 @@ void Database::DropIndex(const char* name, bool exists)
 
     out << " " << name << ";";
 
-    Exec(out.str());
+    exec(out.str());
 
-    InvalidateScheme();
+    invalidateScheme();
 }
 
 [[noreturn]]
-void Database::RaiseError(sqlite3* db, int code, std::string message)
+void Database::raiseError(sqlite3* db, int code, std::string message)
 {
     std::string user_message = awl::aformat() << message << ", Error message: " << sqlite3_errmsg(db) << ".";
 

@@ -5,15 +5,17 @@
 #include "SQLiteWrapper/Element.h"
 #include "SQLiteWrapper/AutoincrementSet.h"
 
-#include "Awl/StringFormat.h"
+#include "Awl/LegacyFormat.h"
+#include "Awl/Observer.h"
 
 #include <memory>
 #include <functional>
+#include <cassert>
 
 namespace sqlite
 {
     template <class Value, class Int> requires std::is_integral_v<Int>
-    class AutoincrementTableInstantiator : private awl::Observer<Element>
+    class AutoincrementTableInstantiator : public awl::Observer<Element>
     {
     private:
 
@@ -32,15 +34,26 @@ namespace sqlite
             m_db->subscribe(this);
         }
 
-        void Create() override
+        AutoincrementTableInstantiator(std::string table_name, Int Value::* id_ptr,
+            std::function<void(TableBuilder<Value>&)> add_constraints = {})
+        :
+            tableName(std::move(table_name)),
+            idPtr(id_ptr),
+            addConstraints(std::move(add_constraints))
         {
-            if (!m_db->TableExists(tableName))
+        }
+
+        void create(DatabaseRef db_ref) override
+        {
+            Database& db = db_ref.get();
+
+            if (!db.tableExists(tableName))
             {
                 TableBuilder<Record> builder(tableName);
 
                 // The ROWID chosen for the new row is at least one larger than the largest ROWID that has ever before existed in that same table.
                 // For this to apply, we need to explicilty use AUTOINCREMENT keyword:
-                builder.SetColumnConstraint(idPtr, "NOT NULL PRIMARY KEY AUTOINCREMENT");
+                builder.setColumnConstraint(idPtr, "NOT NULL PRIMARY KEY AUTOINCREMENT");
 
                 if (addConstraints)
                 {
@@ -48,30 +61,39 @@ namespace sqlite
                     addConstraints(builder);
                 }
 
-                const std::string query = builder.Create();
+                const std::string query = builder.create();
 
-                m_db->logger().debug(awl::format() << "Creating table '" << tableName << "': \n" << query);
+                db.logger().debug(awl::format() << "Creating table '" << tableName << "': \n" << query);
 
-                m_db->Exec(query);
+                db.exec(query);
 
-                m_db->InvalidateScheme();
+                db.invalidateScheme();
             }
             else
             {
-                m_db->logger().debug(awl::format() << "Table '" << tableName << "' already exists.");
+                db.logger().debug(awl::format() << "Table '" << tableName << "' already exists.");
             }
         }
 
-        void Delete() override
+        void deleteElement(DatabaseRef db_ref) override
         {
-            m_db->DropTable(tableName);
+            Database& db = db_ref.get();
+
+            db.dropTable(tableName);
         }
 
         using SetType = AutoincrementSet<Value, Int>;
 
-        SetType MakeSet() const
+        SetType makeSet() const
         {
-            return SetType(m_db, tableName, idPtr);
+            assert(m_db != nullptr);
+
+            return makeSet(m_db);
+        }
+
+        SetType makeSet(const std::shared_ptr<Database>& db) const
+        {
+            return SetType(db, tableName, idPtr);
         }
 
     private:
@@ -85,3 +107,4 @@ namespace sqlite
         std::function<void(TableBuilder<Record>&)> addConstraints;
     };
 }
+

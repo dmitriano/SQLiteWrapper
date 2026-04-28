@@ -123,9 +123,9 @@ namespace
         AWL_REFLECT(It, BeginSit, EndSit, User);
     };
 
-    static_assert(sqlite::helpers::GetFieldCount<DbaUser>() == 24);
-    static_assert(sqlite::helpers::GetFieldCount<CommonHeader>() == 2);
-    static_assert(sqlite::helpers::GetFieldCount<UniqueUser>() == 24 + 2);
+    static_assert(sqlite::helpers::fieldCount<DbaUser>() == 24);
+    static_assert(sqlite::helpers::fieldCount<CommonHeader>() == 2);
+    static_assert(sqlite::helpers::fieldCount<UniqueUser>() == 24 + 2);
 
     struct DbaUser2
     {
@@ -196,22 +196,22 @@ namespace
 
         TableBuilder<User> builder(name, true);
 
-        builder.AddColumns();
+        builder.addColumns();
 
         if (header)
         {
-            builder.AddLine("PRIMARY KEY (Header_BeginSit, Header_EndSit)");
+            builder.addLine("PRIMARY KEY (Header_BeginSit, Header_EndSit)");
         }
         else
         {
-            builder.AddLine("PRIMARY KEY (BeginSit, EndSit)");
+            builder.addLine("PRIMARY KEY (BeginSit, EndSit)");
         }
 
-        const std::string query = builder.Build();
+        const std::string query = builder.build();
 
-        context.logger.debug(awl::format() << awl::FromAString(query));
+        context.logger->debug(awl::format() << awl::fromAString(query));
 
-        db.Exec(query);
+        db.exec(query);
     }
 }
 
@@ -225,11 +225,11 @@ AWL_TEST(DatabaseTest)
 
     Database & db = c.db();
 
-    db.Exec("select * from myTable");
+    db.exec("select * from myTable");
 
-    db.Exec("delete from myTable");
+    db.exec("delete from myTable");
 
-    db.Exec("drop table myTable");
+    db.exec("drop table myTable");
 }
 
 AWL_TEST(SimpleQueryTest)
@@ -277,23 +277,23 @@ AWL_TEST(WhereTest)
         ++i;
     }
 
-    Bind(rs, 0, val);
+    sqlite::bind(rs, 0, val);
 
     size_t count = 0;
 
     while (rs.Next())
     {
-        AWL_ASSERT(rs.IsText(0));
-        AWL_ASSERT_FALSE(rs.IsNull(0));
+        AWL_ASSERT(rs.isText(0));
+        AWL_ASSERT_FALSE(rs.isNull(0));
 
-        AWL_ASSERT(rs.IsInt(1));
-        AWL_ASSERT_FALSE(rs.IsNull(1));
+        AWL_ASSERT(rs.isInt(1));
+        AWL_ASSERT_FALSE(rs.isNull(1));
 
         std::string firstName;
-        sqlite::Get(rs, 0, firstName);
+        sqlite::get(rs, 0, firstName);
 
         size_t age;
-        sqlite::Get(rs, 1, age);
+        sqlite::get(rs, 1, age);
 
         AWL_ASSERT_EQUAL(c.m_ages[count], age);
 
@@ -310,15 +310,15 @@ AWL_TEST(CreateTableTestWithRowId)
 
     TableBuilder<DbaUser2> builder("DbaUser", true);
 
-    builder.SetColumnConstraint(&DbaUser2::UserId, "PRIMARY KEY AUTOINCREMENT");
-    builder.SetColumnConstraint(&DbaUser2::ExternalName, "UNIQUE");
-    builder.SetColumnConstraint(&DbaUser2::AccountStatus, "DEFAULT 'ok'");
+    builder.setColumnConstraint(&DbaUser2::UserId, "PRIMARY KEY AUTOINCREMENT");
+    builder.setColumnConstraint(&DbaUser2::ExternalName, "UNIQUE");
+    builder.setColumnConstraint(&DbaUser2::AccountStatus, "DEFAULT 'ok'");
 
-    const std::string query = builder.Create();
+    const std::string query = builder.create();
 
-    context.logger.debug(awl::format() << awl::FromAString(query));
+    context.logger->debug(awl::format() << awl::fromAString(query));
 
-    db.Exec(query);
+    db.exec(query);
 }
 
 AWL_TEST(CreateTableWithoutRowIdTest)
@@ -328,13 +328,13 @@ AWL_TEST(CreateTableWithoutRowIdTest)
 
     TableBuilder<DbaUser> builder("DbaUser");
 
-    builder.SetColumnConstraint(&DbaUser::UserId, "NOT NULL PRIMARY KEY");
+    builder.setColumnConstraint(&DbaUser::UserId, "NOT NULL PRIMARY KEY");
 
-    const std::string query = builder.Create();
+    const std::string query = builder.create();
 
-    context.logger.debug(awl::format() << awl::FromAString(query));
+    context.logger->debug(awl::format() << awl::fromAString(query));
 
-    db.Exec(query);
+    db.exec(query);
 }
 
 AWL_TEST(CreateTableWithMulticolumnPKTest)
@@ -344,13 +344,13 @@ AWL_TEST(CreateTableWithMulticolumnPKTest)
 
     TableBuilder<DbaUser> builder("DbaUser");
 
-    builder.SetPrimaryKey(&DbaUser::UserId, &DbaUser::TemporaryTablespace);
+    builder.setPrimaryKey(&DbaUser::UserId, &DbaUser::TemporaryTablespace);
 
-    const std::string query = builder.Create();
+    const std::string query = builder.create();
 
-    context.logger.debug(awl::format() << awl::FromAString(query));
+    context.logger->debug(awl::format() << awl::fromAString(query));
 
-    db.Exec(query);
+    db.exec(query);
 }
 
 AWL_TEST(CreateTableRecursiveTest)

@@ -35,14 +35,14 @@ namespace
     {
         sqlite::TableBuilder<Log> builder(tableName, true);
 
-        builder.SetColumnConstraint(&Log::dt, "INTEGER NOT NULL PRIMARY KEY");
+        builder.setColumnConstraint(&Log::dt, "INTEGER NOT NULL PRIMARY KEY");
 
-        db.Exec(builder.Create());
+        db.exec(builder.create());
     }
 
     Statement MakeInsertStatement(Database & db)
     {
-        return Statement(db, BuildParameterizedInsertQuery<Log>(tableName));
+        return Statement(db, buildParameterizedInsertQuery<Log>(tableName));
     }
 
     void firstchar(sqlite3_context* context, int argc, sqlite3_value** argv)
@@ -95,7 +95,7 @@ namespace
         sqlite::Statement s(db, awl::aformat() << "SELECT COUNT(*) FROM " << tableName << ";");
 
         int count;
-        sqlite::SelectScalar(s, count);
+        sqlite::selectScalar(s, count);
         AWL_ASSERT(count == expected);
     }
 
@@ -104,7 +104,7 @@ namespace
         AWL_ASSERT(s.Next());
 
         Log log;
-        sqlite::Get(s, 0, log);
+        sqlite::get(s, 0, log);
 
         AWL_ASSERT(log == logSample);
 
@@ -115,9 +115,9 @@ namespace
     {
         QueryBuilder<Log> builder;
 
-        builder.StartSelect(tableName);
+        builder.Startselect(tableName);
 
-        builder.AddTerminator();
+        builder.addTerminator();
 
         const std::string query = builder.str();
 
@@ -133,9 +133,9 @@ namespace
 
             for (auto& log : samples)
             {
-                sqlite::Bind(s, 0, log);
+                sqlite::bind(s, 0, log);
 
-                s.Exec();
+                s.exec();
             }
         }
 
@@ -148,9 +148,9 @@ namespace
             Statement s = MakeInsertStatement(db);
 
             //It can't be a temporary.
-            sqlite::Bind(s, 0, logSample);
+            sqlite::bind(s, 0, logSample);
 
-            s.Select();
+            s.select();
         }
 
         CheckCount(db);
@@ -164,13 +164,13 @@ AWL_TEST(TrivialFunction)
     DbContainer c(context);
     Database & db = c.db();
 
-    db.CreateFunction("firstchar", 1, &firstchar);
+    db.createFunction("firstchar", 1, &firstchar);
 
     {
         sqlite::Statement s(db, "SELECT firstchar('abc');");
 
         AWL_ASSERT(s.Next());
-        AWL_ASSERT(std::strcmp(s.GetText(0), "a") == 0);
+        AWL_ASSERT(std::strcmp(s.textValue(0), "a") == 0);
         AWL_ASSERT(!s.Next());
     }
 
@@ -178,7 +178,7 @@ AWL_TEST(TrivialFunction)
         sqlite::Statement s(db, "SELECT firstchar('');");
 
         AWL_ASSERT(s.Next());
-        AWL_ASSERT(s.IsNull(0));
+        AWL_ASSERT(s.isNull(0));
         AWL_ASSERT(!s.Next());
     }
 
@@ -202,24 +202,24 @@ AWL_TEST(TableFunction)
 
     InsertSample(db);
 
-    db.CreateFunction("firstchar", 1, &firstchar);
+    db.createFunction("firstchar", 1, &firstchar);
 
     {
         sqlite::Statement s(db, awl::aformat() << "SELECT firstchar(""message"") FROM " << tableName << ";");
 
         AWL_ASSERT(s.Next());
-        AWL_ASSERT(std::strcmp(s.GetText(0), "a") == 0);
+        AWL_ASSERT(std::strcmp(s.textValue(0), "a") == 0);
         AWL_ASSERT(!s.Next());
     }
 
     {
         QueryBuilder<Log> builder;
 
-        builder.StartSelect(tableName);
+        builder.Startselect(tableName);
 
         builder << " WHERE firstchar(""message"") = 'a'";
 
-        builder.AddTerminator();
+        builder.addTerminator();
 
         const std::string query = builder.str();
 
@@ -236,7 +236,7 @@ AWL_TEST(ViewFunction)
 
     CreateTable(db);
 
-    db.CreateFunction("filter", 1, &filter);
+    db.createFunction("filter", 1, &filter);
 
     auto now = Clock::now();
 
@@ -256,17 +256,17 @@ AWL_TEST(ViewFunction)
     {
         QueryBuilder<Log> builder;
 
-        builder.CreateView(view_name);
+        builder.createView(view_name);
         
-        builder.StartSelect(tableName);
+        builder.Startselect(tableName);
 
         builder << " WHERE filter(""category"")";
 
-        builder.AddTerminator();
+        builder.addTerminator();
 
         const std::string query = builder.str();
 
-        db.Exec(query);
+        db.exec(query);
     }
 
     sqlite::Statement count_statement(db, awl::aformat() << "SELECT COUNT(*) FROM " << view_name << ";");
@@ -276,7 +276,7 @@ AWL_TEST(ViewFunction)
         filterCategory = category;
 
         int count;
-        sqlite::SelectScalar(count_statement, count);
+        sqlite::selectScalar(count_statement, count);
         AWL_ASSERT(count == expected);
     };
 

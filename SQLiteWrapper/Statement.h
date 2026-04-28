@@ -26,7 +26,7 @@ namespace sqlite
         
         Statement(Database& db, const char* query)
         {
-            Open(db, query);
+            open(db, query);
         }
 
         Statement(Database& db, const std::string& query) : Statement(db, query.c_str()) {}
@@ -62,26 +62,26 @@ namespace sqlite
 
         ~Statement()
         {
-            Close();
+            close();
 
-            ClearFreeValues();
+            clearFreeValues();
         }
 
-        bool IsOpen() const
+        bool Isopen() const
         {
             return m_stmt != nullptr;
         }
         
-        void Open(Database& db, const char* query);
+        void open(Database& db, const char* query);
 
-        void Open(Database& db, const std::string& query)
+        void open(Database& db, const std::string& query)
         {
-            Open(db, query.c_str());
+            open(db, query.c_str());
         }
 
-        void Close()
+        void close()
         {
-            if (IsOpen())
+            if (Isopen())
             {
                 sqlite3_finalize(m_stmt);
 
@@ -89,41 +89,42 @@ namespace sqlite
             }
         }
 
-        void BindNull(size_t col)
+        void bindNull(size_t col)
         {
-            CheckBind(sqlite3_bind_null(m_stmt, From0To1(col)));
+            Checkbind(sqlite3_bind_null(m_stmt, from0To1(col)));
         }
 
-        void BindInt(size_t col, int val)
+        void bindInt(size_t col, int val)
         {
-            CheckBind(sqlite3_bind_int(m_stmt, From0To1(col), val));
+            Checkbind(sqlite3_bind_int(m_stmt, from0To1(col), val));
         }
 
-        void BindInt64(size_t col, sqlite3_int64 val)
+        void bindInt64(size_t col, sqlite3_int64 val)
         {
-            CheckBind(sqlite3_bind_int64(m_stmt, From0To1(col), val));
+            Checkbind(sqlite3_bind_int64(m_stmt, from0To1(col), val));
         }
 
-        void BindDouble(size_t col, double val)
+        void bindDouble(size_t col, double val)
         {
-            CheckBind(sqlite3_bind_double(m_stmt, From0To1(col), val));
+            Checkbind(sqlite3_bind_double(m_stmt, from0To1(col), val));
         }
 
-        void BindText(size_t col, const char * val)
+        void bindText(size_t col, const char * val)
         {
-            CheckBind(sqlite3_bind_text(m_stmt, From0To1(col), val, -1, nullptr));
+            // SQLITE_STATIC: the caller must keep val alive until the statement is executed.
+            Checkbind(sqlite3_bind_text(m_stmt, from0To1(col), val, -1, nullptr));
         }
 
-        void BindBlob(size_t col, const std::vector<uint8_t>& v)
+        void bindBlob(size_t col, const std::vector<uint8_t>& v)
         {
-            CheckBind(sqlite3_bind_blob(m_stmt, From0To1(col), v.data(), static_cast<int>(v.size()), SQLITE_STATIC));
+            Checkbind(sqlite3_bind_blob(m_stmt, from0To1(col), v.data(), static_cast<int>(v.size()), SQLITE_STATIC));
         }
 
         bool Next()
         {
             const int rc = sqlite3_step(m_stmt);
 
-            ClearUsedValues();
+            clearUsedValues();
             
             switch (rc)
             {
@@ -134,14 +135,14 @@ namespace sqlite
                     return false;
             }
 
-            RaiseError(rc, "Error while iterating over a record set.");
+            raiseError(rc, "Error while iterating over a record set.");
         }
 
-        bool TryExec()
+        bool tryexec()
         {
             const int rc = sqlite3_step(m_stmt);
 
-            ClearUsedValues();
+            clearUsedValues();
 
             if (rc != SQLITE_DONE)
             {
@@ -150,125 +151,125 @@ namespace sqlite
                 //It does not return SQLITE_CONSTRAINT.
                 if (rc != SQLITE_ERROR)
                 {
-                    RaiseError(rc, "Error while trying to execute a statement.");
+                    raiseError(rc, "Error while trying to execute a statement.");
                 }
 
                 return false;
             }
 
-            Reset();
+            reset();
 
             return true;
         }
 
-        void Select()
+        void select()
         {
-            InternalExec(false);
+            Internalexec(false);
         }
 
-        void Exec()
+        void exec()
         {
-            InternalExec(true);
+            Internalexec(true);
         }
 
-        void Reset()
+        void reset()
         {
             const int rc = sqlite3_reset(m_stmt);
 
             if (rc != SQLITE_OK)
             {
-                RaiseError(rc, "Error while resetting a statement.");
+                raiseError(rc, "Error while resetting a statement.");
             }
         }
 
-        void ClearBindings()
+        void clearBindings()
         {
             const int rc = sqlite3_clear_bindings(m_stmt);
 
             if (rc != SQLITE_OK)
             {
-                RaiseError(rc, "Error while clearing the bindings.");
+                raiseError(rc, "Error while clearing the bindings.");
             }
         }
 
-        bool IsNull(size_t col) const
+        bool isNull(size_t col) const
         {
-            return GetColumnType(col) == SQLITE_NULL;
+            return columnType(col) == SQLITE_NULL;
         }
 
-        bool IsInt(size_t col) const
+        bool isInt(size_t col) const
         {
-            return GetColumnType(col) == SQLITE_INTEGER;
+            return columnType(col) == SQLITE_INTEGER;
         }
 
-        bool IsFloat(size_t col) const
+        bool isFloat(size_t col) const
         {
-            return GetColumnType(col) == SQLITE_FLOAT;
+            return columnType(col) == SQLITE_FLOAT;
         }
 
-        bool IsText(size_t col) const
+        bool isText(size_t col) const
         {
-            return GetColumnType(col) == SQLITE_TEXT;
+            return columnType(col) == SQLITE_TEXT;
         }
 
-        bool IsBlob(size_t col) const
+        bool isBlob(size_t col) const
         {
-            return GetColumnType(col) == SQLITE_BLOB;
+            return columnType(col) == SQLITE_BLOB;
         }
 
-        int GetInt(size_t col) const
+        int intValue(size_t col) const
         {
-            assert(IsInt(col));
+            assert(isInt(col));
 
-            return sqlite3_column_int(m_stmt, From0To0(col));
+            return sqlite3_column_int(m_stmt, from0To0(col));
         }
 
-        sqlite3_int64 GetInt64(size_t col) const
+        sqlite3_int64 int64Value(size_t col) const
         {
-            assert(IsInt(col));
+            assert(isInt(col));
 
-            return sqlite3_column_int64(m_stmt, From0To0(col));
+            return sqlite3_column_int64(m_stmt, from0To0(col));
         }
 
-        double GetDouble(size_t col) const
+        double doubleValue(size_t col) const
         {
-            assert(IsFloat(col));
+            assert(isFloat(col));
 
-            return sqlite3_column_double(m_stmt, From0To0(col));
+            return sqlite3_column_double(m_stmt, from0To0(col));
         }
 
-        const char * GetText(size_t col) const
+        const char * textValue(size_t col) const
         {
             // Empty string is not Null.
-            assert(IsText(col));
+            assert(isText(col));
 
-            return reinterpret_cast<const char *>(sqlite3_column_text(m_stmt, From0To0(col)));
+            return reinterpret_cast<const char *>(sqlite3_column_text(m_stmt, from0To0(col)));
         }
 
-        const std::vector<uint8_t> GetBlob(size_t col) const
+        const std::vector<uint8_t> blobValue(size_t col) const
         {
             //When we insert an empty std::vector it becomes Null.
-            assert(IsNull(col) || IsBlob(col));
+            assert(isNull(col) || isBlob(col));
 
-            const size_t size = static_cast<size_t>(sqlite3_column_bytes(m_stmt, From0To0(col)));
+            const size_t size = static_cast<size_t>(sqlite3_column_bytes(m_stmt, from0To0(col)));
             
-            const uint8_t* buffer = reinterpret_cast<const uint8_t*>(sqlite3_column_blob(m_stmt, From0To0(col)));
+            const uint8_t* buffer = reinterpret_cast<const uint8_t*>(sqlite3_column_blob(m_stmt, from0To0(col)));
 
             return std::vector<uint8_t>(buffer, buffer + size);
         }
 
-        [[noreturn]] void RaiseError(int code, std::string message);
+        [[noreturn]] void raiseError(int code, std::string message);
 
-        [[noreturn]] void RaiseError(std::string message);
+        [[noreturn]] void raiseError(std::string message);
 
         template <class T>
-        const T& SaveConvertedValue(T val)
+        const T& saveConvertedValue(T val)
         {
             std::unique_ptr<Any> p_any;
             
             if (freeValues.empty())
             {
-                p_any = MakeAny(val);
+                p_any = makeAny(val);
             }
             else
             {
@@ -296,19 +297,19 @@ namespace sqlite
         using AnyList = awl::quick_list<Any>;
 
         template <class T>
-        std::unique_ptr<Any> MakeAny(T val)
+        std::unique_ptr<Any> makeAny(T val)
         {
             return std::make_unique<Any>(std::any(std::move(val)));
         }
 
-        void ClearUsedValues()
+        void clearUsedValues()
         {
             freeValues.push_back(usedValues);
 
             assert(usedValues.empty());
         }
 
-        void ClearFreeValues()
+        void clearFreeValues()
         {
             assert(usedValues.empty());
 
@@ -318,11 +319,11 @@ namespace sqlite
             }
         }
 
-        void InternalExec(bool auto_reset)
+        void Internalexec(bool auto_reset)
         {
             const int rc = sqlite3_step(m_stmt);
 
-            ClearUsedValues();
+            clearUsedValues();
 
             if (rc != SQLITE_DONE)
             {
@@ -332,47 +333,47 @@ namespace sqlite
                     sqlite3_reset(m_stmt);
                 }
 
-                RaiseError(rc, "Error while executing a statement.");
+                raiseError(rc, "Error while executing a statement.");
             }
             else
             {
                 if (auto_reset)
                 {
                     //sqlite3_reset should not return an error.
-                    Reset();
+                    reset();
                 }
             }
         }
 
-        void CheckBind(int rc)
+        void Checkbind(int rc)
         {
             if (rc != SQLITE_OK)
             {
-                RaiseError(rc, "Bining error.");
+                raiseError(rc, "Bining error.");
             }
         }
 
         //The index is zero-based.
-        int GetColumnType(size_t col) const
+        int columnType(size_t col) const
         {
-            const int column_type = sqlite3_column_type(m_stmt, From0To0(col));
+            const int column_type = sqlite3_column_type(m_stmt, from0To0(col));
 
             return column_type;
         }
 
         //Bind index is 1-based.
-        static constexpr int From0To1(size_t col)
+        static constexpr int from0To1(size_t col)
         {
             return static_cast<int>(col + 1);
         }
 
         //Get index is zero-based.
-        static constexpr int From0To0(size_t col)
+        static constexpr int from0To0(size_t col)
         {
             return static_cast<int>(col);
         }
 
-        static constexpr size_t To0Col(int col)
+        static constexpr size_t to0Col(int col)
         {
             assert(col > 0);
             return static_cast<size_t>(col - 1);
@@ -380,7 +381,7 @@ namespace sqlite
 
         //const char * GetLastError() const
         //{
-        //    assert(IsOpen());
+        //    assert(Isopen());
         //    
         //    sqlite3 * db = sqlite3_db_handle(m_stmt);
 

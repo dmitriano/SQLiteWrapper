@@ -34,44 +34,44 @@ namespace sqlite
         }
 
         template <typename... Keys>
-        void SetPrimaryKey(Keys Struct::*...fieldPtr)
+        void setPrimaryKey(Keys Struct::*...fieldPtr)
         {
-            (m_primaryKeyColumns.push_back(helpers::FindFieldIndex(fieldPtr)), ...);
+            (m_primaryKeyColumns.push_back(helpers::findFieldIndex(fieldPtr)), ...);
         }
         
         template <typename... Keys>
-        void SetPrimaryKeyTuple(std::tuple<Keys Struct::*...> id_ptrs)
+        void setPrimaryKeyTuple(std::tuple<Keys Struct::*...> id_ptrs)
         {
             awl::for_each(id_ptrs, [this](auto& id_ptr)
             {
-                m_primaryKeyColumns.push_back(helpers::FindFieldIndex(id_ptr));
+                m_primaryKeyColumns.push_back(helpers::findFieldIndex(id_ptr));
             });
         }
 
         template <class T>
-        void SetColumnConstraint(T Struct::*fieldPtr, const std::string & constraint)
+        void setColumnConstraint(T Struct::*fieldPtr, const std::string & constraint)
         {
-            m_columnConstraints[helpers::FindTransparentFieldIndex(fieldPtr)] = constraint;
+            m_columnConstraints[helpers::findTransparentFieldIndex(fieldPtr)] = constraint;
         }
         
-        void AddColumns()
+        void addColumns()
         {
             ColumnVisitor visitor(*this);
             
-            helpers::ForEachColumn<Struct>(visitor);
+            helpers::forEachColumn<Struct>(visitor);
         }
 
-        void AddLine(const std::string & line)
+        void addLine(const std::string & line)
         {
-            AddLineSearator();
+            addLineSeparator();
 
             m_out << "  " << line;
         }
         
         template <class FieldType>
-        void AddColumn(const std::string & name, const std::string& constraint)
+        void addColumn(const std::string & name, const std::string& constraint)
         {
-            AddLineSearator();
+            addLineSeparator();
 
             m_out << "  " << name;
 
@@ -137,7 +137,7 @@ namespace sqlite
             }
         }
         
-        std::string Build()
+        std::string build()
         {
             //Remove rowId from primary key.
             m_primaryKeyColumns.erase(
@@ -199,11 +199,11 @@ namespace sqlite
             return m_out.str();
         }
 
-        std::string Create()
+        std::string create()
         {
-            AddColumns();
+            addColumns();
             
-            return Build();
+            return build();
         }
 
     private:
@@ -214,17 +214,17 @@ namespace sqlite
 
             ColumnVisitor(TableBuilder& builder) : m_builder(builder) {}
 
-            bool ContainsColumn(size_t) const
+            bool containsColumn(size_t) const
             {
                 return true;
             }
 
             template <class FieldType>
-            void AddColumn(const std::string& full_name, size_t field_index)
+            void addColumn(const std::string& full_name, size_t field_index)
             {
                 const std::string& constraint = m_builder.m_columnConstraints[field_index];
 
-                m_builder.AddColumn<FieldType>(full_name, constraint);
+                m_builder.addColumn<FieldType>(full_name, constraint);
             }
 
         private:
@@ -234,7 +234,7 @@ namespace sqlite
 
         friend ColumnVisitor;
 
-        void AddLineSearator()
+        void addLineSeparator()
         {
             if (m_firstLine)
             {
@@ -254,7 +254,7 @@ namespace sqlite
 
         std::vector<size_t> m_primaryKeyColumns;
         
-        std::array<std::string, helpers::GetFieldCount<Struct>()> m_columnConstraints;
+        std::array<std::string, helpers::fieldCount<Struct>()> m_columnConstraints;
 
         std::ostringstream m_out;
 

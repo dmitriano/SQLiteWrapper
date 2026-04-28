@@ -55,30 +55,30 @@ AWL_TEST(MapStorage)
     {
         MarketInfo mi;
 
-        AWL_ASSERT(!ms.Find(wrong_id, mi));
+        AWL_ASSERT(!ms.find(wrong_id, mi));
     };
 
     auto assert_exists = [&ms](const std::string& id, const MarketInfo& expected)
     {
         MarketInfo mi;
 
-        AWL_ASSERT(ms.Find(id, mi));
+        AWL_ASSERT(ms.find(id, mi));
 
         AWL_ASSERT(mi == expected);
     };
 
     assert_does_not_exist();
 
-    ms.Insert(id, mi_sample);
+    ms.insert(id, mi_sample);
 
     assert_does_not_exist();
     assert_exists(id, mi_sample);
 
-    ms.Update(id, mi_result);
+    ms.update(id, mi_result);
 
     assert_does_not_exist();
     assert_exists(id, mi_result);
 
-    ms.Insert(wrong_id, mi_sample);
+    ms.insert(wrong_id, mi_sample);
     assert_exists(wrong_id, mi_sample);
 }
