@@ -31,7 +31,7 @@ namespace swtest
             m_db = std::make_shared<Database>(fileName, logger);
         }
 
-        DbContainer(const awl::testing::TestContext& context) : DbContainer(context.logger)
+        DbContainer(const awl::testing::TestContext& context) : DbContainer(*context.logger)
         {
             SetAttributes(context);
         }

@@ -38,7 +38,7 @@ AWL_TEST(InstantiatorIndexWhere)
         sqlite::helpers::findTransparentFieldIndices(
             std::make_tuple(&v4::Order::exchangeId, &v4::Order::marketId, &v4::Order::accountType, &v4::Order::id)), true);
 
-    context.logger.debug(query);
+    context.logger->debug(query);
 }
 
 namespace
@@ -89,7 +89,7 @@ AWL_TEST(InstantiatorConstraintsManyToMany)
     const std::string join_query = sqlite::buildListJoinQuery("order_links", "orders",
         &OrderLink::orderId, &v4::Order::clientId, {}, &OrderLink::listId);
 
-    context.logger.debug(awl::format() << "Join query: " << join_query);
+    context.logger->debug(awl::format() << "Join query: " << join_query);
 
     auto links_set = links_instantiator.makeSet();
 }
@@ -115,5 +115,5 @@ AWL_TEST(InstantiatorConstraintsOneToMany)
 
     const std::string select_query = buildListWhereQuery("orders", &v5::Order::clientListId);
 
-    context.logger.debug(awl::format() << "Select query: " << select_query);
+    context.logger->debug(awl::format() << "Select query: " << select_query);
 }

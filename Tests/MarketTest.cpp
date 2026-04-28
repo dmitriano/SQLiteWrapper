@@ -97,7 +97,7 @@ namespace
     {
         const float seconds = sw.elapsedSeconds<float>();
 
-        context.logger.debug(awl::format() << batch_size << _T(" / ") << (batch_index + 1) * batch_size << _T(" rows have been inserted within ") <<
+        context.logger->debug(awl::format() << batch_size << _T(" / ") << (batch_index + 1) * batch_size << _T(" rows have been inserted within ") <<
             std::fixed << std::setprecision(2) << seconds <<
             _T(" seconds, speed: ") <<
             std::fixed << std::setprecision(2) << batch_size / seconds <<
@@ -137,7 +137,7 @@ AWL_TEST(InsertPrice)
                         
                         //if (!s.tryexec())
                         //{
-                        //    context.logger.debug(awl::format() << _T("Insertion error: ") << awl::FromACString(db.GetLastError()));
+                        //    context.logger->debug(awl::format() << _T("Insertion error: ") << awl::FromACString(db.GetLastError()));
                         //}
 
                         s.reset();
@@ -179,13 +179,13 @@ AWL_TEST(InsertMarketPrice)
 
         const bool index_exists = db.indexExists("i_exchange");
 
-        context.logger.debug(awl::format() << _T("The number of rows: ") << GetCount(db));
+        context.logger->debug(awl::format() << _T("The number of rows: ") << GetCount(db));
 
         if (use_index)
         {
             if (index_exists)
             {
-                context.logger.debug(awl::format() << _T("The indices already exist."));
+                context.logger->debug(awl::format() << _T("The indices already exist."));
             }
             else
             {
@@ -194,7 +194,7 @@ AWL_TEST(InsertMarketPrice)
                 db.exec("CREATE INDEX i_exchange ON prices(exchangeId)");
                 db.exec("CREATE INDEX i_market ON prices(marketId)");
 
-                context.logger.debug(awl::format() << _T("The indices have been create within ") <<
+                context.logger->debug(awl::format() << _T("The indices have been create within ") <<
                     std::fixed << std::setprecision(2) << sw.elapsedSeconds<float>()
                     << _T(" seconds."));
             }
@@ -206,11 +206,11 @@ AWL_TEST(InsertMarketPrice)
                 db.exec("DROP INDEX i_exchange");
                 db.exec("DROP INDEX i_market");
 
-                context.logger.debug(awl::format() << _T("The indices have been dropped."));
+                context.logger->debug(awl::format() << _T("The indices have been dropped."));
             }
             else
             {
-                context.logger.debug(awl::format() << _T("The indices do not exist."));
+                context.logger->debug(awl::format() << _T("The indices do not exist."));
             }
         }
 
@@ -233,7 +233,7 @@ AWL_TEST(InsertMarketPrice)
 
                         //if (!s.tryexec())
                         //{
-                        //    context.logger.debug(awl::format() << _T("Insertion error: ") << awl::FromACString(db.GetLastError()));
+                        //    context.logger->debug(awl::format() << _T("Insertion error: ") << awl::FromACString(db.GetLastError()));
                         //}
 
                         s.reset();
@@ -347,7 +347,7 @@ AWL_TEST(MarsMt)
                 }
                 catch (const SQLiteException & e)
                 {
-                    context.logger.debug(e.message());
+                    context.logger->debug(e.message());
                     AWL_FAIL;
                 }
             }
@@ -404,7 +404,7 @@ AWL_TEST(MarketInfo)
 
         const std::string query = builder.create();
 
-        context.logger.debug(awl::format() << awl::fromAString(query));
+        context.logger->debug(awl::format() << awl::fromAString(query));
 
         db.exec(query);
     }
@@ -421,7 +421,7 @@ AWL_TEST(MarketInfo)
     {
         const std::string query = sqlite::buildParameterizedInsertQuery<MarketInfo>(table_name);
         
-        context.logger.debug(awl::format() << awl::fromAString(query));
+        context.logger->debug(awl::format() << awl::fromAString(query));
 
         sqlite::Statement insert_statement = sqlite::Statement(db, query);
 
@@ -434,7 +434,7 @@ AWL_TEST(MarketInfo)
     {
         const std::string query = sqlite::buildTrivialSelectQuery<MarketInfo>(table_name);
 
-        context.logger.debug(awl::format() << awl::fromAString(query));
+        context.logger->debug(awl::format() << awl::fromAString(query));
 
         sqlite::Statement select_statement = sqlite::Statement(db, query);
 
@@ -450,11 +450,11 @@ AWL_TEST(MarketInfo)
     {
         const std::string query = buildParameterizedUpdateQuery<MarketInfo>(table_name, value_filter, key_filter);
 
-        context.logger.debug(awl::format() << awl::fromAString(query));
+        context.logger->debug(awl::format() << awl::fromAString(query));
 
         sqlite::Statement update_statement = sqlite::Statement(db, query);
 
-        context.logger.debug(awl::format() << awl::fromAString(query));
+        context.logger->debug(awl::format() << awl::fromAString(query));
 
         if (whole_record)
         {
@@ -473,7 +473,7 @@ AWL_TEST(MarketInfo)
     {
         const std::string query = sqlite::buildParameterizedSelectQuery<MarketInfo>(table_name, value_filter, key_filter);
 
-        context.logger.debug(awl::format() << awl::fromAString(query));
+        context.logger->debug(awl::format() << awl::fromAString(query));
 
         sqlite::Statement select_statement = sqlite::Statement(db, query);
 
@@ -513,13 +513,13 @@ AWL_EXAMPLE(Console)
             Statement s(db, aline);
             s.Next();
 
-        context.logger.debug(awl::format() << _T("The query has taken ") <<
+        context.logger->debug(awl::format() << _T("The query has taken ") <<
             std::fixed << std::setprecision(6) << sw.elapsedSeconds<float>()
             << _T(" seconds."));
         }
         catch (const SQLiteException & e)
         {
-            context.logger.debug(awl::format() << e.message() << _T(" [") << _T("]"));
+            context.logger->debug(awl::format() << e.message() << _T(" [") << _T("]"));
         }
     }
 }
