@@ -5,14 +5,12 @@
 #include "SQLiteWrapper/Exception.h"
 
 #include "Awl/TupleHelpers.h"
-#include "Awl/QuickList.h"
 
 #include <stdint.h>
 #include <type_traits>
 #include <vector>
 #include <limits>
 #include <chrono>
-#include <any>
 
 namespace sqlite
 {
@@ -36,14 +34,9 @@ namespace sqlite
         Statement& operator = (const Statement&) = delete;
 
         Statement(Statement&& other) : 
-            m_stmt(std::move(other.m_stmt)),
-            usedValues(std::move(other.usedValues)),
-            freeValues(std::move(other.freeValues))
+            m_stmt(std::move(other.m_stmt))
         {
             other.m_stmt = nullptr;
-
-            assert(other.usedValues.empty());
-            assert(other.freeValues.empty());
         }
 
         Statement& operator = (Statement&& other)
@@ -51,20 +44,12 @@ namespace sqlite
             m_stmt = other.m_stmt;
             other.m_stmt = nullptr;
 
-            usedValues = std::move(other.usedValues);
-            freeValues = std::move(other.freeValues);
-
-            assert(other.usedValues.empty());
-            assert(other.freeValues.empty());
-
             return *this;
         }
 
         ~Statement()
         {
             close();
-
-            clearFreeValues();
         }
 
         bool Isopen() const
@@ -123,8 +108,6 @@ namespace sqlite
         bool Next()
         {
             const int rc = sqlite3_step(m_stmt);
-
-            clearUsedValues();
             
             switch (rc)
             {
@@ -141,8 +124,6 @@ namespace sqlite
         bool tryexec()
         {
             const int rc = sqlite3_step(m_stmt);
-
-            clearUsedValues();
 
             if (rc != SQLITE_DONE)
             {
@@ -262,68 +243,11 @@ namespace sqlite
 
         [[noreturn]] void raiseError(std::string message);
 
-        template <class T>
-        const T& saveConvertedValue(T val)
-        {
-            std::unique_ptr<Any> p_any;
-            
-            if (freeValues.empty())
-            {
-                p_any = makeAny(val);
-            }
-            else
-            {
-                p_any.reset(freeValues.pop_back());
-
-                p_any->val.emplace<T>(std::move(val));
-            }
-
-            usedValues.push_back(p_any.release());
-
-            T* p_saved_val = std::any_cast<T>(&usedValues.back()->val);
-
-            return *p_saved_val;
-        }
-
     private:
-
-        struct Any : public awl::quick_link
-        {
-            Any(std::any v) : val(v) {}
-            
-            std::any val;
-        };
-
-        using AnyList = awl::quick_list<Any>;
-
-        template <class T>
-        std::unique_ptr<Any> makeAny(T val)
-        {
-            return std::make_unique<Any>(std::any(std::move(val)));
-        }
-
-        void clearUsedValues()
-        {
-            freeValues.push_back(usedValues);
-
-            assert(usedValues.empty());
-        }
-
-        void clearFreeValues()
-        {
-            assert(usedValues.empty());
-
-            while (!freeValues.empty())
-            {
-                delete freeValues.pop_back();
-            }
-        }
 
         void Internalexec(bool auto_reset)
         {
             const int rc = sqlite3_step(m_stmt);
-
-            clearUsedValues();
 
             if (rc != SQLITE_DONE)
             {
@@ -389,8 +313,5 @@ namespace sqlite
         //}
 
         sqlite3_stmt * m_stmt = nullptr;
-
-        AnyList usedValues;
-        AnyList freeValues;
     };
 }
