@@ -270,12 +270,51 @@ namespace sqlite::helpers
     {
         IndexFilter indices;
 
-        awl::for_each(field_ptrs, [&indices](auto& field_ptr)
+        auto add_indices = [&indices]<class Struct, class T>(T Struct::* fieldPtr)
         {
-            const size_t index = helpers::findTransparentFieldIndex(field_ptr);
+            Struct instance = {};
 
-            indices.insert(index);
-        });
+            size_t count = 0;
+            bool found = false;
+
+            awl::for_each(instance.as_tuple(), [fieldPtr, &instance, &indices, &count, &found](auto& field)
+            {
+                using FieldType = std::remove_reference_t<decltype(field)>;
+
+                if constexpr (std::is_same_v<FieldType, T>)
+                {
+                    if (&field == &(instance.*fieldPtr))
+                    {
+                        found = true;
+
+                        if constexpr (awl::is_reflectable_v<FieldType>)
+                        {
+                            for (size_t index = count; index < count + fieldCount<FieldType>(); ++index)
+                            {
+                                indices.insert(index);
+                            }
+                        }
+                        else
+                        {
+                            indices.insert(count);
+                        }
+                    }
+                }
+
+                if constexpr (awl::is_reflectable_v<FieldType>)
+                {
+                    count += fieldCount<FieldType>();
+                }
+                else
+                {
+                    ++count;
+                }
+            });
+
+            assert(found);
+        };
+
+        awl::for_each(field_ptrs, add_indices);
 
         return indices;
     }
