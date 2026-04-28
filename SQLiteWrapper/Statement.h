@@ -111,6 +111,7 @@ namespace sqlite
 
         void bindText(size_t col, const char * val)
         {
+            // SQLITE_STATIC: the caller must keep val alive until the statement is executed.
             Checkbind(sqlite3_bind_text(m_stmt, from0To1(col), val, -1, nullptr));
         }
 
