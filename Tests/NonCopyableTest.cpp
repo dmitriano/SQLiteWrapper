@@ -108,9 +108,9 @@ namespace
 
 namespace sqlite
 {
-    inline void Bind(Statement & st, size_t col, const Nc& val)
+    inline void bind(Statement & st, size_t col, const Nc& val)
     {
-        sqlite::Bind(st, col, val.value());
+        sqlite::bind(st, col, val.value());
     }
 }
 
@@ -124,7 +124,7 @@ AWL_TEST(NonCopyable)
         
         awl::for_each(bot.as_tuple(), [](auto& field) { static_cast<void>(field);});
 
-        sqlite::helpers::ForEachFieldValue(bot, [](auto& field, auto fieldIndex)
+        sqlite::helpers::forEachFieldValue(bot, [](auto& field, auto fieldIndex)
         {
             static_cast<void>(field);
             static_cast<void>(fieldIndex);
@@ -136,11 +136,11 @@ AWL_TEST(NonCopyable)
         
         DbContainer c(context);
 
-        auto set = MakeSet(c.m_db, table_name, std::make_tuple(&Bot::botId));
+        auto set = makeSet(c.m_db, table_name, std::make_tuple(&Bot::botId));
 
-        set.Insert(Bot{ 0, "BTC_USDT", {}, Nc(0) });
+        set.insert(Bot{ 0, "BTC_USDT", {}, Nc(0) });
         
-        //bot.rowId = c.db().GetLastRowId();
+        //bot.rowId = c.db().lastRowId();
     }
     
 }

@@ -26,21 +26,21 @@ namespace sqlite
 
         Updater& operator = (Updater&& other) = default;
 
-        void Update(const Struct& val)
+        void update(const Struct& val)
         {
-            helpers::ForEachFieldValue(val, [this](auto& field, auto field_index)
+            helpers::forEachFieldValue(val, [this](auto& field, auto field_index)
             {
                 if (m_idIndices.contains(field_index) || m_valueIndices.contains(field_index))
                 {
-                    Bind(m_s, field_index, field);
+                    sqlite::bind(m_s, field_index, field);
                 }
             });
 
-            Exec();
+            exec();
         }
 
         template <class... Ids, class... Values>
-        void Update(std::tuple<Ids...> ids, std::tuple<Values...> values)
+        void update(std::tuple<Ids...> ids, std::tuple<Values...> values)
         {
             if (std::tuple_size_v<std::tuple<Ids...>> != m_idIndices.size())
             {
@@ -60,7 +60,7 @@ namespace sqlite
                 {
                     const size_t field_index = *i++;
 
-                    Bind(m_s, field_index, field);
+                    sqlite::bind(m_s, field_index, field);
                 });
             }
 
@@ -72,20 +72,20 @@ namespace sqlite
                 {
                     const size_t field_index = *i++;
 
-                    Bind(m_s, field_index, field);
+                    sqlite::bind(m_s, field_index, field);
                 });
             }
 
-            Exec();
+            exec();
         }
 
     private:
 
-        void Exec()
+        void exec()
         {
-            m_s.Exec();
+            m_s.exec();
 
-            m_db.EnsureAffected(1);
+            m_db.ensureAffected(1);
         }
 
         Database& m_db;

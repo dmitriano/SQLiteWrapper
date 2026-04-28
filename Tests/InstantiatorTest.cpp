@@ -18,27 +18,27 @@ AWL_TEST(InstantiatorIndex)
 
     sqlite::AutoincrementTableInstantiator table_instantiator(c.m_db, table_name, &v4::Order::clientId);
 
-    table_instantiator.Create();
+    table_instantiator.create(std::ref(*c.m_db));
 
     auto key_ptrs = std::make_tuple(&v4::Order::exchangeId, &v4::Order::marketId, &v4::Order::accountType);
 
     sqlite::IndexInstantiator index_instantiator(c.m_db, table_name, index_name, key_ptrs);
 
-    index_instantiator.Create();
+    index_instantiator.create(std::ref(*c.m_db));
 
     // Index is not unique so it can't crate a set.
-    // auto order_set = index_instantiator.MakeSet();
+    // auto order_set = index_instantiator.makeSet();
 
-    Statement selectStatement = index_instantiator.MakeSelectStatement();
+    Statement selectStatement = index_instantiator.makeSelectStatement();
 }
 
 AWL_TEST(InstantiatorIndexWhere)
 {
-    const std::string query = sqlite::BuildParameterizedSelectQuery<v4::Order>("orders", {},
-        sqlite::helpers::FindTransparentFieldIndices(
+    const std::string query = sqlite::buildParameterizedSelectQuery<v4::Order>("orders", {},
+        sqlite::helpers::findTransparentFieldIndices(
             std::make_tuple(&v4::Order::exchangeId, &v4::Order::marketId, &v4::Order::accountType, &v4::Order::id)), true);
 
-    context.logger.debug(query);
+    context.logger->debug(query);
 }
 
 namespace
@@ -70,28 +70,28 @@ AWL_TEST(InstantiatorConstraintsManyToMany)
 
     sqlite::AutoincrementTableInstantiator orders_instantiator(c.m_db, "orders", &v4::Order::clientId);
 
-    orders_instantiator.Create();
+    orders_instantiator.create(std::ref(*c.m_db));
 
     sqlite::AutoincrementTableInstantiator lists_instantiator(c.m_db, "order_lists", &OrderList::id);
 
-    lists_instantiator.Create();
+    lists_instantiator.create(std::ref(*c.m_db));
 
     std::function<void(sqlite::TableBuilder<OrderLink>&)> add_constraints = [](sqlite::TableBuilder<OrderLink>& builder)
         {
-            builder.SetColumnConstraint(&OrderLink::listId, "NOT NULL REFERENCES order_lists(id)");
-            builder.SetColumnConstraint(&OrderLink::orderId, "NOT NULL REFERENCES orders(clientId)");
+            builder.setColumnConstraint(&OrderLink::listId, "NOT NULL REFERENCES order_lists(id)");
+            builder.setColumnConstraint(&OrderLink::orderId, "NOT NULL REFERENCES orders(clientId)");
         };
 
     sqlite::TableInstantiator links_instantiator(c.m_db, "order_links", std::make_tuple(&OrderLink::listId, &OrderLink::orderId), add_constraints);
 
-    links_instantiator.Create();
+    links_instantiator.create(std::ref(*c.m_db));
 
-    const std::string join_query = sqlite::BuildListJoinQuery("order_links", "orders",
+    const std::string join_query = sqlite::buildListJoinQuery("order_links", "orders",
         &OrderLink::orderId, &v4::Order::clientId, {}, &OrderLink::listId);
 
-    context.logger.debug(awl::format() << "Join query: " << join_query);
+    context.logger->debug(awl::format() << "Join query: " << join_query);
 
-    auto links_set = links_instantiator.MakeSet();
+    auto links_set = links_instantiator.makeSet();
 }
 
 AWL_TEST(InstantiatorConstraintsOneToMany)
@@ -100,20 +100,20 @@ AWL_TEST(InstantiatorConstraintsOneToMany)
 
     sqlite::AutoincrementTableInstantiator lists_instantiator(c.m_db, "order_lists", &OrderList::id);
 
-    lists_instantiator.Create();
+    lists_instantiator.create(std::ref(*c.m_db));
 
     std::function<void(sqlite::TableBuilder<v5::Order>&)> add_constraints = [](sqlite::TableBuilder<v5::Order>& builder)
         {
-            builder.SetColumnConstraint(&v5::Order::clientListId, "REFERENCES order_lists(id)");
+            builder.setColumnConstraint(&v5::Order::clientListId, "REFERENCES order_lists(id)");
         };
 
     sqlite::AutoincrementTableInstantiator orders_instantiator(c.m_db, "orders", &v5::Order::clientId, add_constraints);
 
-    orders_instantiator.Create();
+    orders_instantiator.create(std::ref(*c.m_db));
 
-    auto order_set = orders_instantiator.MakeSet();
+    auto order_set = orders_instantiator.makeSet();
 
-    const std::string select_query = BuildListWhereQuery("orders", &v5::Order::clientListId);
+    const std::string select_query = buildListWhereQuery("orders", &v5::Order::clientListId);
 
-    context.logger.debug(awl::format() << "Select query: " << select_query);
+    context.logger->debug(awl::format() << "Select query: " << select_query);
 }

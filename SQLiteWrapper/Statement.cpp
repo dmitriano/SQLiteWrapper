@@ -3,27 +3,27 @@
 
 using namespace sqlite;
 
-[[noreturn]] void Statement::RaiseError(int code, std::string message)
+[[noreturn]] void Statement::raiseError(int code, std::string message)
 {
-    assert(IsOpen());
+    assert(Isopen());
 
     sqlite3 * db = sqlite3_db_handle(m_stmt);
 
-    Database::RaiseError(db, code, message);
+    Database::raiseError(db, code, message);
 }
 
-[[noreturn]] void Statement::RaiseError(std::string message)
+[[noreturn]] void Statement::raiseError(std::string message)
 {
     //We do not have the code and do not have the last error.
     throw SQLiteException(0, message);
 }
 
-void Statement::Open(Database& db, const char* query)
+void Statement::open(Database& db, const char* query)
 {
     const int rc = sqlite3_prepare(db.m_db, query, -1, &m_stmt, NULL);
 
     if (rc != SQLITE_OK)
     {
-        Database::RaiseError(db.m_db, rc, awl::aformat() << "Error while preparing SQL query: '" << query << "'.");
+        Database::raiseError(db.m_db, rc, awl::aformat() << "Error while preparing SQL query: '" << query << "'.");
     }
 }

@@ -44,11 +44,11 @@ AWL_TEST(Blob)
     
     DbContainer c(context);
 
-    auto set = MakeSet(c.m_db, table_name, std::make_tuple(&Bot::id));
+    auto set = makeSet(c.m_db, table_name, std::make_tuple(&Bot::id));
 
     for (const Bot& bot : bots)
     {
-        set.Insert(bot);
+        set.insert(bot);
     }
 
     {
@@ -79,29 +79,29 @@ AWL_TEST(Blob)
     {
         Bot actual;
 
-        AWL_ASSERT(set.Find(bot.id, actual));
+        AWL_ASSERT(set.find(bot.id, actual));
 
         AWL_ASSERT(actual == bot);
     }
 
     {
-        set.Update(bot1);
+        set.update(bot1);
 
         Bot actual;
 
-        AWL_ASSERT(set.Find(bot1.id, actual));
+        AWL_ASSERT(set.find(bot1.id, actual));
 
         AWL_ASSERT(actual == bot1);
     }
 
     {
-        sqlite::Updater up = set.CreateUpdater(std::make_tuple(&Bot::state));
+        sqlite::Updater up = set.createUpdater(std::make_tuple(&Bot::state));
 
-        up.Update(bot2);
+        up.update(bot2);
 
         Bot actual;
 
-        AWL_ASSERT(set.Find(bot2.id, actual));
+        AWL_ASSERT(set.find(bot2.id, actual));
 
         AWL_ASSERT(actual == bot2);
     }

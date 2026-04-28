@@ -7,14 +7,16 @@
 #include "SQLiteWrapper/Statement.h"
 #include "SQLiteWrapper/QueryBuilder.h"
 
-#include "Awl/StringFormat.h"
+#include "Awl/LegacyFormat.h"
+#include "Awl/Observer.h"
 
 #include <memory>
+#include <cassert>
 
 namespace sqlite
 {
     template <class Value, class... Keys>
-    class IndexInstantiator : private awl::Observer<Element>
+    class IndexInstantiator : public awl::Observer<Element>
     {
     private:
 
@@ -34,9 +36,19 @@ namespace sqlite
             m_db->subscribe(this);
         }
 
-        void Create() override
+        IndexInstantiator(std::string table_name, std::string index_name, PtrTuple id_ptrs, bool unique = false) :
+            tableName(std::move(table_name)),
+            indexName(std::move(index_name)),
+            idPtrs(id_ptrs),
+            m_unique(unique)
         {
-            if (!m_db->IndexExists(indexName))
+        }
+
+        void create(DatabaseRef db_ref) override
+        {
+            Database& db = db_ref.get();
+
+            if (!db.indexExists(indexName))
             {
                 std::ostringstream out;
 
@@ -50,42 +62,51 @@ namespace sqlite
                 out << "INDEX '" << indexName << "' ON '" << tableName << "' (";
 
                 {
-                    FieldListBuilder<Record> field_builder(out, MakeCommaSeparator());
+                    FieldListBuilder<Record> field_builder(out, makeCommaSeparator());
 
-                    field_builder.SetFilter(helpers::FindTransparentFieldIndices(idPtrs));
+                    field_builder.setFilter(helpers::findTransparentFieldIndices(idPtrs));
 
-                    helpers::ForEachColumn<Record>(field_builder);
+                    helpers::forEachColumn<Record>(field_builder);
                 }
                 
                 out << ");";
 
                 const std::string query = out.str();
 
-                m_db->logger().debug(awl::format() << "Creating index '" << indexName << "': \n" << query);
+                db.logger().debug(awl::format() << "Creating index '" << indexName << "': \n" << query);
 
-                m_db->Exec(query);
+                db.exec(query);
 
-                m_db->InvalidateScheme();
+                db.invalidateScheme();
             }
             else
             {
-                m_db->logger().debug(awl::format() << "Index '" << indexName << "' already exists.");
+                db.logger().debug(awl::format() << "Index '" << indexName << "' already exists.");
             }
         }
 
-        void Delete() override
+        void deleteElement(DatabaseRef db_ref) override
         {
-            m_db->DropIndex(indexName);
+            Database& db = db_ref.get();
+
+            db.dropIndex(indexName);
         }
 
-        Statement MakeSelectStatement() const
+        Statement makeSelectStatement() const
+        {
+            assert(m_db != nullptr);
+
+            return makeSelectStatement(*m_db);
+        }
+
+        Statement makeSelectStatement(Database& db) const
         {
             // Where clause with sequential indices.
-            const std::string query = BuildParameterizedSelectQuery<Record>(tableName, {}, helpers::FindTransparentFieldIndices(idPtrs), true);
+            const std::string query = buildParameterizedSelectQuery<Record>(tableName, {}, helpers::findTransparentFieldIndices(idPtrs), true);
 
-            m_db->logger().debug(awl::format() << "'" << indexName << "' IndexInstantiator select query: " << query);
+            db.logger().debug(awl::format() << "'" << indexName << "' IndexInstantiator select query: " << query);
 
-            return Statement(*m_db, query);
+            return Statement(db, query);
         }
 
     private:
@@ -100,3 +121,4 @@ namespace sqlite
         const bool m_unique;
     };
 }
+
