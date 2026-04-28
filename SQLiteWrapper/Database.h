@@ -12,15 +12,24 @@
 #include "Awl/ScopeGuard.h"
 #include "Awl/Logger.h"
 
+#include <memory>
+#include <stdexcept>
+
 namespace sqlite
 {
     class Database : public awl::Observable<Element, Database>
     {
     public:
         
-        Database(awl::Logger& logger) : m_logger(logger) {}
+        explicit Database(std::shared_ptr<awl::Logger> logger) : m_logger(std::move(logger))
+        {
+            if (!m_logger)
+            {
+                throw std::invalid_argument("Database logger must not be null.");
+            }
+        }
         
-        Database(const char * fileName, awl::Logger& logger) : Database(logger)
+        Database(const char * fileName, std::shared_ptr<awl::Logger> logger) : Database(std::move(logger))
         {
             open(fileName);
         }
@@ -35,7 +44,7 @@ namespace sqlite
         Database& operator = (const Database&) = delete;
 
         Database(Database&& other) :
-            m_logger(other.m_logger),
+            m_logger(std::move(other.m_logger)),
             m_db(std::move(other.m_db))
         {
             other.m_db = nullptr;
@@ -43,6 +52,7 @@ namespace sqlite
 
         Database& operator = (Database && other)
         {
+            m_logger = std::move(other.m_logger);
             m_db = other.m_db;
             other.m_db = nullptr;
             return *this;
@@ -216,7 +226,7 @@ namespace sqlite
 
         awl::Logger& logger()
         {
-            return m_logger;
+            return *m_logger;
         }
 
         // Should be called after CREATE TABLE.
@@ -237,7 +247,7 @@ namespace sqlite
             raiseError(db, 0, message);
         }
 
-        std::reference_wrapper<awl::Logger> m_logger;
+        std::shared_ptr<awl::Logger> m_logger;
 
         sqlite3 * m_db = nullptr;
 
