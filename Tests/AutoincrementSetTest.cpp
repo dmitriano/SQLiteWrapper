@@ -70,7 +70,7 @@ AWL_TEST(RowIdRawQueries)
     {
         sqlite::Statement st(db, awl::aformat() << "SELECT rowId, name, state FROM " << table_name << ";");
 
-        while (st.Next())
+        while (st.next())
         {
             Bot bot;
 

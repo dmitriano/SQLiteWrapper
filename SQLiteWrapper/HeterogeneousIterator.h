@@ -39,9 +39,9 @@ namespace sqlite
         bool operator== (const HeterogeneousIterator& other) const = delete;
         bool operator!= (const HeterogeneousIterator& other) const = delete;
 
-        bool Next()
+        bool next()
         {
-            return m_s->Next();
+            return m_s->next();
         }
 
         template <class T>

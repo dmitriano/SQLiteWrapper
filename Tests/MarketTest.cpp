@@ -135,7 +135,7 @@ AWL_TEST(InsertPrice)
 
                         s.select();
                         
-                        //if (!s.tryexec())
+                        //if (!s.tryExec())
                         //{
                         //    context.logger->debug(awl::format() << _T("Insertion error: ") << awl::FromACString(db.GetLastError()));
                         //}
@@ -231,7 +231,7 @@ AWL_TEST(InsertMarketPrice)
 
                         s.select();
 
-                        //if (!s.tryexec())
+                        //if (!s.tryExec())
                         //{
                         //    context.logger->debug(awl::format() << _T("Insertion error: ") << awl::FromACString(db.GetLastError()));
                         //}
@@ -438,7 +438,7 @@ AWL_TEST(MarketInfo)
 
         sqlite::Statement select_statement = sqlite::Statement(db, query);
 
-        AWL_ASSERT(select_statement.Next());
+        AWL_ASSERT(select_statement.next());
 
         MarketInfo mi_actual;
 
@@ -479,7 +479,7 @@ AWL_TEST(MarketInfo)
 
         sqlite::bind(select_statement, 0, mi_sample.id);
 
-        AWL_ASSERT(select_statement.Next());
+        AWL_ASSERT(select_statement.next());
 
         Precision actual;
 
@@ -511,7 +511,7 @@ AWL_EXAMPLE(Console)
             awl::StopWatch sw;
 
             Statement s(db, aline);
-            s.Next();
+            s.next();
 
         context.logger->debug(awl::format() << _T("The query has taken ") <<
             std::fixed << std::setprecision(6) << sw.elapsedSeconds<float>()

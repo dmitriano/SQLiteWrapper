@@ -36,7 +36,7 @@ AWL_TEST(GetbindNull)
     {
         sqlite::Statement select_statement(*c.m_db, select_query);
 
-        AWL_ASSERT(select_statement.Next());
+        AWL_ASSERT(select_statement.next());
 
         AWL_ASSERT(!select_statement.isNull(0));
         AWL_ASSERT(select_statement.isText(0));
@@ -55,7 +55,7 @@ AWL_TEST(GetbindNull)
             AWL_ASSERT(blob.empty());
         }
 
-        AWL_ASSERT(select_statement.Next());
+        AWL_ASSERT(select_statement.next());
 
         AWL_ASSERT(select_statement.isNull(0));
         AWL_ASSERT(!select_statement.isText(0));
@@ -94,7 +94,7 @@ AWL_TEST(GetBindOptional)
     {
         sqlite::Statement select_statement(*c.m_db, select_query);
 
-        AWL_ASSERT(select_statement.Next());
+        AWL_ASSERT(select_statement.next());
 
         {
             std::optional<std::string> text;
@@ -102,7 +102,7 @@ AWL_TEST(GetBindOptional)
             AWL_ASSERT(text == sample_text);
         }
 
-        AWL_ASSERT(select_statement.Next());
+        AWL_ASSERT(select_statement.next());
 
         {
             std::optional<std::string> text;

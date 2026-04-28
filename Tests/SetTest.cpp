@@ -304,7 +304,7 @@ namespace
 
             OrderId max_db_id = -1;
 
-            if (!rs.Next())
+            if (!rs.next())
             {
                 rs.raiseError("An empty recordset when a scalar is expected.");
             }

@@ -90,7 +90,7 @@ namespace sqlite
         {
             bindInsertFields(insertStatement, val);
 
-            return insertStatement.tryexec();
+            return insertStatement.tryExec();
         }
 
         bool find(Value& val)
@@ -215,7 +215,7 @@ namespace sqlite
 
         bool selectValue(Value& val)
         {
-            const bool exists = selectStatement.Next();
+            const bool exists = selectStatement.next();
 
             if (exists)
             {

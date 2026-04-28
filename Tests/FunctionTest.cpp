@@ -101,14 +101,14 @@ namespace
 
     void CheckSample(sqlite::Statement & s)
     {
-        AWL_ASSERT(s.Next());
+        AWL_ASSERT(s.next());
 
         Log log;
         sqlite::get(s, 0, log);
 
         AWL_ASSERT(log == logSample);
 
-        AWL_ASSERT(!s.Next());
+        AWL_ASSERT(!s.next());
     }
     
     void CheckSample(Database& db)
@@ -169,17 +169,17 @@ AWL_TEST(TrivialFunction)
     {
         sqlite::Statement s(db, "SELECT firstchar('abc');");
 
-        AWL_ASSERT(s.Next());
+        AWL_ASSERT(s.next());
         AWL_ASSERT(std::strcmp(s.textValue(0), "a") == 0);
-        AWL_ASSERT(!s.Next());
+        AWL_ASSERT(!s.next());
     }
 
     {
         sqlite::Statement s(db, "SELECT firstchar('');");
 
-        AWL_ASSERT(s.Next());
+        AWL_ASSERT(s.next());
         AWL_ASSERT(s.isNull(0));
-        AWL_ASSERT(!s.Next());
+        AWL_ASSERT(!s.next());
     }
 
     try
@@ -207,9 +207,9 @@ AWL_TEST(TableFunction)
     {
         sqlite::Statement s(db, awl::aformat() << "SELECT firstchar(""message"") FROM " << tableName << ";");
 
-        AWL_ASSERT(s.Next());
+        AWL_ASSERT(s.next());
         AWL_ASSERT(std::strcmp(s.textValue(0), "a") == 0);
-        AWL_ASSERT(!s.Next());
+        AWL_ASSERT(!s.next());
     }
 
     {

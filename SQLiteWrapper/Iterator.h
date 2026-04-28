@@ -65,7 +65,7 @@ namespace sqlite
 
         bool try_next()
         {
-            if (m_i.Next())
+            if (m_i.next())
             {
                 T val;
                 m_i.get(val);

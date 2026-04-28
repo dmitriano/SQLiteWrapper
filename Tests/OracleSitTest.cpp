@@ -246,7 +246,7 @@ AWL_TEST(SimpleQueryTest)
 
     size_t count = 0;
 
-    while (rs.Next())
+    while (rs.next())
     {
         ++count;
     }
@@ -281,7 +281,7 @@ AWL_TEST(WhereTest)
 
     size_t count = 0;
 
-    while (rs.Next())
+    while (rs.next())
     {
         AWL_ASSERT(rs.isText(0));
         AWL_ASSERT_FALSE(rs.isNull(0));

@@ -77,7 +77,7 @@ namespace sqlite
         {
             sqlite::bind(selectStatement, 0, id);
 
-            const bool exists = selectStatement.Next();
+            const bool exists = selectStatement.next();
             
             if (exists)
             {

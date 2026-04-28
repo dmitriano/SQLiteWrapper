@@ -76,36 +76,36 @@ namespace sqlite
 
         void bindNull(size_t col)
         {
-            Checkbind(sqlite3_bind_null(m_stmt, from0To1(col)));
+            checkBind(sqlite3_bind_null(m_stmt, from0To1(col)));
         }
 
         void bindInt(size_t col, int val)
         {
-            Checkbind(sqlite3_bind_int(m_stmt, from0To1(col), val));
+            checkBind(sqlite3_bind_int(m_stmt, from0To1(col), val));
         }
 
         void bindInt64(size_t col, sqlite3_int64 val)
         {
-            Checkbind(sqlite3_bind_int64(m_stmt, from0To1(col), val));
+            checkBind(sqlite3_bind_int64(m_stmt, from0To1(col), val));
         }
 
         void bindDouble(size_t col, double val)
         {
-            Checkbind(sqlite3_bind_double(m_stmt, from0To1(col), val));
+            checkBind(sqlite3_bind_double(m_stmt, from0To1(col), val));
         }
 
         void bindText(size_t col, const char * val)
         {
             // SQLITE_STATIC: the caller must keep val alive until the statement is executed.
-            Checkbind(sqlite3_bind_text(m_stmt, from0To1(col), val, -1, nullptr));
+            checkBind(sqlite3_bind_text(m_stmt, from0To1(col), val, -1, nullptr));
         }
 
         void bindBlob(size_t col, const std::vector<uint8_t>& v)
         {
-            Checkbind(sqlite3_bind_blob(m_stmt, from0To1(col), v.data(), static_cast<int>(v.size()), SQLITE_STATIC));
+            checkBind(sqlite3_bind_blob(m_stmt, from0To1(col), v.data(), static_cast<int>(v.size()), SQLITE_STATIC));
         }
 
-        bool Next()
+        bool next()
         {
             const int rc = sqlite3_step(m_stmt);
             
@@ -121,7 +121,7 @@ namespace sqlite
             raiseError(rc, "Error while iterating over a record set.");
         }
 
-        bool tryexec()
+        bool tryExec()
         {
             const int rc = sqlite3_step(m_stmt);
 
@@ -145,12 +145,12 @@ namespace sqlite
 
         void select()
         {
-            Internalexec(false);
+            internalExec(false);
         }
 
         void exec()
         {
-            Internalexec(true);
+            internalExec(true);
         }
 
         void reset()
@@ -245,7 +245,7 @@ namespace sqlite
 
     private:
 
-        void Internalexec(bool auto_reset)
+        void internalExec(bool auto_reset)
         {
             const int rc = sqlite3_step(m_stmt);
 
@@ -269,7 +269,7 @@ namespace sqlite
             }
         }
 
-        void Checkbind(int rc)
+        void checkBind(int rc)
         {
             if (rc != SQLITE_OK)
             {
@@ -302,15 +302,6 @@ namespace sqlite
             assert(col > 0);
             return static_cast<size_t>(col - 1);
         }
-
-        //const char * GetLastError() const
-        //{
-        //    assert(Isopen());
-        //    
-        //    sqlite3 * db = sqlite3_db_handle(m_stmt);
-
-        //    return sqlite3_errmsg(db);
-        //}
 
         sqlite3_stmt * m_stmt = nullptr;
     };

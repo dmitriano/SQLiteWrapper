@@ -12,7 +12,7 @@ namespace sqlite
         // It restes the statement in its destructor.
         HeterogeneousIterator i(st);
 
-        if (!i.Next())
+        if (!i.next())
         {
             st.raiseError("An empty recordset when a scalar is expected.");
         }
@@ -61,7 +61,7 @@ namespace sqlite
     {
         HeterogeneousIterator i(st);
 
-        if (i.Next())
+        if (i.next())
         {
             T val;
 
@@ -69,7 +69,7 @@ namespace sqlite
 
             opt = val;
 
-            if (i.Next())
+            if (i.next())
             {
                 st.raiseError("One or zero rows expected.");
             }
