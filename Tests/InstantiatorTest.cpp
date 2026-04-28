@@ -18,13 +18,13 @@ AWL_TEST(InstantiatorIndex)
 
     sqlite::AutoincrementTableInstantiator table_instantiator(c.m_db, table_name, &v4::Order::clientId);
 
-    table_instantiator.create();
+    table_instantiator.create(std::ref(*c.m_db));
 
     auto key_ptrs = std::make_tuple(&v4::Order::exchangeId, &v4::Order::marketId, &v4::Order::accountType);
 
     sqlite::IndexInstantiator index_instantiator(c.m_db, table_name, index_name, key_ptrs);
 
-    index_instantiator.create();
+    index_instantiator.create(std::ref(*c.m_db));
 
     // Index is not unique so it can't crate a set.
     // auto order_set = index_instantiator.makeSet();
@@ -70,11 +70,11 @@ AWL_TEST(InstantiatorConstraintsManyToMany)
 
     sqlite::AutoincrementTableInstantiator orders_instantiator(c.m_db, "orders", &v4::Order::clientId);
 
-    orders_instantiator.create();
+    orders_instantiator.create(std::ref(*c.m_db));
 
     sqlite::AutoincrementTableInstantiator lists_instantiator(c.m_db, "order_lists", &OrderList::id);
 
-    lists_instantiator.create();
+    lists_instantiator.create(std::ref(*c.m_db));
 
     std::function<void(sqlite::TableBuilder<OrderLink>&)> add_constraints = [](sqlite::TableBuilder<OrderLink>& builder)
         {
@@ -84,7 +84,7 @@ AWL_TEST(InstantiatorConstraintsManyToMany)
 
     sqlite::TableInstantiator links_instantiator(c.m_db, "order_links", std::make_tuple(&OrderLink::listId, &OrderLink::orderId), add_constraints);
 
-    links_instantiator.create();
+    links_instantiator.create(std::ref(*c.m_db));
 
     const std::string join_query = sqlite::buildListJoinQuery("order_links", "orders",
         &OrderLink::orderId, &v4::Order::clientId, {}, &OrderLink::listId);
@@ -100,7 +100,7 @@ AWL_TEST(InstantiatorConstraintsOneToMany)
 
     sqlite::AutoincrementTableInstantiator lists_instantiator(c.m_db, "order_lists", &OrderList::id);
 
-    lists_instantiator.create();
+    lists_instantiator.create(std::ref(*c.m_db));
 
     std::function<void(sqlite::TableBuilder<v5::Order>&)> add_constraints = [](sqlite::TableBuilder<v5::Order>& builder)
         {
@@ -109,7 +109,7 @@ AWL_TEST(InstantiatorConstraintsOneToMany)
 
     sqlite::AutoincrementTableInstantiator orders_instantiator(c.m_db, "orders", &v5::Order::clientId, add_constraints);
 
-    orders_instantiator.create();
+    orders_instantiator.create(std::ref(*c.m_db));
 
     auto order_set = orders_instantiator.makeSet();
 

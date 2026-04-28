@@ -13,7 +13,7 @@ namespace swtest
 
         TableInstantiator<Value, Keys...> instantiator(db, table_name, id_ptrs);
 
-        instantiator.create();
+        instantiator.create(std::ref(*db));
 
         return instantiator.makeSet();
     }
@@ -25,7 +25,7 @@ namespace swtest
 
         AutoincrementTableInstantiator<Value, Int> instantiator(db, table_name, id_ptr);
 
-        instantiator.create();
+        instantiator.create(std::ref(*db));
 
         return instantiator.makeSet();
     }
