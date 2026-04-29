@@ -100,6 +100,12 @@ namespace sqlite
             checkBind(sqlite3_bind_text(m_stmt, from0To1(col), val, -1, nullptr));
         }
 
+        void bindTextCopy(size_t col, const char* val)
+        {
+            // For computed strings whose temporary storage cannot outlive sqlite3_step().
+            checkBind(sqlite3_bind_text(m_stmt, from0To1(col), val, -1, SQLITE_TRANSIENT));
+        }
+
         void bindBlob(size_t col, const std::vector<uint8_t>& v)
         {
             checkBind(sqlite3_bind_blob(m_stmt, from0To1(col), v.data(), static_cast<int>(v.size()), SQLITE_STATIC));
