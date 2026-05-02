@@ -54,6 +54,11 @@ namespace sqlite
         {
             m_columnConstraints[helpers::findTransparentFieldIndex(fieldPtr)] = constraint;
         }
+
+        void setColumnConstraint(size_t transparent_field_index, const std::string& constraint)
+        {
+            m_columnConstraints[transparent_field_index] = constraint;
+        }
         
         void addColumns()
         {
