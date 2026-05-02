@@ -62,6 +62,34 @@ namespace
 
         AWL_REFLECT(listId, orderId)
     };
+
+    struct NestedOrderState
+    {
+        int64_t clientId;
+        std::string symbol;
+
+        AWL_REFLECT(clientId, symbol)
+    };
+
+    struct NestedOrderRecord
+    {
+        std::string exchangeId;
+        NestedOrderState state;
+
+        AWL_REFLECT(exchangeId, state)
+    };
+}
+
+AWL_TEST(InstantiatorNestedAutoincrement)
+{
+    DbContainer c(context);
+
+    sqlite::AutoincrementTableInstantiator orders_instantiator(
+        c.m_db,
+        "orders",
+        std::make_tuple(&NestedOrderRecord::state, &NestedOrderState::clientId));
+
+    orders_instantiator.create(std::ref(*c.m_db));
 }
 
 AWL_TEST(InstantiatorConstraintsManyToMany)

@@ -265,6 +265,71 @@ namespace sqlite::helpers
         return foundIndex;
     }
 
+    template <class Struct, class T>
+    size_t findTransparentFieldIndexInStruct(T Struct::* fieldPtr)
+    {
+        Struct instance = {};
+
+        size_t foundIndex = std::numeric_limits<size_t>::max();
+        size_t count = 0;
+
+        awl::for_each(instance.as_tuple(), [fieldPtr, &instance, &foundIndex, &count](auto& field)
+        {
+            using FieldType = std::remove_reference_t<decltype(field)>;
+
+            if constexpr (std::is_same_v<FieldType, T>)
+            {
+                if (&field == &(instance.*fieldPtr))
+                {
+                    foundIndex = count;
+                }
+            }
+
+            if constexpr (awl::is_reflectable_v<FieldType>)
+            {
+                count += fieldCount<FieldType>();
+            }
+            else
+            {
+                ++count;
+            }
+        });
+
+        assert(foundIndex != std::numeric_limits<size_t>::max());
+
+        return foundIndex;
+    }
+
+    template <class Struct, class T>
+    size_t transparentFieldPathIndex(T Struct::* fieldPtr)
+    {
+        return findTransparentFieldIndex(fieldPtr);
+    }
+
+    template <class Struct, class NestedStruct, class T, class... Tail>
+    size_t transparentFieldPathIndex(NestedStruct Struct::* nested_field_ptr, T NestedStruct::* field_ptr, Tail... tail)
+    {
+        const size_t nested_index = findTransparentFieldIndexInStruct(nested_field_ptr);
+
+        if constexpr (sizeof...(Tail) == 0)
+        {
+            return nested_index + findTransparentFieldIndex(field_ptr);
+        }
+        else
+        {
+            return nested_index + transparentFieldPathIndex(field_ptr, tail...);
+        }
+    }
+
+    template <class... Ptrs>
+    size_t findTransparentFieldIndex(std::tuple<Ptrs...> field_path)
+    {
+        return std::apply([](auto... ptrs)
+        {
+            return transparentFieldPathIndex(ptrs...);
+        }, field_path);
+    }
+
     template <class Value, class... Field>
     IndexFilter findTransparentFieldIndices(std::tuple<Field Value::*...> field_ptrs)
     {
