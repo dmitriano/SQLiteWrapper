@@ -43,6 +43,11 @@ namespace sqlite
             using value_type = typename MemberPointerTraits<last_pointer>::value_type;
         };
 
+        template <class... Ptrs>
+        struct IdPathTraits<helpers::FieldPath<Ptrs...>> : IdPathTraits<std::tuple<Ptrs...>>
+        {
+        };
+
         template <class IdPath>
         using IdPathClass = typename IdPathTraits<IdPath>::class_type;
 

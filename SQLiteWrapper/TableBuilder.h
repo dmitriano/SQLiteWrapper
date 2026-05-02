@@ -60,6 +60,12 @@ namespace sqlite
         {
             m_columnConstraints[helpers::findTransparentFieldIndex(field_path)] = constraint;
         }
+
+        template <class... Ptrs>
+        void setColumnConstraint(helpers::FieldPath<Ptrs...> field_path, const std::string& constraint)
+        {
+            m_columnConstraints[helpers::findTransparentFieldIndex(field_path)] = constraint;
+        }
         
         void addColumns()
         {

@@ -27,6 +27,52 @@ namespace sqlite
 
 namespace sqlite::helpers
 {
+    template <class... Ptrs>
+    struct FieldPath
+    {
+        std::tuple<Ptrs...> ptrs;
+    };
+
+    template <class... Ptrs>
+    FieldPath<Ptrs...> fieldPath(Ptrs... ptrs)
+    {
+        return FieldPath<Ptrs...>{ std::make_tuple(ptrs...) };
+    }
+
+    template <class... Paths>
+    auto fieldPaths(Paths... paths)
+    {
+        return std::make_tuple(paths...);
+    }
+
+    template <class T>
+    struct IsFieldPath : std::false_type {};
+
+    template <class... Ptrs>
+    struct IsFieldPath<FieldPath<Ptrs...>> : std::true_type {};
+
+    template <class T>
+    inline constexpr bool IsFieldPathV = IsFieldPath<T>::value;
+
+    template <class Ptr>
+    struct MemberPointerTraits;
+
+    template <class Struct, class T>
+    struct MemberPointerTraits<T Struct::*>
+    {
+        using value_type = T;
+    };
+
+    template <class Path>
+    struct FieldPathValue;
+
+    template <class... Ptrs>
+    struct FieldPathValue<FieldPath<Ptrs...>>
+    {
+        using last_pointer = std::tuple_element_t<sizeof...(Ptrs) - 1, std::tuple<Ptrs...>>;
+        using type = typename MemberPointerTraits<last_pointer>::value_type;
+    };
+
     // Functions makeSigned and makeUnsigned should satisfy the following criteria:
     // For a given pair of parameters a, b and return values a1, b1, if a <= b then a1 <= b1.
     // and for a given unsigned a
@@ -303,7 +349,7 @@ namespace sqlite::helpers
     template <class Struct, class T>
     size_t transparentFieldPathIndex(T Struct::* fieldPtr)
     {
-        return findTransparentFieldIndex(fieldPtr);
+        return findTransparentFieldIndexInStruct(fieldPtr);
     }
 
     template <class Struct, class NestedStruct, class T, class... Tail>
@@ -313,7 +359,7 @@ namespace sqlite::helpers
 
         if constexpr (sizeof...(Tail) == 0)
         {
-            return nested_index + findTransparentFieldIndex(field_ptr);
+            return nested_index + findTransparentFieldIndexInStruct(field_ptr);
         }
         else
         {
@@ -328,6 +374,53 @@ namespace sqlite::helpers
         {
             return transparentFieldPathIndex(ptrs...);
         }, field_path);
+    }
+
+    template <class... Ptrs>
+    size_t findTransparentFieldIndex(FieldPath<Ptrs...> field_path)
+    {
+        return findTransparentFieldIndex(field_path.ptrs);
+    }
+
+    template <class Path>
+    void addTransparentFieldIndices(IndexFilter& indices, Path field_path)
+    {
+        const size_t start_index = findTransparentFieldIndex(field_path);
+
+        using FieldType = typename FieldPathValue<Path>::type;
+
+        if constexpr (awl::is_reflectable_v<FieldType>)
+        {
+            for (size_t index = start_index; index < start_index + fieldCount<FieldType>(); ++index)
+            {
+                indices.insert(index);
+            }
+        }
+        else
+        {
+            indices.insert(start_index);
+        }
+    }
+
+    template <class... Ptrs>
+    IndexFilter findTransparentFieldIndices(FieldPath<Ptrs...> field_path)
+    {
+        IndexFilter indices;
+        addTransparentFieldIndices(indices, field_path);
+        return indices;
+    }
+
+    template <class... Paths> requires (IsFieldPathV<Paths> && ...)
+    IndexFilter findTransparentFieldIndices(std::tuple<Paths...> field_paths)
+    {
+        IndexFilter indices;
+
+        awl::for_each(field_paths, [&indices](auto field_path)
+        {
+            addTransparentFieldIndices(indices, field_path);
+        });
+
+        return indices;
     }
 
     template <class Value, class... Field>

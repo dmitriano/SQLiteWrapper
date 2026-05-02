@@ -87,7 +87,7 @@ AWL_TEST(InstantiatorNestedAutoincrement)
     sqlite::AutoincrementTableInstantiator orders_instantiator(
         c.m_db,
         "orders",
-        std::make_tuple(&NestedOrderRecord::state, &NestedOrderState::clientId));
+        sqlite::helpers::fieldPath(&NestedOrderRecord::state, &NestedOrderState::clientId));
 
     orders_instantiator.create(std::ref(*c.m_db));
 }
