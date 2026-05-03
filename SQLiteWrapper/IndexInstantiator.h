@@ -73,7 +73,7 @@ namespace sqlite
 
                 const std::string query = out.str();
 
-                db.logger().debug(awl::format() << "Creating index '" << indexName << "': \n" << query);
+                db.logger().debug(_T("Creating index '{}': \n{}"), indexName, query);
 
                 db.exec(query);
 
@@ -81,7 +81,7 @@ namespace sqlite
             }
             else
             {
-                db.logger().debug(awl::format() << "Index '" << indexName << "' already exists.");
+                db.logger().debug(_T("Index '{}' already exists."), indexName);
             }
         }
 
@@ -104,7 +104,7 @@ namespace sqlite
             // Where clause with sequential indices.
             const std::string query = buildParameterizedSelectQuery<Record>(tableName, {}, helpers::findTransparentFieldIndices(idPtrs), true);
 
-            db.logger().debug(awl::format() << "'" << indexName << "' IndexInstantiator select query: " << query);
+            db.logger().debug(_T("'{}' IndexInstantiator select query: {}"), indexName, query);
 
             return Statement(db, query);
         }

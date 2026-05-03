@@ -229,7 +229,7 @@ namespace sqlite
 
         Statement makeStatement(const std::string log_prefix, const std::string& query) const
         {
-            m_db->logger().debug(awl::format() << "Set " << log_prefix << ": " << query);
+            m_db->logger().debug(_T("Set {}: {}"), log_prefix, query);
 
             return Statement(*m_db, query);
         };

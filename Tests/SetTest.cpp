@@ -380,7 +380,7 @@ AWL_TEST(OrderStorageGetBind2)
 
     const std::vector<v2::Order> sample_v{ sample_order };
 
-    context.logger->debug(awl::format() << "Inserting order: " << sample_order.id);
+    context.logger->debug(_T("Inserting order: {}"), sample_order.id);
 
     storage.insert(sample_order);
 
@@ -390,18 +390,18 @@ AWL_TEST(OrderStorageGetBind2)
 
     AWL_ASSERT(std::ranges::equal(storage, sample_v));
 
-    context.logger->debug(awl::format() << count << " orders:");
+    context.logger->debug(_T("{} orders:"), count);
 
     for (const v2::Order& order : storage)
     {
-        context.logger->debug(awl::format() << "Order: " << order.id);
+        context.logger->debug(_T("Order: {}"), order.id);
     }
 
     v2::Order found_order;
 
     AWL_ASSERT(storage.find(btc_key, found_order));
 
-    context.logger->debug(awl::format() << "Loaded order: " << awl::format::endl << found_order.id);
+    context.logger->debug(_T("Loaded order: \n{}"), found_order.id);
 
     AWL_ASSERT(found_order == sample_order);
 
@@ -444,7 +444,7 @@ AWL_TEST(OrderStorageGetBind3)
 
     const std::vector<v3::Order> sample_v{ sample_order };
 
-    context.logger->debug(awl::format() << "Inserting order: " << sample_order.id);
+    context.logger->debug(_T("Inserting order: {}"), sample_order.id);
 
     storage.insert(sample_order);
 
@@ -454,18 +454,18 @@ AWL_TEST(OrderStorageGetBind3)
 
     AWL_ASSERT(std::ranges::equal(storage, sample_v));
 
-    context.logger->debug(awl::format() << count << " orders:");
+    context.logger->debug(_T("{} orders:"), count);
 
     for (const v3::Order& order : storage)
     {
-        context.logger->debug(awl::format() << "Order: " << order.id);
+        context.logger->debug(_T("Order: {}"), order.id);
     }
 
     v3::Order found_order;
 
     AWL_ASSERT(storage.find(btc_key, found_order));
 
-    context.logger->debug(awl::format() << "Loaded order: " << awl::format::endl << found_order.id);
+    context.logger->debug(_T("Loaded order: \n{}"), found_order.id);
 
     AWL_ASSERT(found_order == sample_order);
 
@@ -508,7 +508,7 @@ AWL_TEST(OrderStorageGetBind3a)
 
     const std::vector<v3::Order> sample_v{ sample_order };
 
-    context.logger->debug(awl::format() << "Inserting order: " << sample_order.id);
+    context.logger->debug(_T("Inserting order: {}"), sample_order.id);
 
     storage.insert(sample_order);
 
@@ -518,18 +518,18 @@ AWL_TEST(OrderStorageGetBind3a)
 
     AWL_ASSERT(std::ranges::equal(storage, sample_v));
 
-    context.logger->debug(awl::format() << count << " orders:");
+    context.logger->debug(_T("{} orders:"), count);
 
     for (const v3::Order& order : storage)
     {
-        context.logger->debug(awl::format() << "Order: " << order.id);
+        context.logger->debug(_T("Order: {}"), order.id);
     }
 
     v3::Order found_order;
 
     AWL_ASSERT(storage.find(btc_key, found_order));
 
-    context.logger->debug(awl::format() << "Loaded order: " << awl::format::endl << found_order.id);
+    context.logger->debug(_T("Loaded order: \n{}"), found_order.id);
 
     AWL_ASSERT(found_order == sample_order);
 
@@ -580,7 +580,7 @@ AWL_TEST(OrderStorageGetBind3b)
 
     const std::vector<v3::Order> sample_v{ sample_order };
 
-    context.logger->debug(awl::format() << "Inserting order: " << sample_order.id);
+    context.logger->debug(_T("Inserting order: {}"), sample_order.id);
 
     storage.insert(sample_order);
 
@@ -590,18 +590,18 @@ AWL_TEST(OrderStorageGetBind3b)
 
     AWL_ASSERT(std::ranges::equal(storage, sample_v));
 
-    context.logger->debug(awl::format() << count << " orders:");
+    context.logger->debug(_T("{} orders:"), count);
 
     for (const v3::Order& order : storage)
     {
-        context.logger->debug(awl::format() << "Order: " << order.id);
+        context.logger->debug(_T("Order: {}"), order.id);
     }
 
     v3::Order found_order;
 
     AWL_ASSERT(storage.find(btc_key, found_order));
 
-    context.logger->debug(awl::format() << "Loaded order: " << awl::format::endl << found_order.id);
+    context.logger->debug(_T("Loaded order: \n{}"), found_order.id);
 
     AWL_ASSERT(found_order == sample_order);
 
@@ -622,7 +622,7 @@ AWL_TEST(OrderStorageGetBind3c)
 
     const std::vector<v3::Order> sample_v{ sample_order };
 
-    context.logger->debug(awl::format() << "Inserting order: " << sample_order.id);
+    context.logger->debug(_T("Inserting order: {}"), sample_order.id);
 
     storage.insert(sample_order);
 
@@ -632,18 +632,18 @@ AWL_TEST(OrderStorageGetBind3c)
 
     AWL_ASSERT(std::ranges::equal(storage, sample_v));
 
-    context.logger->debug(awl::format() << count << " orders:");
+    context.logger->debug(_T("{} orders:"), count);
 
     for (const v3::Order& order : storage)
     {
-        context.logger->debug(awl::format() << "Order: " << order.id);
+        context.logger->debug(_T("Order: {}"), order.id);
     }
 
     v3::Order found_order;
 
     AWL_ASSERT(storage.find(btc_key, found_order));
 
-    context.logger->debug(awl::format() << "Loaded order: " << awl::format::endl << found_order.id);
+    context.logger->debug(_T("Loaded order: \n{}"), found_order.id);
 
     AWL_ASSERT(found_order == sample_order);
 
@@ -664,7 +664,7 @@ AWL_TEST(OrderStorageGetBind3d)
 
     const std::vector<v3::Order> sample_v{ sample_order };
 
-    context.logger->debug(awl::format() << "Inserting order: " << sample_order.id);
+    context.logger->debug(_T("Inserting order: {}"), sample_order.id);
 
     storage.insert(sample_order);
 
@@ -674,18 +674,18 @@ AWL_TEST(OrderStorageGetBind3d)
 
     AWL_ASSERT(std::ranges::equal(storage, sample_v));
 
-    context.logger->debug(awl::format() << count << " orders:");
+    context.logger->debug(_T("{} orders:"), count);
 
     for (const v3::Order& order : storage)
     {
-        context.logger->debug(awl::format() << "Order: " << order.id);
+        context.logger->debug(_T("Order: {}"), order.id);
     }
 
     v3::Order found_order;
 
     AWL_ASSERT(storage.find(btc_key, found_order));
 
-    context.logger->debug(awl::format() << "Loaded order: " << awl::format::endl << found_order.id);
+    context.logger->debug(_T("Loaded order: \n{}"), found_order.id);
 
     AWL_ASSERT(found_order == sample_order);
 
@@ -734,9 +734,10 @@ AWL_TEST(OrderStorageGetBind5)
 
     const std::vector<v5::Order> sample_v{ sample_order };
 
-    context.logger->debug(awl::format() << "Inserting order: " << sample_order.id);
+    context.logger->debug(_T("Inserting order: {}"), sample_order.id);
 
     storage.insert(sample_order);
 
     AWL_ASSERT(std::ranges::equal(storage, sample_v));
 }
+

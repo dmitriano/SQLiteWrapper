@@ -209,7 +209,7 @@ namespace
 
         const std::string query = builder.build();
 
-        context.logger->debug(awl::format() << awl::fromAString(query));
+        context.logger->debug(_T("{}"), query);
 
         db.exec(query);
     }
@@ -316,7 +316,7 @@ AWL_TEST(CreateTableTestWithRowId)
 
     const std::string query = builder.create();
 
-    context.logger->debug(awl::format() << awl::fromAString(query));
+    context.logger->debug(_T("{}"), query);
 
     db.exec(query);
 }
@@ -332,7 +332,7 @@ AWL_TEST(CreateTableWithoutRowIdTest)
 
     const std::string query = builder.create();
 
-    context.logger->debug(awl::format() << awl::fromAString(query));
+    context.logger->debug(_T("{}"), query);
 
     db.exec(query);
 }
@@ -348,7 +348,7 @@ AWL_TEST(CreateTableWithMulticolumnPKTest)
 
     const std::string query = builder.create();
 
-    context.logger->debug(awl::format() << awl::fromAString(query));
+    context.logger->debug(_T("{}"), query);
 
     db.exec(query);
 }
