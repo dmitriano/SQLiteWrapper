@@ -38,6 +38,10 @@ void Database::close()
             m_logger->error("sqlite3_close failed with code {}: {}", rc, sqlite3_errmsg(m_db));
         }
     }
+    else
+    {
+        m_logger->debug("sqlite3_close skipped: database is not open.");
+    }
 }
 
 void Database::exec(const char * query)
