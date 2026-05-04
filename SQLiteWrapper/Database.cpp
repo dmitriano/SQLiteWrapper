@@ -26,7 +26,10 @@ void Database::close()
         // Close the statements.
         invalidateScheme();
 
-        sqlite3_close(m_db);
+        if (sqlite3_close(m_db) == SQLITE_OK)
+        {
+            m_db = nullptr;
+        }
     }
 }
 
