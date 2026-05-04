@@ -26,9 +26,16 @@ void Database::close()
         // Close the statements.
         invalidateScheme();
 
-        if (sqlite3_close(m_db) == SQLITE_OK)
+        const int rc = sqlite3_close(m_db);
+
+        if (rc == SQLITE_OK)
         {
+            m_logger->debug("sqlite3_close succeeded.");
             m_db = nullptr;
+        }
+        else
+        {
+            m_logger->error("sqlite3_close failed with code {}: {}", rc, sqlite3_errmsg(m_db));
         }
     }
 }
