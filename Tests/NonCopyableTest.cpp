@@ -142,5 +142,4 @@ AWL_TEST(NonCopyable)
         
         //bot.rowId = c.db().lastRowId();
     }
-    
 }
