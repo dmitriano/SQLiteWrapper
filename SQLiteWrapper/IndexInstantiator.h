@@ -41,8 +41,7 @@ namespace sqlite
             indexName(std::move(index_name)),
             idPtrs(id_ptrs),
             m_unique(unique)
-        {
-        }
+        {}
 
         void create(DatabaseRef db_ref) override
         {

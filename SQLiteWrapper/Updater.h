@@ -15,8 +15,7 @@ namespace sqlite
 
         Updater(Database& db, Statement s, IndexFilter id_indices, IndexFilter value_indices) :
             m_db(db), m_s(std::move(s)), m_idIndices(id_indices), m_valueIndices(value_indices)
-        {
-        }
+        {}
 
         Updater(const Updater&) = delete;
 

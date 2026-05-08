@@ -40,8 +40,7 @@ namespace sqlite
             tableName(std::move(table_name)),
             idPtr(id_ptr),
             addConstraints(std::move(add_constraints))
-        {
-        }
+        {}
 
         void create(DatabaseRef db_ref) override
         {

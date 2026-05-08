@@ -32,8 +32,7 @@ namespace sqlite
     public:
 
         MapStorage(sqlite::Database& db, std::string table_name) : m_db(db), tableName(table_name)
-        {
-        }
+        {}
 
         void CreateTable()
         {
