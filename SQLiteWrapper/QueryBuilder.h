@@ -26,42 +26,42 @@ namespace sqlite
 
         void Startselect(const std::string& table_name, FieldListBuilder<Struct>& builder)
         {
-            m_out << "SELECT ";
+            _out << "SELECT ";
 
             addFieldNames(builder);
 
-            m_out << " FROM " << table_name;
+            _out << " FROM " << table_name;
         }
 
         void Startinsert(const std::string& table_name, const OptionalIndexFilter& filter = {})
         {
-            m_out << "INSERT INTO " << table_name << " (";
+            _out << "INSERT INTO " << table_name << " (";
 
             addFieldNames(filter);
 
-            m_out << ") VALUES";
+            _out << ") VALUES";
         }
 
         void Startupdate(const std::string& table_name, const OptionalIndexFilter& filter = {})
         {
-            m_out << "UPDATE " << table_name << " SET ";
+            _out << "UPDATE " << table_name << " SET ";
 
             addFieldNames(filter, { FieldOption::Parametized });
         }
 
         void StartdeleteElement(const std::string& table_name)
         {
-            m_out << "DELETE FROM " << table_name;
+            _out << "DELETE FROM " << table_name;
         }
 
         void createView(const std::string& view_name)
         {
-            m_out << "CREATE VIEW " << view_name << " AS ";
+            _out << "CREATE VIEW " << view_name << " AS ";
         }
 
         FieldListBuilder<Struct> makeFieldBuilder(awl::aseparator sep = makeCommaSeparator())
         {
-            return FieldListBuilder<Struct>(m_out, std::move(sep));
+            return FieldListBuilder<Struct>(_out, std::move(sep));
         }
 
         //We need to convert some tuple of field pointers to std::set<size_t>.
@@ -84,18 +84,18 @@ namespace sqlite
 
         void addText(const std::string_view& text)
         {
-            m_out << text;
+            _out << text;
         }
 
         void addParameters(const OptionalIndexFilter& filter = {})
         {
-            m_out << " (";
+            _out << " (";
 
             auto sep = makeCommaSeparator();
 
             auto add = [this, &sep](size_t i)
             {
-                m_out << sep << "?" << (i + 1);
+                _out << sep << "?" << (i + 1);
             };
 
             if (filter)
@@ -115,7 +115,7 @@ namespace sqlite
                 }
             }
 
-            m_out << ")";
+            _out << ")";
         }
 
         void addWhere()
@@ -125,63 +125,63 @@ namespace sqlite
 
         void addWhereParam(size_t index)
         {
-            m_out << "=?" << index + 1;
+            _out << "=?" << index + 1;
         }
 
         void addLimit(size_t n)
         {
-            m_out << " LIMIT " << n;
+            _out << " LIMIT " << n;
         }
 
         void addOffset(size_t n)
         {
-            m_out << " OFFSET " << n;
+            _out << " OFFSET " << n;
         }
 
         void addTerminator()
         {
-            m_out << ";";
+            _out << ";";
         }
 
         void addJoinOn(const std::string& right_table)
         {
-            m_out << " JOIN " << right_table << " ON ";
+            _out << " JOIN " << right_table << " ON ";
         }
 
         void addLeftJoinOn(const std::string& right_table)
         {
-            m_out << " LEFT JOIN " << right_table << " ON ";
+            _out << " LEFT JOIN " << right_table << " ON ";
         }
 
         void addJoinCondition(const std::string& left_table, const std::string& right_table,
             const std::string& left_id, const std::string& right_id)
         {
-            m_out << left_table << "." << left_id << "=" << right_table << "." << right_id;
+            _out << left_table << "." << left_id << "=" << right_table << "." << right_id;
         }
 
         template <class T>
         QueryBuilder& operator << (const T& val)
         {
-            m_out << val;
+            _out << val;
 
             return *this;
         }
 
         QueryBuilder& operator << (const awl::aformat & f)
         {
-            m_out << f.str();
+            _out << f.str();
 
             return *this;
         }
         
         std::string str() const
         {
-            return m_out.str();
+            return _out.str();
         }
 
     private:
 
-        std::ostringstream m_out;
+        std::ostringstream _out;
     };
 
     template <class Struct>

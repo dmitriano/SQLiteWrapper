@@ -16,15 +16,15 @@ AWL_TEST(InstantiatorIndex)
     const std::string table_name = "orders";
     const std::string index_name = "orders_index";
 
-    sqlite::AutoincrementTableInstantiator table_instantiator(c.m_db, table_name, &v4::Order::clientId);
+    sqlite::AutoincrementTableInstantiator table_instantiator(c._db, table_name, &v4::Order::clientId);
 
-    table_instantiator.create(std::ref(*c.m_db));
+    table_instantiator.create(std::ref(*c._db));
 
     auto key_ptrs = std::make_tuple(&v4::Order::exchangeId, &v4::Order::marketId, &v4::Order::accountType);
 
-    sqlite::IndexInstantiator index_instantiator(c.m_db, table_name, index_name, key_ptrs);
+    sqlite::IndexInstantiator index_instantiator(c._db, table_name, index_name, key_ptrs);
 
-    index_instantiator.create(std::ref(*c.m_db));
+    index_instantiator.create(std::ref(*c._db));
 
     // Index is not unique so it can't crate a set.
     // auto order_set = index_instantiator.makeSet();
@@ -68,13 +68,13 @@ AWL_TEST(InstantiatorConstraintsManyToMany)
 {
     DbContainer c(context);
 
-    sqlite::AutoincrementTableInstantiator orders_instantiator(c.m_db, "orders", &v4::Order::clientId);
+    sqlite::AutoincrementTableInstantiator orders_instantiator(c._db, "orders", &v4::Order::clientId);
 
-    orders_instantiator.create(std::ref(*c.m_db));
+    orders_instantiator.create(std::ref(*c._db));
 
-    sqlite::AutoincrementTableInstantiator lists_instantiator(c.m_db, "order_lists", &OrderList::id);
+    sqlite::AutoincrementTableInstantiator lists_instantiator(c._db, "order_lists", &OrderList::id);
 
-    lists_instantiator.create(std::ref(*c.m_db));
+    lists_instantiator.create(std::ref(*c._db));
 
     std::function<void(sqlite::TableBuilder<OrderLink>&)> add_constraints = [](sqlite::TableBuilder<OrderLink>& builder)
         {
@@ -82,9 +82,9 @@ AWL_TEST(InstantiatorConstraintsManyToMany)
             builder.setColumnConstraint(&OrderLink::orderId, "NOT NULL REFERENCES orders(clientId)");
         };
 
-    sqlite::TableInstantiator links_instantiator(c.m_db, "order_links", std::make_tuple(&OrderLink::listId, &OrderLink::orderId), add_constraints);
+    sqlite::TableInstantiator links_instantiator(c._db, "order_links", std::make_tuple(&OrderLink::listId, &OrderLink::orderId), add_constraints);
 
-    links_instantiator.create(std::ref(*c.m_db));
+    links_instantiator.create(std::ref(*c._db));
 
     const std::string join_query = sqlite::buildListJoinQuery("order_links", "orders",
         &OrderLink::orderId, &v4::Order::clientId, {}, &OrderLink::listId);
@@ -98,18 +98,18 @@ AWL_TEST(InstantiatorConstraintsOneToMany)
 {
     DbContainer c(context);
 
-    sqlite::AutoincrementTableInstantiator lists_instantiator(c.m_db, "order_lists", &OrderList::id);
+    sqlite::AutoincrementTableInstantiator lists_instantiator(c._db, "order_lists", &OrderList::id);
 
-    lists_instantiator.create(std::ref(*c.m_db));
+    lists_instantiator.create(std::ref(*c._db));
 
     std::function<void(sqlite::TableBuilder<v5::Order>&)> add_constraints = [](sqlite::TableBuilder<v5::Order>& builder)
         {
             builder.setColumnConstraint(&v5::Order::clientListId, "REFERENCES order_lists(id)");
         };
 
-    sqlite::AutoincrementTableInstantiator orders_instantiator(c.m_db, "orders", &v5::Order::clientId, add_constraints);
+    sqlite::AutoincrementTableInstantiator orders_instantiator(c._db, "orders", &v5::Order::clientId, add_constraints);
 
-    orders_instantiator.create(std::ref(*c.m_db));
+    orders_instantiator.create(std::ref(*c._db));
 
     auto order_set = orders_instantiator.makeSet();
 

@@ -13,10 +13,10 @@ AWL_TEST(IteratorEmptyRange)
 {
     DbContainer c(context);
 
-    auto storage = makeSet(c.m_db, "orders", std::make_tuple(&v5::Order::exchangeId, &v5::Order::marketId, &v5::Order::accountType));
+    auto storage = makeSet(c._db, "orders", std::make_tuple(&v5::Order::exchangeId, &v5::Order::marketId, &v5::Order::accountType));
 
     {
-        sqlite::Statement st(*c.m_db, "SELECT * FROM orders;");
+        sqlite::Statement st(*c._db, "SELECT * FROM orders;");
 
         auto range = sqlite::make_range<v5::Order>(st);
 

@@ -14,7 +14,7 @@ namespace sqlite
     public:
 
         Updater(Database& db, Statement s, IndexFilter id_indices, IndexFilter value_indices) :
-            m_db(db), m_s(std::move(s)), m_idIndices(id_indices), m_valueIndices(value_indices)
+            _db(db), _s(std::move(s)), _idIndices(id_indices), _valueIndices(value_indices)
         {}
 
         Updater(const Updater&) = delete;
@@ -29,9 +29,9 @@ namespace sqlite
         {
             helpers::forEachFieldValue(val, [this](auto& field, auto field_index)
             {
-                if (m_idIndices.contains(field_index) || m_valueIndices.contains(field_index))
+                if (_idIndices.contains(field_index) || _valueIndices.contains(field_index))
                 {
-                    sqlite::bind(m_s, field_index, field);
+                    sqlite::bind(_s, field_index, field);
                 }
             });
 
@@ -41,37 +41,37 @@ namespace sqlite
         template <class... Ids, class... Values>
         void update(std::tuple<Ids...> ids, std::tuple<Values...> values)
         {
-            if (std::tuple_size_v<std::tuple<Ids...>> != m_idIndices.size())
+            if (std::tuple_size_v<std::tuple<Ids...>> != _idIndices.size())
             {
                 throw std::runtime_error("Wrong number of keys.");
             }
             
-            if (std::tuple_size_v<std::tuple<Values...>> != m_valueIndices.size())
+            if (std::tuple_size_v<std::tuple<Values...>> != _valueIndices.size())
             {
                 throw std::runtime_error("Wrong number of values.");
             }
 
             //Bind IDs
             {
-                auto i = m_idIndices.begin();
+                auto i = _idIndices.begin();
 
                 awl::for_each(ids, [this, &i](auto& field)
                 {
                     const size_t field_index = *i++;
 
-                    sqlite::bind(m_s, field_index, field);
+                    sqlite::bind(_s, field_index, field);
                 });
             }
 
             //Bind Values
             {
-                auto i = m_valueIndices.begin();
+                auto i = _valueIndices.begin();
 
                 awl::for_each(values, [this, &i](auto& field)
                 {
                     const size_t field_index = *i++;
 
-                    sqlite::bind(m_s, field_index, field);
+                    sqlite::bind(_s, field_index, field);
                 });
             }
 
@@ -82,17 +82,17 @@ namespace sqlite
 
         void exec()
         {
-            m_s.exec();
+            _s.exec();
 
-            m_db.ensureAffected(1);
+            _db.ensureAffected(1);
         }
 
-        Database& m_db;
+        Database& _db;
 
-        Statement m_s;
+        Statement _s;
 
-        const IndexFilter m_idIndices;
+        const IndexFilter _idIndices;
 
-        const IndexFilter m_valueIndices;
+        const IndexFilter _valueIndices;
     };
 }

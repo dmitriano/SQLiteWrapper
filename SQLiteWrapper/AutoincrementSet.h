@@ -12,9 +12,9 @@ namespace sqlite
     public:
 
         AutoincrementSet(const std::shared_ptr<Database>& db, std::string table_name, Int Value::* id_ptr) :
-            m_storage(db, std::move(table_name), std::make_tuple(id_ptr))
+            _storage(db, std::move(table_name), std::make_tuple(id_ptr))
         {
-            insertWithoutIdStatement = m_storage.makeStatement("autoinsert", buildParameterizedInsertQuery<Value>(m_storage.tableName, m_storage.valueFilter()));
+            insertWithoutIdStatement = _storage.makeStatement("autoinsert", buildParameterizedInsertQuery<Value>(_storage.tableName, _storage.valueFilter()));
         }
 
         AutoincrementSet(const AutoincrementSet&) = delete;
@@ -25,24 +25,24 @@ namespace sqlite
 
         void close()
         {
-            m_storage.close();
+            _storage.close();
 
             insertWithoutIdStatement.close();
         }
 
         Iterator<Value> begin()
         {
-            return m_storage.begin();
+            return _storage.begin();
         }
 
         IteratorSentinel<Value> end()
         {
-            return m_storage.end();
+            return _storage.end();
         }
 
         void insert(Value& val)
         {
-            m_storage.bindValue(insertWithoutIdStatement, val, m_storage.valueFilter());
+            _storage.bindValue(insertWithoutIdStatement, val, _storage.valueFilter());
 
             insertWithoutIdStatement.exec();
 
@@ -52,7 +52,7 @@ namespace sqlite
         // It may still violate some constraint like UNIQUE index on other columns.
         bool tryinsert(Value& val)
         {
-            m_storage.bindValue(insertWithoutIdStatement, val, m_storage.valueFilter());
+            _storage.bindValue(insertWithoutIdStatement, val, _storage.valueFilter());
 
             const bool success = insertWithoutIdStatement.exec();
 
@@ -66,66 +66,66 @@ namespace sqlite
 
         void insertWithId(const Value& val)
         {
-            m_storage.insert(val);
+            _storage.insert(val);
         }
 
         bool tryinsertWithId(const Value& val)
         {
-            return m_storage.tryinsert(val);
+            return _storage.tryinsert(val);
         }
 
         bool find(Value& val)
         {
-            return m_storage.find(val);
+            return _storage.find(val);
         }
 
         bool find(Int id, Value& val)
         {
-            return m_storage.find(std::make_tuple(id), val);
+            return _storage.find(std::make_tuple(id), val);
         }
 
         void update(const Value& val)
         {
-            m_storage.update(val);
+            _storage.update(val);
         }
 
         template <class... Field>
         Updater<Value> createUpdater(std::tuple<Field Value::*...> field_ptrs) const
         {
-            return m_storage.createUpdater(field_ptrs);
+            return _storage.createUpdater(field_ptrs);
         }
 
         void tryDeleteRecord(Int id)
         {
-            m_storage.tryDeleteRecord(std::make_tuple(id));
+            _storage.tryDeleteRecord(std::make_tuple(id));
         }
 
         void deleteElement(Int id)
         {
-            m_storage.deleteElement(std::make_tuple(id));
+            _storage.deleteElement(std::make_tuple(id));
         }
 
         void tryDeleteRecord(const Value& val)
         {
-            m_storage.tryDeleteRecord(val);
+            _storage.tryDeleteRecord(val);
         }
 
         void deleteElement(const Value& val)
         {
-            m_storage.deleteElement(val);
+            _storage.deleteElement(val);
         }
 
     private:
 
         void assignLastRowId(Value& val) const
         {
-            Int Value::* id_ptr = std::get<0>(m_storage.idPtrs);
+            Int Value::* id_ptr = std::get<0>(_storage.idPtrs);
 
             // TODO: What about signed/unsigned?
-            val.*id_ptr = static_cast<Int>(m_storage.m_db->lastRowId());
+            val.*id_ptr = static_cast<Int>(_storage._db->lastRowId());
         }
 
-        Set<Value, Int> m_storage;
+        Set<Value, Int> _storage;
 
         Statement insertWithoutIdStatement;
     };

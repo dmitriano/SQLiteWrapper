@@ -251,7 +251,7 @@ AWL_TEST(SimpleQueryTest)
         ++count;
     }
 
-    AWL_ASSERT_EQUAL(c.m_ages.size(), count);
+    AWL_ASSERT_EQUAL(c._ages.size(), count);
 }
 
 AWL_TEST(WhereTest)
@@ -266,13 +266,13 @@ AWL_TEST(WhereTest)
 
     Statement rs(db, "select FirstName, Age from myTable where Age <= ?");
 
-    std::sort(c.m_ages.begin(), c.m_ages.end());
+    std::sort(c._ages.begin(), c._ages.end());
 
-    size_t i = c.m_ages.size() / 2;
+    size_t i = c._ages.size() / 2;
 
-    const size_t val = c.m_ages[i];
+    const size_t val = c._ages[i];
 
-    while (i < c.m_ages.size() - 1 && c.m_ages[i + 1] == val)
+    while (i < c._ages.size() - 1 && c._ages[i + 1] == val)
     {
         ++i;
     }
@@ -295,7 +295,7 @@ AWL_TEST(WhereTest)
         size_t age;
         sqlite::get(rs, 1, age);
 
-        AWL_ASSERT_EQUAL(c.m_ages[count], age);
+        AWL_ASSERT_EQUAL(c._ages[count], age);
 
         ++count;
     }

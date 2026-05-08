@@ -9,11 +9,11 @@ using namespace sqlite;
 
 void Database::open(const char* fileName)
 {
-    const int rc = sqlite3_open(fileName, &m_db);
+    const int rc = sqlite3_open(fileName, &_db);
 
     if (rc != SQLITE_OK)
     {
-        raiseError(m_db, rc, awl::aformat() << "Can't open database '" << fileName << "'");
+        raiseError(_db, rc, awl::aformat() << "Can't open database '" << fileName << "'");
     }
 
     notify(&Element::create, std::ref(*this));
@@ -21,26 +21,26 @@ void Database::open(const char* fileName)
 
 void Database::close()
 {
-    if (m_db != nullptr)
+    if (_db != nullptr)
     {
         // Close the statements.
         invalidateScheme();
 
-        const int rc = sqlite3_close(m_db);
+        const int rc = sqlite3_close(_db);
 
         if (rc == SQLITE_OK)
         {
-            m_logger->debug("sqlite3_close succeeded.");
-            m_db = nullptr;
+            _logger->debug("sqlite3_close succeeded.");
+            _db = nullptr;
         }
         else
         {
-            m_logger->error("sqlite3_close failed with code {}: {}", rc, sqlite3_errmsg(m_db));
+            _logger->error("sqlite3_close failed with code {}: {}", rc, sqlite3_errmsg(_db));
         }
     }
     else
     {
-        m_logger->debug("sqlite3_close skipped: database is not open.");
+        _logger->debug("sqlite3_close skipped: database is not open.");
     }
 }
 

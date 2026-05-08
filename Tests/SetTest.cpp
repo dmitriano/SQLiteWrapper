@@ -28,7 +28,7 @@ AWL_TEST(SetStorageMarket)
 {
     DbContainer c(context);
 
-    auto ms = makeSet(c.m_db, "markets", std::make_tuple(&Market::id));
+    auto ms = makeSet(c._db, "markets", std::make_tuple(&Market::id));
 
     Precision precision_sample{ 1, 2, 3, 4 };
     Precision precision_result{ 5, 6, 7, 8 };
@@ -36,9 +36,9 @@ AWL_TEST(SetStorageMarket)
     const std::string id = "abc";
     const std::string wrong_id = "xyz";
 
-    Market m_sample{ {}, id, precision_sample };
-    Market m_wrong_sample{ {}, wrong_id, precision_sample };
-    Market m_result{ {}, id, precision_result };
+    Market _sample{ {}, id, precision_sample };
+    Market _wrong_sample{ {}, wrong_id, precision_sample };
+    Market _result{ {}, id, precision_result };
 
     auto assert_does_not_exist = [&ms, &wrong_id]()
     {
@@ -58,18 +58,18 @@ AWL_TEST(SetStorageMarket)
 
     assert_does_not_exist();
 
-    ms.insert(m_sample);
+    ms.insert(_sample);
 
     assert_does_not_exist();
-    assert_exists(id, m_sample);
+    assert_exists(id, _sample);
 
-    ms.update(m_result);
+    ms.update(_result);
 
     assert_does_not_exist();
-    assert_exists(id, m_result);
+    assert_exists(id, _result);
 
-    ms.insert(m_wrong_sample);
-    assert_exists(wrong_id, m_wrong_sample);
+    ms.insert(_wrong_sample);
+    assert_exists(wrong_id, _wrong_sample);
 }
 
 namespace
@@ -150,7 +150,7 @@ AWL_TEST(SetStorageOrder)
 {
     DbContainer c(context);
 
-    auto storage = makeSet(c.m_db, "orders", std::make_tuple(&Order::marketId, &Order::id));
+    auto storage = makeSet(c._db, "orders", std::make_tuple(&Order::marketId, &Order::id));
 
     {
         Order order;
@@ -323,7 +323,7 @@ AWL_TEST(SetStorageMax)
 {
     DbContainer c(context);
 
-    auto storage = makeSet(c.m_db, "orders", std::make_tuple(&Order::marketId, &Order::id));
+    auto storage = makeSet(c._db, "orders", std::make_tuple(&Order::marketId, &Order::id));
 
     CheckMax(c.db(), btc_market_id, -1);
 
@@ -340,7 +340,7 @@ AWL_TEST(OrderStorageGetBind2)
 {
     DbContainer c(context);
 
-    auto storage = makeSet(c.m_db, "orders", std::make_tuple(&v2::Order::accountType, &v2::Order::marketId, &v2::Order::id));
+    auto storage = makeSet(c._db, "orders", std::make_tuple(&v2::Order::accountType, &v2::Order::marketId, &v2::Order::id));
 
     using TestOrderKey = std::tuple<v2::AccountType, std::string, data::OrderId>;
 
@@ -412,7 +412,7 @@ AWL_TEST(OrderStorageGetBind3)
 {
     DbContainer c(context);
 
-    auto storage = makeSet(c.m_db, "orders", std::make_tuple(&v3::Order::accountType, &v3::Order::marketId, &v3::Order::id));
+    auto storage = makeSet(c._db, "orders", std::make_tuple(&v3::Order::accountType, &v3::Order::marketId, &v3::Order::id));
 
     using TestOrderKey = std::tuple<v3::AccountType, std::string, data::OrderId>;
 
@@ -476,7 +476,7 @@ AWL_TEST(OrderStorageGetBind3a)
 {
     DbContainer c(context);
 
-    auto storage = makeSet(c.m_db, "orders", std::make_tuple(&v3::Order::marketId, &v3::Order::id));
+    auto storage = makeSet(c._db, "orders", std::make_tuple(&v3::Order::marketId, &v3::Order::id));
 
     using TestOrderKey = std::tuple<std::string, data::OrderId>;
 
@@ -570,7 +570,7 @@ AWL_TEST(OrderStorageGetBind3b)
 {
     DbContainer c(context);
 
-    auto storage = makeSet(c.m_db, "orders", std::make_tuple(&v3::Order::accountType));
+    auto storage = makeSet(c._db, "orders", std::make_tuple(&v3::Order::accountType));
 
     using TestOrderKey = std::tuple<v3::AccountType>;
 
@@ -612,7 +612,7 @@ AWL_TEST(OrderStorageGetBind3c)
 {
     DbContainer c(context);
 
-    auto storage = makeSet(c.m_db, "orders", std::make_tuple(&v3::Order::accountType, &v3::Order::marketId));
+    auto storage = makeSet(c._db, "orders", std::make_tuple(&v3::Order::accountType, &v3::Order::marketId));
 
     using TestOrderKey = std::tuple<v3::AccountType, std::string>;
 
@@ -654,7 +654,7 @@ AWL_TEST(OrderStorageGetBind3d)
 {
     DbContainer c(context);
 
-    auto storage = makeSet(c.m_db, "orders", std::make_tuple(&v3::Order::marketId, &v3::Order::accountType));
+    auto storage = makeSet(c._db, "orders", std::make_tuple(&v3::Order::marketId, &v3::Order::accountType));
 
     using TestOrderKey = std::tuple<std::string, v3::AccountType>;
 
@@ -728,7 +728,7 @@ AWL_TEST(OrderStorageGetBind5)
 {
     DbContainer c(context);
 
-    auto storage = makeSet(c.m_db, "orders", std::make_tuple(&v5::Order::exchangeId, &v5::Order::marketId, &v5::Order::accountType));
+    auto storage = makeSet(c._db, "orders", std::make_tuple(&v5::Order::exchangeId, &v5::Order::marketId, &v5::Order::accountType));
 
     const v5::Order sample_order = makeSampleOrder5();
 

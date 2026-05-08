@@ -28,7 +28,7 @@ namespace swtest
         explicit DbContainer(std::shared_ptr<awl::Logger> logger)
         {
             RemoveFile();
-            m_db = std::make_shared<Database>(fileName, std::move(logger));
+            _db = std::make_shared<Database>(fileName, std::move(logger));
         }
 
         DbContainer(const awl::testing::TestContext& context) : DbContainer(context.logger)
@@ -38,13 +38,13 @@ namespace swtest
 
         ~DbContainer()
         {
-            m_db->close();
+            _db->close();
             RemoveFile();
         }
 
         Database& db()
         {
-            return *m_db;
+            return *_db;
         }
 
         //Inserts 1000 row by default.
@@ -52,11 +52,11 @@ namespace swtest
 
         void SetAttributes(const awl::testing::TestContext & context);
 
-        std::shared_ptr<Database> m_db;
+        std::shared_ptr<Database> _db;
 
-        std::vector<size_t> m_ages;
+        std::vector<size_t> _ages;
 
-        bool m_insertWithBinding = true;
+        bool _insertWithBinding = true;
 
     private:
 

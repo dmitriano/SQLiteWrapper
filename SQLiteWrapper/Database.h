@@ -21,9 +21,9 @@ namespace sqlite
     {
     public:
         
-        explicit Database(std::shared_ptr<awl::Logger> logger) : m_logger(std::move(logger))
+        explicit Database(std::shared_ptr<awl::Logger> logger) : _logger(std::move(logger))
         {
-            if (!m_logger)
+            if (!_logger)
             {
                 throw std::invalid_argument("Database logger must not be null.");
             }
@@ -44,17 +44,17 @@ namespace sqlite
         Database& operator = (const Database&) = delete;
 
         Database(Database&& other) :
-            m_logger(std::move(other.m_logger)),
-            m_db(std::move(other.m_db))
+            _logger(std::move(other._logger)),
+            _db(std::move(other._db))
         {
-            other.m_db = nullptr;
+            other._db = nullptr;
         }
 
         Database& operator = (Database && other)
         {
-            m_logger = std::move(other.m_logger);
-            m_db = other.m_db;
-            other.m_db = nullptr;
+            _logger = std::move(other._logger);
+            _db = other._db;
+            other._db = nullptr;
             return *this;
         }
 
@@ -123,13 +123,13 @@ namespace sqlite
         template <class Func>
         void tryRun(Func&& func, std::string savepoint = {})
         {
-            ++m_transactionLevel;
+            ++_transactionLevel;
 
-            auto guard = awl::make_scope_guard([this] { --m_transactionLevel; });
+            auto guard = awl::make_scope_guard([this] { --_transactionLevel; });
 
             if (savepoint.empty())
             {
-                savepoint = awl::aformat() << "sp" << m_transactionLevel;
+                savepoint = awl::aformat() << "sp" << _transactionLevel;
             }
 
             savePoint(savepoint.c_str());
@@ -150,7 +150,7 @@ namespace sqlite
 
         int execRaw(const char* query, char** errmsg = nullptr)
         {
-            return sqlite3_exec(m_db, query, nullptr, 0, errmsg);
+            return sqlite3_exec(_db, query, nullptr, 0, errmsg);
         }
 
         void execRaw(const std::string& query, char** errmsg = nullptr)
@@ -195,18 +195,18 @@ namespace sqlite
 
         void createFunction(const char* zFunc, int nArg, void (*xSFunc)(sqlite3_context*, int, sqlite3_value**))
         {
-            const int rc = sqlite3_create_function(m_db, zFunc, nArg, SQLITE_UTF8, NULL, xSFunc, NULL, NULL);
+            const int rc = sqlite3_create_function(_db, zFunc, nArg, SQLITE_UTF8, NULL, xSFunc, NULL, NULL);
 
             if (rc != SQLITE_OK)
             {
-                raiseError(m_db, rc, awl::aformat() << "Can't create function '" << zFunc << "'");
+                raiseError(_db, rc, awl::aformat() << "Can't create function '" << zFunc << "'");
             }
         }
 
         //Returns the number of rows modified, inserted or deleted by the most recently completed INSERT, UPDATE or DELETE statement.
         int affectedCount() const
         {
-            return sqlite3_changes(m_db);
+            return sqlite3_changes(_db);
         }
 
         void ensureAffected(int expected)
@@ -221,12 +221,12 @@ namespace sqlite
 
         RowId lastRowId() const
         {
-            return sqlite3_last_insert_rowid(m_db);
+            return sqlite3_last_insert_rowid(_db);
         }
 
         awl::Logger& logger()
         {
-            return *m_logger;
+            return *_logger;
         }
 
         // Should be called after CREATE TABLE.
@@ -247,11 +247,11 @@ namespace sqlite
             raiseError(db, 0, message);
         }
 
-        std::shared_ptr<awl::Logger> m_logger;
+        std::shared_ptr<awl::Logger> _logger;
 
-        sqlite3 * m_db = nullptr;
+        sqlite3 * _db = nullptr;
 
-        std::size_t m_transactionLevel = 0u;
+        std::size_t _transactionLevel = 0u;
 
         Statement tableExistsStatement;
         Statement indexExistsStatement;

@@ -87,9 +87,9 @@ AWL_TEST(RowIdRaw)
 {
     DbContainer c(context);
 
-    c.m_db->exec("CREATE TABLE raw_bots (name TEXT NOT NULL COLLATE NOCASE, state BLOB);");
+    c._db->exec("CREATE TABLE raw_bots (name TEXT NOT NULL COLLATE NOCASE, state BLOB);");
 
-    sqlite::Statement insert_statement(*c.m_db, "INSERT INTO raw_bots (name, state) VALUES (?1, ?3);");
+    sqlite::Statement insert_statement(*c._db, "INSERT INTO raw_bots (name, state) VALUES (?1, ?3);");
 
     insert_statement.bindText(0, "BTCUSDT");
     insert_statement.bindBlob(2, { 0, 1, 3 });
@@ -103,7 +103,7 @@ AWL_TEST(RowIdSet)
     
     DbContainer c(context);
 
-    auto set = MakeAutoincrementSet(c.m_db, table_name, &Bot::botId);
+    auto set = MakeAutoincrementSet(c._db, table_name, &Bot::botId);
 
     for (Bot& bot : bots)
     {
@@ -198,7 +198,7 @@ AWL_TEST(RowIdSequence)
 
     DbContainer c(context);
 
-    auto set = MakeAutoincrementSet(c.m_db, table_name, &Bot::botId);
+    auto set = MakeAutoincrementSet(c._db, table_name, &Bot::botId);
 
     for (size_t i = 0; i < bots.size(); ++i)
     {

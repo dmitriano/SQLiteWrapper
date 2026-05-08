@@ -22,22 +22,22 @@ namespace sqlite
 
         TableBuilder(const std::string & name, bool ifNotExists = false)
         {
-            m_out << "CREATE TABLE ";
+            _out << "CREATE TABLE ";
 
             if (ifNotExists)
             {
-                m_out << "IF NOT EXISTS ";
+                _out << "IF NOT EXISTS ";
             }
 
-            m_out << name << std::endl;
+            _out << name << std::endl;
 
-            m_out << "(" << std::endl;
+            _out << "(" << std::endl;
         }
 
         template <typename... Keys>
         void setPrimaryKey(Keys Struct::*...fieldPtr)
         {
-            (m_primaryKeyColumns.push_back(helpers::findFieldIndex(fieldPtr)), ...);
+            (_primaryKeyColumns.push_back(helpers::findFieldIndex(fieldPtr)), ...);
         }
         
         template <typename... Keys>
@@ -45,14 +45,14 @@ namespace sqlite
         {
             awl::for_each(id_ptrs, [this](auto& id_ptr)
             {
-                m_primaryKeyColumns.push_back(helpers::findFieldIndex(id_ptr));
+                _primaryKeyColumns.push_back(helpers::findFieldIndex(id_ptr));
             });
         }
 
         template <class T>
         void setColumnConstraint(T Struct::*fieldPtr, const std::string & constraint)
         {
-            m_columnConstraints[helpers::findTransparentFieldIndex(fieldPtr)] = constraint;
+            _columnConstraints[helpers::findTransparentFieldIndex(fieldPtr)] = constraint;
         }
         
         void addColumns()
@@ -66,7 +66,7 @@ namespace sqlite
         {
             addLineSeparator();
 
-            m_out << "  " << line;
+            _out << "  " << line;
         }
         
         template <class FieldType>
@@ -74,7 +74,7 @@ namespace sqlite
         {
             addLineSeparator();
 
-            m_out << "  " << name;
+            _out << "  " << name;
 
             using DataType = helpers::RemoveOptionalT<FieldType>;
             
@@ -84,19 +84,19 @@ namespace sqlite
 
             if constexpr (is_text)
             {
-                m_out << " TEXT";
+                _out << " TEXT";
             }
             else if constexpr (std::is_integral_v<DataType>)
             {
-                m_out << " INTEGER";
+                _out << " INTEGER";
             }
             else if constexpr (std::is_floating_point_v<DataType>)
             {
-                m_out << " REAL";
+                _out << " REAL";
             }
             else if constexpr (is_blob)
             {
-                m_out << " BLOB";
+                _out << " BLOB";
             }
 
             //Allow zero-length blob by default.
@@ -106,33 +106,33 @@ namespace sqlite
                 {
                     if constexpr (!helpers::IsOptionalV<FieldType>)
                     {
-                        m_out << " NOT NULL";
+                        _out << " NOT NULL";
                     }
                 }
                 else
                 {
-                    m_out << " " << constraint;
+                    _out << " " << constraint;
                 }
             }
             else
             {
-                m_out << " " << constraint;
+                _out << " " << constraint;
             }
 
             if constexpr (is_text)
             {
-                switch (m_defaultCollation)
+                switch (_defaultCollation)
                 {
                 case Collation::None:
                     break;
                 case Collation::Binary:
-                    m_out << " COLLATE BINARY";
+                    _out << " COLLATE BINARY";
                     break;
                 case Collation::NoCase:
-                    m_out << " COLLATE NOCASE";
+                    _out << " COLLATE NOCASE";
                     break;
                 case Collation::RTrim:
-                    m_out << " COLLATE RTRIM";
+                    _out << " COLLATE RTRIM";
                     break;
                 }
             }
@@ -141,8 +141,8 @@ namespace sqlite
         std::string build()
         {
             //Remove rowId from primary key.
-            m_primaryKeyColumns.erase(
-                std::remove_if(m_primaryKeyColumns.begin(), m_primaryKeyColumns.end(), [](size_t field_index)
+            _primaryKeyColumns.erase(
+                std::remove_if(_primaryKeyColumns.begin(), _primaryKeyColumns.end(), [](size_t field_index)
                 {
                     const auto& memberNames = Struct::member_names();
 
@@ -150,17 +150,17 @@ namespace sqlite
 
                     return name == rowIdFieldName;
                 }),
-                m_primaryKeyColumns.end());
+                _primaryKeyColumns.end());
             
-            if (!m_primaryKeyColumns.empty())
+            if (!_primaryKeyColumns.empty())
             {
-                m_out << "," << std::endl;
+                _out << "," << std::endl;
 
-                m_out << "  PRIMARY KEY(";
+                _out << "  PRIMARY KEY(";
 
                 bool firstPK = true;
 
-                for (const size_t fieldIndex : m_primaryKeyColumns)
+                for (const size_t fieldIndex : _primaryKeyColumns)
                 {
                     if (firstPK)
                     {
@@ -168,36 +168,36 @@ namespace sqlite
                     }
                     else
                     {
-                        m_out << " ,";
+                        _out << " ,";
                     }
 
                     const auto& memberNames = Struct::member_names();
 
                     const std::string& name = memberNames[fieldIndex];
 
-                    m_out << name;
+                    _out << name;
                 }
 
-                m_out << ")";
+                _out << ")";
             }
 
-            if (!m_foreignKeyClause.empty())
+            if (!_foreignKeyClause.empty())
             {
-                m_out << "," << std::endl;
+                _out << "," << std::endl;
 
-                m_out << "  " << m_foreignKeyClause;
+                _out << "  " << _foreignKeyClause;
             }
 
-            m_out << std::endl << ")";
+            _out << std::endl << ")";
 
-            //if (m_rowIdIndex == noIndex)
+            //if (_rowIdIndex == noIndex)
             //{
-            //    m_out << " WITHOUT ROWID";
+            //    _out << " WITHOUT ROWID";
             //}
 
-            m_out << ";" << std::endl;
+            _out << ";" << std::endl;
 
-            return m_out.str();
+            return _out.str();
         }
 
         std::string create()
@@ -213,7 +213,7 @@ namespace sqlite
         {
         public:
 
-            ColumnVisitor(TableBuilder& builder) : m_builder(builder) {}
+            ColumnVisitor(TableBuilder& builder) : _builder(builder) {}
 
             bool containsColumn(size_t) const
             {
@@ -223,42 +223,42 @@ namespace sqlite
             template <class FieldType>
             void addColumn(const std::string& full_name, size_t field_index)
             {
-                const std::string& constraint = m_builder.m_columnConstraints[field_index];
+                const std::string& constraint = _builder._columnConstraints[field_index];
 
-                m_builder.addColumn<FieldType>(full_name, constraint);
+                _builder.addColumn<FieldType>(full_name, constraint);
             }
 
         private:
 
-            TableBuilder& m_builder;
+            TableBuilder& _builder;
         };
 
         friend ColumnVisitor;
 
         void addLineSeparator()
         {
-            if (m_firstLine)
+            if (_firstLine)
             {
-                m_firstLine = false;
+                _firstLine = false;
             }
             else
             {
-                m_out << "," << std::endl;
+                _out << "," << std::endl;
             }
         }
 
-        // size_t m_rowIdIndex = noIndex;
+        // size_t _rowIdIndex = noIndex;
 
-        Collation m_defaultCollation = Collation::NoCase;
+        Collation _defaultCollation = Collation::NoCase;
 
-        std::string m_foreignKeyClause;
+        std::string _foreignKeyClause;
 
-        std::vector<size_t> m_primaryKeyColumns;
+        std::vector<size_t> _primaryKeyColumns;
         
-        std::array<std::string, helpers::fieldCount<Struct>()> m_columnConstraints;
+        std::array<std::string, helpers::fieldCount<Struct>()> _columnConstraints;
 
-        std::ostringstream m_out;
+        std::ostringstream _out;
 
-        bool m_firstLine = true;
+        bool _firstLine = true;
     };
 }

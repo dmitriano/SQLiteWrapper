@@ -31,18 +31,18 @@ namespace sqlite
 
     public:
 
-        MapStorage(sqlite::Database& db, std::string table_name) : m_db(db), tableName(table_name)
+        MapStorage(sqlite::Database& db, std::string table_name) : _db(db), tableName(table_name)
         {}
 
         void CreateTable()
         {
-            if (!m_db.tableExists(tableName))
+            if (!_db.tableExists(tableName))
             {
                 sqlite::TableBuilder<Record> builder(tableName);
 
                 builder.setColumnConstraint(&Record::id, "INTEGER NOT NULL PRIMARY KEY");
 
-                m_db.exec(builder.create());
+                _db.exec(builder.create());
             }
         }
 
@@ -57,11 +57,11 @@ namespace sqlite
                 value_filter.insert(i);
             }
 
-            insertStatement = sqlite::Statement(m_db, sqlite::buildParameterizedInsertQuery<Record>(tableName));
+            insertStatement = sqlite::Statement(_db, sqlite::buildParameterizedInsertQuery<Record>(tableName));
 
-            updateStatement = sqlite::Statement(m_db, sqlite::buildParameterizedUpdateQuery<Record>(tableName, value_filter, id_filter));
+            updateStatement = sqlite::Statement(_db, sqlite::buildParameterizedUpdateQuery<Record>(tableName, value_filter, id_filter));
 
-            selectStatement = sqlite::Statement(m_db, sqlite::buildParameterizedSelectQuery<Record>(tableName, value_filter, id_filter));
+            selectStatement = sqlite::Statement(_db, sqlite::buildParameterizedSelectQuery<Record>(tableName, value_filter, id_filter));
         }
 
         void insert(const Key& id, const Value& val)
@@ -98,7 +98,7 @@ namespace sqlite
 
     private:
 
-        sqlite::Database& m_db;
+        sqlite::Database& _db;
         
         std::string tableName;
 

@@ -34,8 +34,8 @@ namespace sqlite
     public:
 
         FieldListBuilder(std::ostringstream& out, awl::aseparator sep) :
-            m_out(std::ref(out)),
-            m_sep(std::move(sep))
+            _out(std::ref(out)),
+            _sep(std::move(sep))
         {}
 
         bool containsColumn(size_t field_index) const
@@ -46,7 +46,7 @@ namespace sqlite
         template <class FieldType>
         void addColumn(const std::string& full_name, size_t field_index)
         {
-            out() << m_sep;
+            out() << _sep;
 
             if (!table_name.empty())
             {
@@ -79,12 +79,12 @@ namespace sqlite
 
         std::ostringstream& out()
         {
-            return m_out;
+            return _out;
         }
 
-        std::reference_wrapper<std::ostringstream> m_out;
+        std::reference_wrapper<std::ostringstream> _out;
 
-        awl::aseparator m_sep;
+        awl::aseparator _sep;
     };
 }
 

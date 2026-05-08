@@ -28,12 +28,12 @@ namespace sqlite
         TableInstantiator(const std::shared_ptr<Database>& db, std::string table_name, PtrTuple id_ptrs,
             std::function<void(TableBuilder<Record>&)> add_constraints = {})
         :
-            m_db(db),
+            _db(db),
             tableName(std::move(table_name)),
             idPtrs(id_ptrs),
             addConstraints(std::move(add_constraints))
         {
-            m_db->subscribe(this);
+            _db->subscribe(this);
         }
 
         TableInstantiator(std::string table_name, PtrTuple id_ptrs,
@@ -85,9 +85,9 @@ namespace sqlite
 
         SetType makeSet() const
         {
-            assert(m_db != nullptr);
+            assert(_db != nullptr);
 
-            return makeSet(m_db);
+            return makeSet(_db);
         }
 
         SetType makeSet(const std::shared_ptr<Database>& db) const
@@ -97,7 +97,7 @@ namespace sqlite
 
     private:
 
-        std::shared_ptr<Database> m_db;
+        std::shared_ptr<Database> _db;
 
         const std::string tableName;
 

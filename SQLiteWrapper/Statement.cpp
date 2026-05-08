@@ -7,7 +7,7 @@ using namespace sqlite;
 {
     assert(Isopen());
 
-    sqlite3 * db = sqlite3_db_handle(m_stmt);
+    sqlite3 * db = sqlite3_db_handle(_stmt);
 
     Database::raiseError(db, code, message);
 }
@@ -20,10 +20,10 @@ using namespace sqlite;
 
 void Statement::open(Database& db, const char* query)
 {
-    const int rc = sqlite3_prepare(db.m_db, query, -1, &m_stmt, NULL);
+    const int rc = sqlite3_prepare(db._db, query, -1, &_stmt, NULL);
 
     if (rc != SQLITE_OK)
     {
-        Database::raiseError(db.m_db, rc, awl::aformat() << "Error while preparing SQL query: '" << query << "'.");
+        Database::raiseError(db._db, rc, awl::aformat() << "Error while preparing SQL query: '" << query << "'.");
     }
 }

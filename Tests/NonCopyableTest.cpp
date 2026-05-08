@@ -18,9 +18,9 @@ namespace
     {
     public:
 
-        NonCopyable() : m_a(0) {}
+        NonCopyable() : _a(0) {}
         
-        explicit NonCopyable(int a) : m_a(a)
+        explicit NonCopyable(int a) : _a(a)
         {
             ++count;
         }
@@ -32,24 +32,24 @@ namespace
 
         NonCopyable(NonCopyable const&) = delete;
 
-        NonCopyable(NonCopyable&& other) : NonCopyable(other.m_a)
+        NonCopyable(NonCopyable&& other) : NonCopyable(other._a)
         {
-            other.m_moved = true;
+            other._moved = true;
         }
 
         NonCopyable& operator = (const NonCopyable&) = delete;
 
         NonCopyable& operator = (NonCopyable&& other)
         {
-            m_a = other.m_a;
-            other.m_moved = true;
+            _a = other._a;
+            other._moved = true;
 
             return *this;
         }
 
         bool operator == (const NonCopyable& other) const
         {
-            return m_a == other.m_a;
+            return _a == other._a;
         }
 
         bool operator != (const NonCopyable& other) const
@@ -59,20 +59,20 @@ namespace
 
         bool operator < (const NonCopyable& other) const
         {
-            return m_a < other.m_a;
+            return _a < other._a;
         }
 
         static inline int count = 0;
 
         int value() const
         {
-            return m_a;
+            return _a;
         }
 
     private:
 
-        bool m_moved = false;
-        int m_a;
+        bool _moved = false;
+        int _a;
     };
 
     using Nc = NonCopyable;
@@ -136,7 +136,7 @@ AWL_TEST(NonCopyable)
         
         DbContainer c(context);
 
-        auto set = makeSet(c.m_db, table_name, std::make_tuple(&Bot::botId));
+        auto set = makeSet(c._db, table_name, std::make_tuple(&Bot::botId));
 
         set.insert(Bot{ 0, "BTC_USDT", {}, Nc(0) });
         

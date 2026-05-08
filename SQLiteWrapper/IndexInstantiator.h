@@ -27,20 +27,20 @@ namespace sqlite
     public:
 
         IndexInstantiator(const std::shared_ptr<Database>& db, std::string table_name, std::string index_name, PtrTuple id_ptrs, bool unique = false) :
-            m_db(db),
+            _db(db),
             tableName(std::move(table_name)),
             indexName(std::move(index_name)),
             idPtrs(id_ptrs),
-            m_unique(unique)
+            _unique(unique)
         {
-            m_db->subscribe(this);
+            _db->subscribe(this);
         }
 
         IndexInstantiator(std::string table_name, std::string index_name, PtrTuple id_ptrs, bool unique = false) :
             tableName(std::move(table_name)),
             indexName(std::move(index_name)),
             idPtrs(id_ptrs),
-            m_unique(unique)
+            _unique(unique)
         {}
 
         void create(DatabaseRef db_ref) override
@@ -53,7 +53,7 @@ namespace sqlite
 
                 out << "CREATE ";
                 
-                if (m_unique)
+                if (_unique)
                 {
                     out << "UNIQUE ";
                 }
@@ -93,9 +93,9 @@ namespace sqlite
 
         Statement makeSelectStatement() const
         {
-            assert(m_db != nullptr);
+            assert(_db != nullptr);
 
-            return makeSelectStatement(*m_db);
+            return makeSelectStatement(*_db);
         }
 
         Statement makeSelectStatement(Database& db) const
@@ -110,14 +110,14 @@ namespace sqlite
 
     private:
 
-        std::shared_ptr<Database> m_db;
+        std::shared_ptr<Database> _db;
 
         const std::string tableName;
         const std::string indexName;
 
         const PtrTuple idPtrs;
 
-        const bool m_unique;
+        const bool _unique;
     };
 }
 

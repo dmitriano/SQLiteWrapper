@@ -31,9 +31,9 @@ namespace swtest
             const std::string randomLastName = std::string(l) + std::to_string(last_name_dist(awl::random()));
             const size_t randomAge = age + age_dist(awl::random());
 
-            m_ages.push_back(randomAge);
+            _ages.push_back(randomAge);
 
-            if (m_insertWithBinding)
+            if (_insertWithBinding)
             {
                 sqlite::bind(stmt, 0, randomFirstName);
                 sqlite::bind(stmt, 1, randomLastName);
@@ -93,7 +93,7 @@ namespace swtest
         AWL_ATTRIBUTE(awl::String, synchronous, _T("FULL"));
         AWL_ATTRIBUTE(awl::String, journal_mode, _T("DELETE"));
 
-        m_db->exec(awl::aformat() << "PRAGMA synchronous = " << awl::toAString(synchronous) << ";");
-        m_db->exec(awl::aformat() << "PRAGMA journal_mode = " << awl::toAString(journal_mode) << ";");
+        _db->exec(awl::aformat() << "PRAGMA synchronous = " << awl::toAString(synchronous) << ";");
+        _db->exec(awl::aformat() << "PRAGMA journal_mode = " << awl::toAString(journal_mode) << ";");
     }
 }

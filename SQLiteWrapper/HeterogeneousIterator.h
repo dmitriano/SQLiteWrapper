@@ -14,24 +14,24 @@ namespace sqlite
         // Iterator needs it to be default constructible.
         HeterogeneousIterator() = default;
         
-        HeterogeneousIterator(Statement& s) : m_s(&s) {}
+        HeterogeneousIterator(Statement& s) : _s(&s) {}
 
         HeterogeneousIterator(const HeterogeneousIterator&) = delete;
 
         HeterogeneousIterator& operator = (const HeterogeneousIterator&) = delete;
 
-        HeterogeneousIterator(HeterogeneousIterator&& other) noexcept : m_s(std::move(other.m_s))
+        HeterogeneousIterator(HeterogeneousIterator&& other) noexcept : _s(std::move(other._s))
         {
-            other.m_s = nullptr;
+            other._s = nullptr;
         }
 
         HeterogeneousIterator& operator = (HeterogeneousIterator&& other) noexcept
         {
             close();
 
-            m_s = std::move(other.m_s);
+            _s = std::move(other._s);
 
-            other.m_s = nullptr;
+            other._s = nullptr;
 
             return *this;
         }
@@ -41,13 +41,13 @@ namespace sqlite
 
         bool next()
         {
-            return m_s->next();
+            return _s->next();
         }
 
         template <class T>
         void get(size_t col, T& val)
         {
-            sqlite::get(*m_s, col, val);
+            sqlite::get(*_s, col, val);
         }
 
         template <class T>
@@ -66,15 +66,15 @@ namespace sqlite
         void close()
         {
             //Allow the statement to be reused with new parameters, for example.
-            if (m_s != nullptr)
+            if (_s != nullptr)
             {
-                m_s->clearBindings();
-                m_s->reset();
+                _s->clearBindings();
+                _s->reset();
 
-                m_s = nullptr;
+                _s = nullptr;
             }
         }
 
-        Statement* m_s = nullptr;
+        Statement* _s = nullptr;
     };
 }

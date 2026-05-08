@@ -44,7 +44,7 @@ AWL_TEST(Blob)
     
     DbContainer c(context);
 
-    auto set = makeSet(c.m_db, table_name, std::make_tuple(&Bot::id));
+    auto set = makeSet(c._db, table_name, std::make_tuple(&Bot::id));
 
     for (const Bot& bot : bots)
     {

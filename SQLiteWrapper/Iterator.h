@@ -27,7 +27,7 @@ namespace sqlite
 
         Iterator() = default;
         
-        Iterator(Statement& s) : m_i(s)
+        Iterator(Statement& s) : _i(s)
         {
             try_next();
         }
@@ -46,7 +46,7 @@ namespace sqlite
 
         bool operator== (const IteratorSentinel<T>&) const noexcept
         {
-            return !m_v;
+            return !_v;
         }
 
         Iterator& operator++ ()
@@ -65,36 +65,36 @@ namespace sqlite
 
         bool try_next()
         {
-            if (m_i.next())
+            if (_i.next())
             {
                 T val;
-                m_i.get(val);
+                _i.get(val);
 
-                m_v = std::move(val);
+                _v = std::move(val);
 
                 return true;
             }
 
-            m_v = {};
+            _v = {};
 
             return false;
         }
 
         T* cur() const
         {
-            T& val = *m_v;
+            T& val = *_v;
 
             return &val;
         }
 
         T& cur_ref() const
         {
-            return *m_v;
+            return *_v;
         }
 
-        HeterogeneousIterator m_i;
+        HeterogeneousIterator _i;
 
-        mutable std::optional<T> m_v;
+        mutable std::optional<T> _v;
     };
 
     template <class T>
