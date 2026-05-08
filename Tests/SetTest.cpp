@@ -36,9 +36,9 @@ AWL_TEST(SetStorageMarket)
     const std::string id = "abc";
     const std::string wrong_id = "xyz";
 
-    Market _sample{ {}, id, precision_sample };
-    Market _wrong_sample{ {}, wrong_id, precision_sample };
-    Market _result{ {}, id, precision_result };
+    Market sample{ {}, id, precision_sample };
+    Market wrong_sample{ {}, wrong_id, precision_sample };
+    Market result{ {}, id, precision_result };
 
     auto assert_does_not_exist = [&ms, &wrong_id]()
     {
@@ -58,18 +58,18 @@ AWL_TEST(SetStorageMarket)
 
     assert_does_not_exist();
 
-    ms.insert(_sample);
+    ms.insert(sample);
 
     assert_does_not_exist();
-    assert_exists(id, _sample);
+    assert_exists(id, sample);
 
-    ms.update(_result);
+    ms.update(result);
 
     assert_does_not_exist();
-    assert_exists(id, _result);
+    assert_exists(id, result);
 
-    ms.insert(_wrong_sample);
-    assert_exists(wrong_id, _wrong_sample);
+    ms.insert(wrong_sample);
+    assert_exists(wrong_id, wrong_sample);
 }
 
 namespace
