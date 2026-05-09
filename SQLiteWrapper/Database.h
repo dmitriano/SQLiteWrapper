@@ -10,7 +10,7 @@
 #include "Awl/LegacyFormat.h"
 #include "Awl/Observable.h"
 #include "Awl/ScopeGuard.h"
-#include "Awl/Logger.h"
+#include "Awl/ILogger.h"
 
 #include <memory>
 #include <stdexcept>
@@ -21,7 +21,7 @@ namespace sqlite
     {
     public:
         
-        explicit Database(std::shared_ptr<awl::Logger> logger) : _logger(std::move(logger))
+        explicit Database(std::shared_ptr<awl::ILogger> logger) : _logger(std::move(logger))
         {
             if (!_logger)
             {
@@ -29,7 +29,7 @@ namespace sqlite
             }
         }
         
-        Database(const char * fileName, std::shared_ptr<awl::Logger> logger) : Database(std::move(logger))
+        Database(const char * fileName, std::shared_ptr<awl::ILogger> logger) : Database(std::move(logger))
         {
             open(fileName);
         }
@@ -224,7 +224,7 @@ namespace sqlite
             return sqlite3_last_insert_rowid(_db);
         }
 
-        awl::Logger& logger()
+        awl::ILogger& logger()
         {
             return *_logger;
         }
@@ -247,7 +247,7 @@ namespace sqlite
             raiseError(db, 0, message);
         }
 
-        std::shared_ptr<awl::Logger> _logger;
+        std::shared_ptr<awl::ILogger> _logger;
 
         sqlite3 * _db = nullptr;
 

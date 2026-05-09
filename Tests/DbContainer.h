@@ -25,7 +25,7 @@ namespace swtest
     {
     public:
 
-        explicit DbContainer(std::shared_ptr<awl::Logger> logger)
+        explicit DbContainer(std::shared_ptr<awl::ILogger> logger)
         {
             RemoveFile();
             _db = std::make_shared<Database>(fileName, std::move(logger));
