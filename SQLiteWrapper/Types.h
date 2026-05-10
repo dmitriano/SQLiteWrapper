@@ -4,7 +4,6 @@
 
 #include <string>
 #include <type_traits>
-
 namespace sqlite
 {
     using RowId = sqlite3_int64;

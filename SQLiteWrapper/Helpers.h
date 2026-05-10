@@ -15,7 +15,6 @@
 #include <optional>
 #include <string>
 #include <set>
-
 namespace sqlite
 {
     using OptionalIndexFilter = std::optional<IndexFilter>;

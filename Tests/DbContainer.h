@@ -7,7 +7,6 @@
 #include "Awl/Random.h"
 #include "Awl/Reflection.h"
 #include "Awl/LegacyFormat.h"
-
 #include "Awl/Testing/UnitTest.h"
 
 #include <vector>
@@ -16,7 +15,6 @@
 #include <chrono>
 #include <iomanip>
 #include <memory>
-
 namespace swtest
 {
     using namespace sqlite;

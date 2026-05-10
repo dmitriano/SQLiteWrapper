@@ -11,7 +11,6 @@
 #include <memory>
 #include <functional>
 #include <cassert>
-
 namespace sqlite
 {
     template <class Value, class Int> requires std::is_integral_v<Int>

@@ -4,7 +4,6 @@
 #include "SQLiteWrapper/Scalar.h"
 
 #include <sstream>
-
 using namespace sqlite;
 
 void Database::open(const char* fileName)

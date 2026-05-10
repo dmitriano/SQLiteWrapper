@@ -7,7 +7,6 @@
 #include "Awl/BitMap.h"
 
 #include <functional>
-
 namespace sqlite
 {
     AWL_SEQUENTIAL_ENUM(FieldOption, Parametized, SequentialBindingIndices)

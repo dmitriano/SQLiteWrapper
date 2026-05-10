@@ -6,7 +6,6 @@
 #include "Awl/Separator.h"
 #include "Awl/LegacyFormat.h"
 #include "Awl/BitMap.h"
-
 namespace sqlite
 {
     //TODO: It can build a vector of transparent filed names in the constructor.

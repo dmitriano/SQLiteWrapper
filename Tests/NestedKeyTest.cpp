@@ -4,7 +4,6 @@
 
 #include <cstdint>
 #include <string>
-
 namespace
 {
     struct NestedKey

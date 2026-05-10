@@ -11,7 +11,6 @@
 #include <vector>
 #include <limits>
 #include <chrono>
-
 namespace sqlite
 {
     class Database;

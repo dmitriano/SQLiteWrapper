@@ -1,13 +1,11 @@
 #include "DbContainer.h"
-
 #include "Tests/Experimental/MapStorage.h"
-
-#include <vector>
-#include <optional>
 
 #include "Awl/IntRange.h"
 #include "Awl/StdConsole.h"
 
+#include <vector>
+#include <optional>
 using namespace swtest;
 
 namespace

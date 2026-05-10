@@ -1,4 +1,5 @@
 #include "DbContainer.h"
+
 #include "SQLiteWrapper/Bind.h"
 #include "SQLiteWrapper/Get.h"
 
@@ -10,7 +11,6 @@
 #include <optional>
 #include <array>
 #include <iostream>
-
 using namespace swtest;
 
 namespace

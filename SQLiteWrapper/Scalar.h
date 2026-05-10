@@ -3,7 +3,6 @@
 #include "SQLiteWrapper/Exception.h"
 #include "SQLiteWrapper/Get.h"
 #include "SQLiteWrapper/HeterogeneousIterator.h"
-
 namespace sqlite
 {
     // Returns an iterator pointing to the first element.

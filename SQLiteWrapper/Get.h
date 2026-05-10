@@ -12,7 +12,6 @@
 #include <limits>
 #include <chrono>
 #include <optional>
-
 namespace sqlite
 {
     inline void get(Statement & st, size_t col, bool & val)

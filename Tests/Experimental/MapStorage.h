@@ -1,19 +1,18 @@
 #pragma once
 
-#include "Awl/LegacyFormat.h"
-
 #include "SQLiteWrapper/TableBuilder.h"
 #include "SQLiteWrapper/QueryBuilder.h"
 #include "SQLiteWrapper/Statement.h"
 #include "SQLiteWrapper/Bind.h"
 #include "SQLiteWrapper/Get.h"
 
+#include "Awl/LegacyFormat.h"
+
 #include <deque>
 #include <limits>
 #include <string>
 #include <iostream>
 #include <algorithm>
-
 namespace sqlite
 {
     template <class Key, class Value>

@@ -4,7 +4,6 @@
 #include "SQLiteWrapper/Types.h"
 
 #include <sstream>
-
 namespace sqlite
 {
     template <class Struct>

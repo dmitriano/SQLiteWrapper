@@ -1,8 +1,5 @@
 #pragma once
 
-#include "Awl/LegacyFormat.h"
-#include "Awl/Separator.h"
-
 #include "SQLiteWrapper/Helpers.h"
 #include "SQLiteWrapper/TableBuilder.h"
 #include "SQLiteWrapper/QueryBuilder.h"
@@ -12,12 +9,14 @@
 #include "SQLiteWrapper/Updater.h"
 #include "SQLiteWrapper/Iterator.h"
 
+#include "Awl/LegacyFormat.h"
+#include "Awl/Separator.h"
+
 #include <deque>
 #include <limits>
 #include <string>
 #include <iostream>
 #include <algorithm>
-
 namespace sqlite
 {
     template <class Value, class... Keys>

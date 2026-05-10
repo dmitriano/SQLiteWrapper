@@ -4,7 +4,6 @@
 
 #include "Awl/Observable.h"
 #include "Awl/Observer.h"
-
 namespace sqlite
 {
     class Scheme :

@@ -4,7 +4,6 @@
 
 #include <optional>
 #include <ranges>
-
 namespace sqlite
 {
     template <class T>

@@ -4,7 +4,6 @@
 #include "Awl/LegacyFormat.h"
 
 #include <typeinfo>
-
 namespace sqlite
 {
     class SQLiteException : public awl::Exception

@@ -1,14 +1,14 @@
-﻿#include "DbContainer.h"
+#include "DbContainer.h"
+
 #include "SQLiteWrapper/Bind.h"
 #include "SQLiteWrapper/Get.h"
 #include "SQLiteWrapper/Scalar.h"
 
-#include <vector>
-#include <optional>
-
 #include "Awl/IntRange.h"
 #include "Awl/StdConsole.h"
 
+#include <vector>
+#include <optional>
 using namespace swtest;
 
 namespace
