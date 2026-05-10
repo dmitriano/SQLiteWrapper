@@ -1,4 +1,4 @@
-#include "DbContainer.h"
+﻿#include "DbContainer.h"
 #include "SQLiteWrapper/Bind.h"
 #include "SQLiteWrapper/Get.h"
 #include "SQLiteWrapper/Scalar.h"
@@ -106,7 +106,7 @@ namespace
     }
 }
 
-//--output all --filter InsertPrice_Test --batch_count 1000000 --batch_size 1000000 --transaction --synchronous FULL --journal_mode TRUNCATE
+//--output=all --filter=InsertPrice_Test --batch_count=1000000 --batch_size=1000000 --transaction --synchronous=FULL --journal_mode=TRUNCATE
 AWL_TEST(InsertPrice)
 {
     AWL_ATTRIBUTE(size_t, batch_count, 10);
@@ -162,9 +162,9 @@ AWL_TEST(InsertPrice)
     CheckCount(db, batch_size * batch_count);
 }
 
-//--output all --filter InsertMarketPrice_Test --batch_count 1000000 --batch_size 1000000 --transaction --use_index --synchronous FULL --journal_mode TRUNCATE
-//--output all --filter InsertMarketPrice_Test --batch_count 1000 --batch_size 1000000 --transaction
-//--output all --filter InsertMarketPrice_Test --batch_count 1000 --batch_size 1000 --transaction --use_index
+//--output=all --filter=InsertMarketPrice_Test --batch_count=1000000 --batch_size=1000000 --transaction --use_index --synchronous=FULL --journal_mode=TRUNCATE
+//--output=all --filter=InsertMarketPrice_Test --batch_count=1000 --batch_size=1000000 --transaction
+//--output=all --filter=InsertMarketPrice_Test --batch_count=1000 --batch_size=1000 --transaction --use_index
 AWL_TEST(InsertMarketPrice)
 {
     AWL_ATTRIBUTE(size_t, batch_count, 10);
@@ -304,7 +304,7 @@ AWL_TEST(Mars)
     CheckCount(db, batch_size * batch_count);
 }
 
-//--output all --filter MarsMt_Test --batch_count 1000000 --batch_size 1000 --transaction --synchronous OFF  --journal_mode TRUNCATE
+//--output=all --filter=MarsMt_Test --batch_count=1000000 --batch_size=1000 --transaction --synchronous=OFF  --journal_mode=TRUNCATE
 AWL_TEST(MarsMt)
 {
     AWL_ATTRIBUTE(size_t, batch_count, 10);
