@@ -11,6 +11,7 @@
 #include <memory>
 #include <functional>
 #include <cassert>
+
 namespace sqlite
 {
     template <class Value, class... Keys>

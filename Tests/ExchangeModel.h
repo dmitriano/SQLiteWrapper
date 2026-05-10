@@ -5,6 +5,7 @@
 #include <optional>
 #include <chrono>
 #include <optional>
+
 namespace exchange::data
 {
     using Decimal = awl::decimal<uint64_t, 4>;

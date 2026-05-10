@@ -14,6 +14,7 @@
 
 #include <memory>
 #include <stdexcept>
+
 namespace sqlite
 {
     class Database : public awl::Observable<Element, Database>

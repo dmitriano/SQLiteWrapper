@@ -13,6 +13,7 @@
 #include <string>
 #include <iostream>
 #include <algorithm>
+
 namespace sqlite
 {
     template <class Key, class Value>

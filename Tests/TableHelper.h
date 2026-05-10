@@ -3,6 +3,7 @@
 #include "SQLiteWrapper/AutoincrementTableInstantiator.h"
 #include "SQLiteWrapper/AutoincrementSet.h"
 #include "SQLiteWrapper/Set.h"
+
 namespace swtest
 {
     template <class Value, class... Keys>

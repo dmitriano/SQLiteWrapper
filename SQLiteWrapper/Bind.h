@@ -12,6 +12,7 @@
 #include <limits>
 #include <chrono>
 #include <optional>
+
 namespace sqlite
 {
     inline void bind(Statement & st, size_t col, bool val)

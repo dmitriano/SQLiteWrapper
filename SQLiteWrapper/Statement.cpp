@@ -1,5 +1,6 @@
 #include "SQLiteWrapper/Statement.h"
 #include "SQLiteWrapper/Database.h"
+
 using namespace sqlite;
 
 [[noreturn]] void Statement::raiseError(int code, std::string message)

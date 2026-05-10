@@ -4,6 +4,7 @@
 #include "SQLiteWrapper/Get.h"
 
 #include <cassert>
+
 namespace sqlite
 {
     class HeterogeneousIterator

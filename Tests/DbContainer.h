@@ -15,6 +15,7 @@
 #include <chrono>
 #include <iomanip>
 #include <memory>
+
 namespace swtest
 {
     using namespace sqlite;

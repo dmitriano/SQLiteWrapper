@@ -6,6 +6,7 @@
 #include "SQLiteWrapper/IndexInstantiator.h"
 #include "SQLiteWrapper/QueryBuilder.h"
 #include "SQLiteWrapper/Helpers.h"
+
 using namespace swtest;
 using namespace exchange::data;
 

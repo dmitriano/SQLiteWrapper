@@ -5,6 +5,7 @@
 #include "SQLiteWrapper/Statement.h"
 #include "SQLiteWrapper/Bind.h"
 #include "SQLiteWrapper/Get.h"
+
 namespace sqlite
 {
     template <class Struct>

@@ -4,6 +4,7 @@
 
 #include "SQLiteWrapper/Set.h"
 #include "SQLiteWrapper/Iterator.h"
+
 using namespace swtest;
 using namespace exchange;
 using namespace exchange::data;

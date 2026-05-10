@@ -2,6 +2,7 @@
 
 #include "SQLiteWrapper/Bind.h"
 #include "SQLiteWrapper/Get.h"
+
 using namespace swtest;
 
 namespace

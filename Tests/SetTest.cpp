@@ -8,6 +8,7 @@
 #include "Awl/StdConsole.h"
 
 #include <vector>
+
 using namespace swtest;
 using namespace exchange;
 using namespace exchange::data;

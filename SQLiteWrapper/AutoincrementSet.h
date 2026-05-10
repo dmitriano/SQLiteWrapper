@@ -3,6 +3,7 @@
 #include "SQLiteWrapper/Set.h"
 
 #include <type_traits>
+
 namespace sqlite
 {
     template <class Value, class Int> requires std::is_integral_v<Int>

@@ -4,6 +4,7 @@
 
 #include "Awl/Testing/UnitTest.h"
 #include "Awl/String.h"
+
 namespace swtest
 {
     using namespace sqlite;
