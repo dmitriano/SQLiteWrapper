@@ -213,3 +213,30 @@ AWL_TEST(RowIdSequence)
         AWL_ASSERT_EQUAL(static_cast<sqlite::RowId>(i) * 2 + 2, bots[i].botId);
     }
 }
+
+AWL_TEST(RowIdSetClear)
+{
+    const std::string table_name = "bots";
+
+    DbContainer c(context);
+
+    auto set = MakeAutoincrementSet(c._db, table_name, &Bot::botId);
+
+    for (Bot& bot : bots)
+    {
+        set.insert(bot);
+    }
+
+    AWL_ASSERT_EQUAL(static_cast<std::ranges::range_difference_t<decltype(set)>>(bots.size()), std::ranges::distance(set));
+
+    set.clear();
+
+    AWL_ASSERT_EQUAL(0u, std::ranges::distance(set));
+
+    for (const Bot& bot : bots)
+    {
+        Bot actual;
+
+        AWL_ASSERT(!set.find(bot.botId, actual));
+    }
+}

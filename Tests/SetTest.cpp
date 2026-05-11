@@ -335,6 +335,31 @@ AWL_TEST(SetStorageMax)
     CheckMax(c.db(), trx_market_id, 1);
 }
 
+AWL_TEST(SetStorageClear)
+{
+    DbContainer c(context);
+
+    auto storage = makeSet(c._db, "orders", std::make_tuple(&Order::marketId, &Order::id));
+
+    storage.insert(btc_order1);
+    storage.insert(btc_order2);
+    storage.insert(trx_order1);
+
+    AWL_ASSERT_EQUAL(3u, std::ranges::distance(storage));
+
+    storage.clear();
+
+    AWL_ASSERT_EQUAL(0u, std::ranges::distance(storage));
+
+    {
+        Order order;
+
+        AWL_ASSERT(!storage.find(btc_key1, order));
+        AWL_ASSERT(!storage.find(btc_key2, order));
+        AWL_ASSERT(!storage.find(trx_key1, order));
+    }
+}
+
 AWL_TEST(OrderStorageGetBind2)
 {
     DbContainer c(context);
