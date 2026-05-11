@@ -320,5 +320,17 @@ namespace sqlite
 
         return builder.str();
     }
+
+    template <class Struct>
+    std::string buildTrivialDeleteQuery(const std::string& table_name)
+    {
+        QueryBuilder<Struct> builder;
+
+        builder.StartdeleteElement(table_name);
+
+        builder.addTerminator();
+
+        return builder.str();
+    }
 }
 

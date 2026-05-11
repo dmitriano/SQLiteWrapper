@@ -115,6 +115,11 @@ namespace sqlite
             _storage.deleteElement(val);
         }
 
+        void clear()
+        {
+            _storage.clear();
+        }
+
     private:
 
         void assignLastRowId(Value& val) const

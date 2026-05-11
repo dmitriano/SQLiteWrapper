@@ -51,6 +51,8 @@ namespace sqlite
 
             deleteStatement = makeStatement("delete", buildParameterizedDeleteQuery<Record>(tableName, idIndices));
 
+            clearStatement = makeStatement("clear", buildTrivialDeleteQuery<Record>(tableName));
+
             iterateStatement = makeStatement("iterate", buildTrivialSelectQuery<Value>(tableName));
         }
 
@@ -66,6 +68,7 @@ namespace sqlite
             updateStatement.close();
             selectStatement.close();
             deleteStatement.close();
+            clearStatement.close();
             iterateStatement.close();
         }
 
@@ -152,6 +155,11 @@ namespace sqlite
             tryDeleteRecord(val);
 
             _db->ensureAffected(1);
+        }
+
+        void clear()
+        {
+            clearStatement.exec();
         }
 
     private:
@@ -247,6 +255,7 @@ namespace sqlite
         Statement updateStatement;
         Statement selectStatement;
         Statement deleteStatement;
+        Statement clearStatement;
         Statement iterateStatement;
     };
 }
