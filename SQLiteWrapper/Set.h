@@ -82,6 +82,11 @@ namespace sqlite
             return IteratorSentinel<Value>{};
         }
 
+        bool empty()
+        {
+            return begin() == end();
+        }
+
         void insert(const Value& val)
         {
             bindInsertFields(insertStatement, val);

@@ -40,6 +40,11 @@ namespace sqlite
             return _storage.end();
         }
 
+        bool empty()
+        {
+            return _storage.empty();
+        }
+
         void insert(Value& val)
         {
             _storage.bindValue(insertWithoutIdStatement, val, _storage.valueFilter());

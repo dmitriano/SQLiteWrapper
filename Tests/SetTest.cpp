@@ -349,7 +349,7 @@ AWL_TEST(SetStorageClear)
 
     storage.clear();
 
-    AWL_ASSERT_EQUAL(0u, std::ranges::distance(storage));
+    AWL_ASSERT(storage.empty());
 
     {
         Order order;

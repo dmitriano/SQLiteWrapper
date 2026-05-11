@@ -231,7 +231,7 @@ AWL_TEST(RowIdSetClear)
 
     set.clear();
 
-    AWL_ASSERT_EQUAL(0u, std::ranges::distance(set));
+    AWL_ASSERT(set.empty());
 
     for (const Bot& bot : bots)
     {
