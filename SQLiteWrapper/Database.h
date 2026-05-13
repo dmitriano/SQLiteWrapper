@@ -8,7 +8,6 @@
 #include "SQLiteWrapper/Statement.h"
 
 #include "Awl/Observable.h"
-#include "Awl/ScopeGuard.h"
 #include "Awl/ILogger.h"
 
 #include <format>
@@ -17,6 +16,8 @@
 
 namespace sqlite
 {
+    class TransactionGuard;
+
     class Database : public awl::Observable<Element, Database>
     {
     public:
@@ -119,37 +120,6 @@ namespace sqlite
             }
 
             commit();
-        }
-
-        // A thrown exception causes rollback.
-        template <class Func>
-        void tryRun(Func&& func, std::string savepoint = {})
-        {
-            ++_transactionLevel;
-
-            auto guard = awl::make_scope_guard([this] { --_transactionLevel; });
-
-            if (savepoint.empty())
-            {
-                savepoint = std::format("sp{}", _transactionLevel);
-            }
-
-            savePoint(savepoint.c_str());
-
-            try
-            {
-                func();
-            }
-            catch (const std::exception& e)
-            {
-                _logger->error("Rolling back to savepoint '{}': {}", savepoint, e.what());
-
-                rollbackTo(savepoint.c_str());
-
-                throw;
-            }
-
-            release(savepoint.c_str());
         }
 
         int execRaw(const char* query, char** errmsg = nullptr)
@@ -261,6 +231,7 @@ namespace sqlite
         Statement indexExistsStatement;
 
         friend Statement;
+        friend class TransactionGuard;
     };
 }
 

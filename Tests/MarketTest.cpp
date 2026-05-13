@@ -3,6 +3,7 @@
 #include "SQLiteWrapper/Bind.h"
 #include "SQLiteWrapper/Get.h"
 #include "SQLiteWrapper/Scalar.h"
+#include "SQLiteWrapper/TransactionGuard.h"
 
 #include "Awl/IntRange.h"
 #include "Awl/StdConsole.h"
@@ -149,7 +150,11 @@ AWL_TEST(InsertPrice)
 
                 if (transaction)
                 {
-                    db.tryRun(func);
+                    sqlite::TransactionGuard transaction_guard(db);
+
+                    func();
+
+                    transaction_guard.commit();
                 }
                 else
                 {
@@ -243,7 +248,11 @@ AWL_TEST(InsertMarketPrice)
 
                 if (transaction)
                 {
-                    db.tryRun(func);
+                    sqlite::TransactionGuard transaction_guard(db);
+
+                    func();
+
+                    transaction_guard.commit();
                 }
                 else
                 {
