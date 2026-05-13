@@ -68,60 +68,6 @@ namespace sqlite
             notify(&Element::deleteElement, std::ref(*this));
         }
 
-        void beginTransaction()
-        {
-            exec("BEGIN;");
-        }
-
-        void commit()
-        {
-            exec("COMMIT;");
-        }
-
-        void rollback()
-        {
-            exec("ROLLBACK;");
-        }
-
-        // Begin transaction
-        void savePoint(const char* savepoint)
-        {
-            exec(std::format("SAVEPOINT {};", savepoint));
-        }
-
-        // Commit changes.
-        void release(const char* savepoint)
-        {
-            exec(std::format("RELEASE {};", savepoint));
-        }
-
-        void rollbackTo(const char* savepoint)
-        {
-            exec(std::format("ROLLBACK TO {};", savepoint));
-        }
-
-        // The BEGIN command only works if the transaction stack is empty.
-        template <class Func>
-        void tryOutermost(Func && func)
-        {
-            beginTransaction();
-            
-            try
-            {
-                func();
-            }
-            catch (const std::exception& e)
-            {
-                _logger->error("Rolling back transaction: {}", e.what());
-
-                rollback();
-
-                throw;
-            }
-
-            commit();
-        }
-
         int execRaw(const char* query, char** errmsg = nullptr)
         {
             return sqlite3_exec(_db, query, nullptr, 0, errmsg);
@@ -211,6 +157,23 @@ namespace sqlite
         }
 
     private:
+
+        // Begin transaction
+        void savePoint(const char* savepoint)
+        {
+            exec(std::format("SAVEPOINT {};", savepoint));
+        }
+
+        // Commit changes.
+        void release(const char* savepoint)
+        {
+            exec(std::format("RELEASE {};", savepoint));
+        }
+
+        void rollbackTo(const char* savepoint)
+        {
+            exec(std::format("ROLLBACK TO {};", savepoint));
+        }
 
         [[noreturn]]
         static void raiseError(sqlite3* db, int code, std::string message);

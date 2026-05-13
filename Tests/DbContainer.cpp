@@ -1,6 +1,7 @@
 #include "DbContainer.h"
 
 #include "SQLiteWrapper/Bind.h"
+#include "SQLiteWrapper/TransactionGuard.h"
 
 #include "Awl/Testing/UnitTest.h"
 #include "Awl/String.h"
@@ -73,14 +74,14 @@ namespace swtest
 
         for (size_t j = 0; j < transactionCount; ++j)
         {
-            db().beginTransaction();
+            sqlite::TransactionGuard transaction(_db);
 
             for (size_t i = 0; i < batchCount; ++i)
             {
                 insertBatch();
             }
 
-            db().commit();
+            transaction.commit();
 
             //std::ostringstream out;
 
