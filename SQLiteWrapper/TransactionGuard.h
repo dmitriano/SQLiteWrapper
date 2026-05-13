@@ -1,6 +1,8 @@
 #pragma once
 
+#include <memory>
 #include <string>
+#include <utility>
 
 namespace sqlite
 {
@@ -10,7 +12,7 @@ namespace sqlite
     {
     public:
 
-        explicit TransactionGuard(Database& db);
+        explicit TransactionGuard(std::shared_ptr<Database> db);
 
         ~TransactionGuard() noexcept;
 
@@ -18,9 +20,24 @@ namespace sqlite
 
         TransactionGuard& operator = (const TransactionGuard&) = delete;
 
-        TransactionGuard(TransactionGuard&&) = delete;
+        TransactionGuard(TransactionGuard&& other) noexcept :
+            _db(std::move(other._db)),
+            _savepoint(std::move(other._savepoint))
+        {
+            other._db.reset();
+        }
 
-        TransactionGuard& operator = (TransactionGuard&&) = delete;
+        TransactionGuard& operator = (TransactionGuard&& other) noexcept
+        {
+            if (this != &other)
+            {
+                _db = std::move(other._db);
+                other._db.reset();
+                _savepoint = std::move(other._savepoint);
+            }
+
+            return *this;
+        }
 
         void commit();
 
@@ -30,10 +47,8 @@ namespace sqlite
 
         void finish() noexcept;
 
-        Database& _db;
+        std::shared_ptr<Database> _db;
 
         std::string _savepoint;
-
-        bool _active = false;
     };
 }

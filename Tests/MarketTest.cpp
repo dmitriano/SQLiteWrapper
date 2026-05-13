@@ -150,7 +150,7 @@ AWL_TEST(InsertPrice)
 
                 if (transaction)
                 {
-                    sqlite::TransactionGuard transaction_guard(db);
+                    sqlite::TransactionGuard transaction_guard(c._db);
 
                     func();
 
@@ -248,7 +248,7 @@ AWL_TEST(InsertMarketPrice)
 
                 if (transaction)
                 {
-                    sqlite::TransactionGuard transaction_guard(db);
+                    sqlite::TransactionGuard transaction_guard(c._db);
 
                     func();
 
