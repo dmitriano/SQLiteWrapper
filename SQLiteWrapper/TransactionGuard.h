@@ -1,5 +1,7 @@
 #pragma once
 
+#include "Awl/ITransaction.h"
+
 #include <memory>
 #include <string>
 #include <utility>
@@ -8,7 +10,7 @@ namespace sqlite
 {
     class Database;
 
-    class TransactionGuard
+    class TransactionGuard : public awl::ITransaction
     {
     public:
 
@@ -39,7 +41,7 @@ namespace sqlite
             return *this;
         }
 
-        void commit();
+        void commit() override;
 
     private:
 
