@@ -25,7 +25,7 @@ namespace sqlite
         }
         catch (const std::exception& e)
         {
-            _db->logger().error("Failed to create savepoint '{}': {}", _savepoint, e.what());
+            _db->logger()->error("Failed to create savepoint '{}': {}", _savepoint, e.what());
 
             --_db->_transactionLevel;
 
@@ -33,7 +33,7 @@ namespace sqlite
         }
         catch (...)
         {
-            _db->logger().error("Failed to create savepoint '{}'.", _savepoint);
+            _db->logger()->error("Failed to create savepoint '{}'.", _savepoint);
 
             --_db->_transactionLevel;
 
@@ -57,7 +57,7 @@ namespace sqlite
             }
             catch (const std::exception& e)
             {
-                _db->logger().error("Failed to release savepoint '{}': {}", _savepoint, e.what());
+                _db->logger()->error("Failed to release savepoint '{}': {}", _savepoint, e.what());
 
                 finish();
 
@@ -65,7 +65,7 @@ namespace sqlite
             }
             catch (...)
             {
-                _db->logger().error("Failed to release savepoint '{}'.", _savepoint);
+                _db->logger()->error("Failed to release savepoint '{}'.", _savepoint);
 
                 finish();
 
@@ -82,12 +82,12 @@ namespace sqlite
         {
             try
             {
-                _db->logger().error("Rolling back to savepoint '{}'.", _savepoint);
+                _db->logger()->error("Rolling back to savepoint '{}'.", _savepoint);
                 _db->rollbackTo(_savepoint.c_str());
             }
             catch (const std::exception& e)
             {
-                _db->logger().error("Failed to rollback to savepoint '{}': {}", _savepoint, e.what());
+                _db->logger()->error("Failed to rollback to savepoint '{}': {}", _savepoint, e.what());
 
                 finish();
 
@@ -95,7 +95,7 @@ namespace sqlite
             }
             catch (...)
             {
-                _db->logger().error("Failed to rollback to savepoint '{}'.", _savepoint);
+                _db->logger()->error("Failed to rollback to savepoint '{}'.", _savepoint);
 
                 finish();
 

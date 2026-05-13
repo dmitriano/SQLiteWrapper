@@ -144,9 +144,9 @@ namespace sqlite
             return sqlite3_last_insert_rowid(_db);
         }
 
-        awl::ILogger& logger()
+        const std::shared_ptr<awl::ILogger>& logger() const
         {
-            return *_logger;
+            return _logger;
         }
 
         // Should be called after CREATE TABLE.

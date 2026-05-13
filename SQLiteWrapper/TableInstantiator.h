@@ -61,7 +61,7 @@ namespace sqlite
 
                 const std::string query = builder.create();
 
-                db.logger().debug(_T("Creating table '{}': \n{}"), tableName, query);
+                db.logger()->debug(_T("Creating table '{}': \n{}"), tableName, query);
 
                 db.exec(query);
 
@@ -69,7 +69,7 @@ namespace sqlite
             }
             else
             {
-                db.logger().debug(_T("Table '{}' already exists."), tableName);
+                db.logger()->debug(_T("Table '{}' already exists."), tableName);
             }
         }
 
