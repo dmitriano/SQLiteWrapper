@@ -7,6 +7,7 @@
 
 #include "Awl/IntRange.h"
 
+#include <format>
 #include <string>
 
 using namespace swtest;
@@ -93,7 +94,7 @@ namespace
 
     void CheckCount(Database& db, int expected = 1)
     {
-        sqlite::Statement s(db, awl::aformat() << "SELECT COUNT(*) FROM " << tableName << ";");
+        sqlite::Statement s(db, std::format("SELECT COUNT(*) FROM {};", tableName));
 
         int count;
         sqlite::selectScalar(s, count);
@@ -206,7 +207,7 @@ AWL_TEST(TableFunction)
     db.createFunction("firstchar", 1, &firstchar);
 
     {
-        sqlite::Statement s(db, awl::aformat() << "SELECT firstchar(""message"") FROM " << tableName << ";");
+        sqlite::Statement s(db, std::format("SELECT firstchar(message) FROM {};", tableName));
 
         AWL_ASSERT(s.next());
         AWL_ASSERT(std::strcmp(s.textValue(0), "a") == 0);
@@ -270,7 +271,7 @@ AWL_TEST(ViewFunction)
         db.exec(query);
     }
 
-    sqlite::Statement count_statement(db, awl::aformat() << "SELECT COUNT(*) FROM " << view_name << ";");
+    sqlite::Statement count_statement(db, std::format("SELECT COUNT(*) FROM {};", view_name));
 
     auto check_category = [&](std::string category, int expected)
     {

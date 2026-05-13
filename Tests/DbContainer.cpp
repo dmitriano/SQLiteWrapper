@@ -5,6 +5,8 @@
 #include "Awl/Testing/UnitTest.h"
 #include "Awl/String.h"
 
+#include <format>
+
 namespace swtest
 {
     using namespace sqlite;
@@ -46,12 +48,13 @@ namespace swtest
             }
             else
             {
-                std::string query(awl::aformat() << "insert into myTable (FirstName, LastName, Age, Hometown, Job) values ('" <<
-                    randomFirstName << "', '" <<
-                    randomLastName << "', " <<
-                    sqlite::helpers::makeSigned(randomAge) << ", '" <<
-                    home_town << "', '" <<
-                    job << "');");
+                const std::string query = std::format(
+                    "insert into myTable (FirstName, LastName, Age, Hometown, Job) values ('{}', '{}', {}, '{}', '{}');",
+                    randomFirstName,
+                    randomLastName,
+                    sqlite::helpers::makeSigned(randomAge),
+                    home_town,
+                    job);
 
                 db().exec(query.c_str());
             }
@@ -94,7 +97,7 @@ namespace swtest
         AWL_ATTRIBUTE(awl::String, synchronous, _T("FULL"));
         AWL_ATTRIBUTE(awl::String, journal_mode, _T("DELETE"));
 
-        _db->exec(awl::aformat() << "PRAGMA synchronous = " << awl::toAString(synchronous) << ";");
-        _db->exec(awl::aformat() << "PRAGMA journal_mode = " << awl::toAString(journal_mode) << ";");
+        _db->exec(std::format("PRAGMA synchronous = {};", awl::toAString(synchronous)));
+        _db->exec(std::format("PRAGMA journal_mode = {};", awl::toAString(journal_mode)));
     }
 }

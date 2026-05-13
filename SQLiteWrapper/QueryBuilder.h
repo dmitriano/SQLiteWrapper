@@ -4,8 +4,9 @@
 #include "SQLiteWrapper/FieldListBuilder.h"
 
 #include "Awl/Separator.h"
-#include "Awl/LegacyFormat.h"
 #include "Awl/BitMap.h"
+
+#include <sstream>
 
 namespace sqlite
 {
@@ -167,13 +168,6 @@ namespace sqlite
             return *this;
         }
 
-        QueryBuilder& operator << (const awl::aformat & f)
-        {
-            _out << f.str();
-
-            return *this;
-        }
-        
         std::string str() const
         {
             return _out.str();

@@ -5,7 +5,6 @@
 #include "SQLiteWrapper/Element.h"
 #include "SQLiteWrapper/Set.h"
 
-#include "Awl/LegacyFormat.h"
 #include "Awl/Observer.h"
 
 #include <memory>

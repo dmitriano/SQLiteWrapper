@@ -7,11 +7,11 @@
 #include "SQLiteWrapper/Statement.h"
 #include "SQLiteWrapper/QueryBuilder.h"
 
-#include "Awl/LegacyFormat.h"
 #include "Awl/Observer.h"
 
 #include <memory>
 #include <cassert>
+#include <sstream>
 
 namespace sqlite
 {

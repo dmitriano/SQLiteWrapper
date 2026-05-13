@@ -3,6 +3,7 @@
 #include "SQLiteWrapper/Get.h"
 #include "SQLiteWrapper/Scalar.h"
 
+#include <format>
 #include <sstream>
 
 using namespace sqlite;
@@ -13,7 +14,7 @@ void Database::open(const char* fileName)
 
     if (rc != SQLITE_OK)
     {
-        raiseError(_db, rc, awl::aformat() << "Can't open database '" << fileName << "'");
+        raiseError(_db, rc, std::format("Can't open database '{}'", fileName));
     }
 
     notify(&Element::create, std::ref(*this));
@@ -129,7 +130,7 @@ void Database::dropIndex(const char* name, bool exists)
 [[noreturn]]
 void Database::raiseError(sqlite3* db, int code, std::string message)
 {
-    std::string user_message = awl::aformat() << message << ", Error message: " << sqlite3_errmsg(db) << ".";
+    std::string user_message = std::format("{}, Error message: {}.", message, sqlite3_errmsg(db));
 
     throw SQLiteException(code, user_message);
 }

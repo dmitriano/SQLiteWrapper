@@ -6,8 +6,6 @@
 #include "SQLiteWrapper/Bind.h"
 #include "SQLiteWrapper/Get.h"
 
-#include "Awl/LegacyFormat.h"
-
 #include <deque>
 #include <limits>
 #include <string>

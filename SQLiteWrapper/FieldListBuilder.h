@@ -3,10 +3,10 @@
 #include "SQLiteWrapper/Helpers.h"
 
 #include "Awl/Separator.h"
-#include "Awl/LegacyFormat.h"
 #include "Awl/BitMap.h"
 
 #include <functional>
+#include <sstream>
 
 namespace sqlite
 {

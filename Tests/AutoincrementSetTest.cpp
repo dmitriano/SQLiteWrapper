@@ -8,6 +8,7 @@
 
 #include "Awl/IntRange.h"
 
+#include <format>
 #include <string>
 
 using namespace swtest;
@@ -59,7 +60,7 @@ AWL_TEST(RowIdRawQueries)
     }
     
     {
-        sqlite::Statement st(db, awl::aformat() << "INSERT INTO " << table_name << " (name, state) VALUES (?2, ?3);");
+        sqlite::Statement st(db, std::format("INSERT INTO {} (name, state) VALUES (?2, ?3);", table_name));
 
         sqlite::bind(st, 1, bots[1].name);
         sqlite::bind(st, 2, bots[2].state);
@@ -68,7 +69,7 @@ AWL_TEST(RowIdRawQueries)
     }
 
     {
-        sqlite::Statement st(db, awl::aformat() << "SELECT rowId, name, state FROM " << table_name << ";");
+        sqlite::Statement st(db, std::format("SELECT rowId, name, state FROM {};", table_name));
 
         while (st.next())
         {

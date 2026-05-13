@@ -1,6 +1,8 @@
 #include "SQLiteWrapper/Statement.h"
 #include "SQLiteWrapper/Database.h"
 
+#include <format>
+
 using namespace sqlite;
 
 [[noreturn]] void Statement::raiseError(int code, std::string message)
@@ -24,6 +26,6 @@ void Statement::open(Database& db, const char* query)
 
     if (rc != SQLITE_OK)
     {
-        Database::raiseError(db._db, rc, awl::aformat() << "Error while preparing SQL query: '" << query << "'.");
+        Database::raiseError(db._db, rc, std::format("Error while preparing SQL query: '{}'.", query));
     }
 }

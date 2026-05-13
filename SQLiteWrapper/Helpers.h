@@ -5,7 +5,6 @@
 
 #include "Awl/Reflection.h"
 #include "Awl/TupleHelpers.h"
-#include "Awl/LegacyFormat.h"
 #include "Awl/BitMap.h"
 #include "Awl/Separator.h"
 
@@ -15,6 +14,7 @@
 #include <optional>
 #include <string>
 #include <set>
+#include <sstream>
 
 namespace sqlite
 {

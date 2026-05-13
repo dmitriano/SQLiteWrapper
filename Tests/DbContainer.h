@@ -6,7 +6,6 @@
 #include "Awl/StopWatch.h"
 #include "Awl/Random.h"
 #include "Awl/Reflection.h"
-#include "Awl/LegacyFormat.h"
 #include "Awl/Testing/UnitTest.h"
 
 #include <vector>

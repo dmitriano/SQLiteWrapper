@@ -7,11 +7,11 @@
 #include "SQLiteWrapper/Element.h"
 #include "SQLiteWrapper/Statement.h"
 
-#include "Awl/LegacyFormat.h"
 #include "Awl/Observable.h"
 #include "Awl/ScopeGuard.h"
 #include "Awl/ILogger.h"
 
+#include <format>
 #include <memory>
 #include <stdexcept>
 
@@ -85,18 +85,18 @@ namespace sqlite
         // Begin transaction
         void savePoint(const char* savepoint)
         {
-            exec(awl::aformat() << "SAVEPOINT " << savepoint << ";");
+            exec(std::format("SAVEPOINT {};", savepoint));
         }
 
         // Commit changes.
         void release(const char* savepoint)
         {
-            exec(awl::aformat() << "RELEASE " << savepoint << ";");
+            exec(std::format("RELEASE {};", savepoint));
         }
 
         void rollbackTo(const char* savepoint)
         {
-            exec(awl::aformat() << "ROLLBACK TO " << savepoint << ";");
+            exec(std::format("ROLLBACK TO {};", savepoint));
         }
 
         // The BEGIN command only works if the transaction stack is empty.
@@ -109,8 +109,10 @@ namespace sqlite
             {
                 func();
             }
-            catch (const std::exception &)
+            catch (const std::exception& e)
             {
+                _logger->error("Rolling back transaction: {}", e.what());
+
                 rollback();
 
                 throw;
@@ -129,7 +131,7 @@ namespace sqlite
 
             if (savepoint.empty())
             {
-                savepoint = awl::aformat() << "sp" << _transactionLevel;
+                savepoint = std::format("sp{}", _transactionLevel);
             }
 
             savePoint(savepoint.c_str());
@@ -138,8 +140,10 @@ namespace sqlite
             {
                 func();
             }
-            catch (const std::exception&)
+            catch (const std::exception& e)
             {
+                _logger->error("Rolling back to savepoint '{}': {}", savepoint, e.what());
+
                 rollbackTo(savepoint.c_str());
 
                 throw;
@@ -199,7 +203,7 @@ namespace sqlite
 
             if (rc != SQLITE_OK)
             {
-                raiseError(_db, rc, awl::aformat() << "Can't create function '" << zFunc << "'");
+                raiseError(_db, rc, std::format("Can't create function '{}'", zFunc));
             }
         }
 
@@ -215,7 +219,7 @@ namespace sqlite
 
             if (count != expected)
             {
-                throw SQLiteException(0, awl::aformat() << count << " rows have been affected, but expected " << expected << ".");
+                throw SQLiteException(0, std::format("{} rows have been affected, but expected {}.", count, expected));
             }
         }
 

@@ -7,6 +7,7 @@
 #include "Awl/IntRange.h"
 #include "Awl/StdConsole.h"
 
+#include <format>
 #include <vector>
 #include <optional>
 
@@ -83,7 +84,7 @@ namespace
 
     size_t GetCount(Database & db, std::optional<size_t> i = {})
     {
-        Statement s(db, (awl::aformat() << "SELECT count(*) FROM " << MakeTableName(i) << ";"));
+        Statement s(db, std::format("SELECT count(*) FROM {};", MakeTableName(i)));
         int count;
         sqlite::selectScalar(s, count);
         return static_cast<size_t>(count);
@@ -267,8 +268,8 @@ AWL_TEST(Mars)
     DbContainer c(context);
     Database & db = c.db();
 
-    db.exec(awl::aformat() << "PRAGMA synchronous = " << awl::toAString(synchronous) << ";");
-    db.exec(awl::aformat() << "PRAGMA journal_mode = " << awl::toAString(journal_mode) << ";");
+    db.exec(std::format("PRAGMA synchronous = {};", awl::toAString(synchronous)));
+    db.exec(std::format("PRAGMA journal_mode = {};", awl::toAString(journal_mode)));
 
     {
         CreateTable(db);

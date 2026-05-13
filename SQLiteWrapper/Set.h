@@ -9,7 +9,6 @@
 #include "SQLiteWrapper/Updater.h"
 #include "SQLiteWrapper/Iterator.h"
 
-#include "Awl/LegacyFormat.h"
 #include "Awl/Separator.h"
 
 #include <deque>
