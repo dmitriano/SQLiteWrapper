@@ -29,9 +29,7 @@ namespace sqlite
             tableName(std::move(table_name)),
             idPtr(id_ptr),
             addConstraints(std::move(add_constraints))
-        {
-            _db->subscribe(this);
-        }
+        {}
 
         AutoincrementTableInstantiator(std::string table_name, Int Value::* id_ptr,
             std::function<void(TableBuilder<Value>&)> add_constraints = {})

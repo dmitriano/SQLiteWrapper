@@ -31,9 +31,7 @@ namespace sqlite
             tableName(std::move(table_name)),
             idPtrs(id_ptrs),
             addConstraints(std::move(add_constraints))
-        {
-            _db->subscribe(this);
-        }
+        {}
 
         TableInstantiator(std::string table_name, PtrTuple id_ptrs,
             std::function<void(TableBuilder<Record>&)> add_constraints = {})

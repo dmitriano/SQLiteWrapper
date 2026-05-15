@@ -32,9 +32,7 @@ namespace sqlite
             indexName(std::move(index_name)),
             idPtrs(id_ptrs),
             _unique(unique)
-        {
-            _db->subscribe(this);
-        }
+        {}
 
         IndexInstantiator(std::string table_name, std::string index_name, PtrTuple id_ptrs, bool unique = false) :
             tableName(std::move(table_name)),

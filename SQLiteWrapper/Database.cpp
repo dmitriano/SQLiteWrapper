@@ -17,8 +17,6 @@ void Database::open(const char* fileName)
     {
         raiseError(_db, rc, std::format("Can't open database '{}'", fileName));
     }
-
-    notify(&Element::create, std::ref(*this));
 }
 
 void Database::close()

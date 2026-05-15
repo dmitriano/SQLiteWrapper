@@ -2,12 +2,10 @@
 
 #include "sqlite3.h"
 
-#include "SQLiteWrapper/Types.h"
 #include "SQLiteWrapper/Exception.h"
-#include "SQLiteWrapper/Element.h"
 #include "SQLiteWrapper/Statement.h"
+#include "SQLiteWrapper/Types.h"
 
-#include "Awl/Observable.h"
 #include "Awl/ILogger.h"
 #include "Awl/ITransaction.h"
 
@@ -20,7 +18,6 @@ namespace sqlite
     class TransactionGuard;
 
     class Database :
-        public awl::Observable<Element, Database>,
         public awl::ITransactionProvider,
         public std::enable_shared_from_this<Database>
     {
@@ -68,11 +65,6 @@ namespace sqlite
         void close();
 
         std::unique_ptr<awl::ITransaction> startTransaction() override;
-
-        void clear()
-        {
-            notify(&Element::deleteElement, std::ref(*this));
-        }
 
         int execRaw(const char* query, char** errmsg = nullptr)
         {
