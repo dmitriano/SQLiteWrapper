@@ -71,7 +71,7 @@ namespace sqlite
             }
         }
 
-        void deleteElement(DatabaseRef db_ref) override
+        void drop(DatabaseRef db_ref) override
         {
             Database& db = db_ref.get();
 

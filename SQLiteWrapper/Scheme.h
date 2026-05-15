@@ -26,9 +26,9 @@ namespace sqlite
             notify(&Element::create, db);
         }
 
-        void deleteElement(DatabaseRef db) override
+        void drop(DatabaseRef db) override
         {
-            notify(&Element::deleteElement, db);
+            notify(&Element::drop, db);
         }
 
         using awl::Observable<Element, Scheme>::subscribe;

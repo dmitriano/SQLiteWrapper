@@ -14,7 +14,7 @@ namespace sqlite
 
         virtual void create(DatabaseRef db) = 0;
 
-        virtual void deleteElement(DatabaseRef db) = 0;
+        virtual void drop(DatabaseRef db) = 0;
 
         virtual ~Element() = default;
     };
