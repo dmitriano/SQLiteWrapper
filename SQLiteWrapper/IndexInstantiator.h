@@ -41,10 +41,8 @@ namespace sqlite
             _unique(unique)
         {}
 
-        void create(DatabaseRef db_ref) override
+        void create(Database& db) override
         {
-            Database& db = db_ref.get();
-
             if (!db.indexExists(indexName))
             {
                 std::ostringstream out;
@@ -82,10 +80,8 @@ namespace sqlite
             }
         }
 
-        void drop(DatabaseRef db_ref) override
+        void drop(Database& db) override
         {
-            Database& db = db_ref.get();
-
             db.dropIndex(indexName);
         }
 

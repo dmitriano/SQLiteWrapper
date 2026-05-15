@@ -5,6 +5,8 @@
 #include "Awl/Observable.h"
 #include "Awl/Observer.h"
 
+#include <functional>
+
 namespace sqlite
 {
     class Scheme :
@@ -21,14 +23,14 @@ namespace sqlite
         Scheme(Scheme&&) = default;
         Scheme& operator = (Scheme&&) = default;
 
-        void create(DatabaseRef db) override
+        void create(Database& db) override
         {
-            notify(&Element::create, db);
+            notify(&Element::create, std::ref(db));
         }
 
-        void drop(DatabaseRef db) override
+        void drop(Database& db) override
         {
-            notify(&Element::drop, db);
+            notify(&Element::drop, std::ref(db));
         }
 
         using awl::Observable<Element, Scheme>::subscribe;
