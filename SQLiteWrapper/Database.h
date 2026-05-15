@@ -9,6 +9,7 @@
 
 #include "Awl/Observable.h"
 #include "Awl/ILogger.h"
+#include "Awl/ITransaction.h"
 
 #include <format>
 #include <memory>
@@ -18,7 +19,10 @@ namespace sqlite
 {
     class TransactionGuard;
 
-    class Database : public awl::Observable<Element, Database>
+    class Database :
+        public awl::Observable<Element, Database>,
+        public awl::ITransactionProvider,
+        public std::enable_shared_from_this<Database>
     {
     public:
         
@@ -62,6 +66,8 @@ namespace sqlite
         void open(const char* fileName);
 
         void close();
+
+        std::unique_ptr<awl::ITransaction> startTransaction() override;
 
         void clear()
         {
@@ -194,7 +200,7 @@ namespace sqlite
         Statement indexExistsStatement;
 
         friend Statement;
-        friend class TransactionGuard;
+        friend TransactionGuard;
     };
 }
 

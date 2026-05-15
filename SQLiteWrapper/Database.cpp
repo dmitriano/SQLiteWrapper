@@ -2,6 +2,7 @@
 #include "SQLiteWrapper/Bind.h"
 #include "SQLiteWrapper/Get.h"
 #include "SQLiteWrapper/Scalar.h"
+#include "SQLiteWrapper/TransactionGuard.h"
 
 #include <format>
 #include <sstream>
@@ -43,6 +44,11 @@ void Database::close()
     {
         _logger->debug("sqlite3_close skipped: database is not open.");
     }
+}
+
+std::unique_ptr<awl::ITransaction> Database::startTransaction()
+{
+    return std::make_unique<TransactionGuard>(shared_from_this());
 }
 
 void Database::exec(const char * query)
