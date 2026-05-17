@@ -80,7 +80,7 @@ bool Database::tableExists(const char * name)
     return exists != 0;
 }
 
-void Database::dropTable(const char* name, bool exists)
+void Database::dropTable(const char* name, const bool exists)
 {
     std::ostringstream out;
 
@@ -113,7 +113,7 @@ bool Database::indexExists(const char * name)
     return exists != 0;
 }
 
-void Database::dropIndex(const char* name, bool exists)
+void Database::dropIndex(const char* name, const bool exists)
 {
     std::ostringstream out;
 
@@ -132,7 +132,7 @@ void Database::dropIndex(const char* name, bool exists)
 }
 
 [[noreturn]]
-void Database::raiseError(sqlite3* db, int code, std::string message)
+void Database::raiseError(sqlite3* db, const int code, const std::string message)
 {
     std::string user_message = std::format("{}, Error message: {}.", message, sqlite3_errmsg(db));
 
