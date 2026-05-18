@@ -1,8 +1,8 @@
 #pragma once
 
 #include "Awl/Exception.h"
-#include "Awl/LegacyFormat.h"
 
+#include <format>
 #include <typeinfo>
 
 namespace sqlite
@@ -22,7 +22,7 @@ namespace sqlite
 
         awl::String message() const override
         {
-            return (awl::format() << _T("SQlite error code: ") << _code << _T(", ") << awl::fromAString(_message));
+            return std::format(_T("SQlite error code: {}, {}"), _code, awl::fromAString(_message));
         }
 
         int code() const
