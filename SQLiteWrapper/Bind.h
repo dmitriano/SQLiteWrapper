@@ -144,7 +144,7 @@ namespace sqlite
         });
     }
 
-    template <class Struct> requires awl::is_tuplizable_v<Struct>
+    template <class Struct> requires awl::tuplizable<Struct>
     void bind(Statement & st, size_t col, const Struct & val)
     {
         helpers::forEachFieldValue(val, [&st, col](auto& field, auto fieldIndex)

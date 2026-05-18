@@ -134,7 +134,7 @@ namespace sqlite::helpers
         {
             using FieldType = std::remove_reference_t<std::tuple_element_t<fieldIndex, Tie>>;
 
-            if constexpr (awl::is_reflectable_v<FieldType>)
+            if constexpr (awl::reflectable<FieldType>)
             {
                 const auto& member_names = T::member_names();
 
@@ -214,7 +214,7 @@ namespace sqlite::helpers
         {
             using FieldType = std::remove_reference_t<std::tuple_element_t<fieldIndex, Tie>>;
 
-            if constexpr (awl::is_reflectable_v<FieldType>)
+            if constexpr (awl::reflectable<FieldType>)
             {
                 count += fieldCount<FieldType>();
             }
@@ -242,7 +242,7 @@ namespace sqlite::helpers
         {
             using FieldType = std::remove_reference_t<decltype(field)>;
 
-            if constexpr (awl::is_reflectable_v<FieldType>)
+            if constexpr (awl::reflectable<FieldType>)
             {
                 count += fieldCount<FieldType>();
             }
@@ -287,7 +287,7 @@ namespace sqlite::helpers
                     {
                         found = true;
 
-                        if constexpr (awl::is_reflectable_v<FieldType>)
+                        if constexpr (awl::reflectable<FieldType>)
                         {
                             for (size_t index = count; index < count + fieldCount<FieldType>(); ++index)
                             {
@@ -301,7 +301,7 @@ namespace sqlite::helpers
                     }
                 }
 
-                if constexpr (awl::is_reflectable_v<FieldType>)
+                if constexpr (awl::reflectable<FieldType>)
                 {
                     count += fieldCount<FieldType>();
                 }
@@ -331,7 +331,7 @@ namespace sqlite::helpers
         {
             using FieldType = std::remove_reference_t<std::tuple_element_t<fieldIndex, Tie>>;
 
-            if constexpr (awl::is_reflectable_v<FieldType>)
+            if constexpr (awl::reflectable<FieldType>)
             {
                 return findFieldIndex<FieldType, Tuple, level_index>(t);
             }
@@ -356,7 +356,7 @@ namespace sqlite::helpers
         {
             using FieldType = std::remove_reference_t<decltype(field)>;
 
-            if constexpr (awl::is_reflectable_v<FieldType>)
+            if constexpr (awl::reflectable<FieldType>)
             {
                 count += forEachFieldValueImpl(field, func, start_index + count);
             }
