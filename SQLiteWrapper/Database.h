@@ -16,18 +16,12 @@ namespace sqlite
 {
     class TransactionGuard;
 
-    class Database :
-        public std::enable_shared_from_this<Database>
+    class Database
     {
     public:
         
         explicit Database(std::shared_ptr<awl::ILogger> logger) : _logger(std::move(logger))
-        {
-            if (!_logger)
-            {
-                throw std::invalid_argument("Database logger must not be null.");
-            }
-        }
+        {}
         
         Database(const char * fileName, std::shared_ptr<awl::ILogger> logger) : Database(std::move(logger))
         {
