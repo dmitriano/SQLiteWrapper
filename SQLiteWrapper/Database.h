@@ -7,7 +7,6 @@
 #include "SQLiteWrapper/Types.h"
 
 #include "Awl/ILogger.h"
-#include "Awl/ITransaction.h"
 
 #include <format>
 #include <memory>
@@ -18,7 +17,6 @@ namespace sqlite
     class TransactionGuard;
 
     class Database :
-        public awl::ITransactionProvider,
         public std::enable_shared_from_this<Database>
     {
     public:
@@ -63,8 +61,6 @@ namespace sqlite
         void open(const char* fileName);
 
         void close();
-
-        std::unique_ptr<awl::ITransaction> startTransaction() override;
 
         int execRaw(const char* query, char** errmsg = nullptr)
         {
