@@ -73,6 +73,14 @@ namespace sqlite
         
         void exec(const char * query);
 
+        void setJournalMode(const std::string& journal_mode);
+
+        void setCacheSize(int cache_size);
+
+        void setForeignKeys(bool enabled);
+
+        void setPageSize(size_t page_size);
+
         bool tableExists(const char * name);
 
         bool tableExists(const std::string & name)

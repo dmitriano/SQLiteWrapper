@@ -58,6 +58,26 @@ void Database::exec(const char * query)
     }
 }
 
+void Database::setJournalMode(const std::string& journal_mode)
+{
+    exec(std::format("PRAGMA journal_mode = {};", journal_mode));
+}
+
+void Database::setCacheSize(const int cache_size)
+{
+    exec(std::format("PRAGMA cache_size = {};", cache_size));
+}
+
+void Database::setForeignKeys(const bool enabled)
+{
+    exec(std::format("PRAGMA foreign_keys = {};", enabled ? "ON" : "OFF"));
+}
+
+void Database::setPageSize(const size_t page_size)
+{
+    exec(std::format("PRAGMA page_size = {};", page_size));
+}
+
 bool Database::tableExists(const char * name)
 {
     int exists;
