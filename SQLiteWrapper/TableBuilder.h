@@ -68,6 +68,11 @@ namespace sqlite
 
             _out << "  " << line;
         }
+
+        void setWithoutRowId(bool val = true)
+        {
+            _withoutRowId = val;
+        }
         
         template <class FieldType>
         void addColumn(const std::string & name, const std::string& constraint)
@@ -190,10 +195,10 @@ namespace sqlite
 
             _out << std::endl << ")";
 
-            //if (_rowIdIndex == noIndex)
-            //{
-            //    _out << " WITHOUT ROWID";
-            //}
+            if (_withoutRowId)
+            {
+                _out << " WITHOUT ROWID";
+            }
 
             _out << ";" << std::endl;
 
@@ -247,9 +252,8 @@ namespace sqlite
             }
         }
 
-        // size_t _rowIdIndex = noIndex;
-
         Collation _defaultCollation = Collation::NoCase;
+        bool _withoutRowId = false;
 
         std::string _foreignKeyClause;
 
