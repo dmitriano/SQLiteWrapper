@@ -13,19 +13,19 @@ namespace swtest
 
         TableInstantiator<Value, Keys...> instantiator(db, table_name, id_ptrs);
 
-        instantiator.create(std::ref(*db));
+        instantiator.create(*db);
 
         return instantiator.makeSet();
     }
 
     template <class Value, class Int> requires std::is_integral_v<Int>
-    AutoincrementSet<Value, Int> MakeAutoincrementSet(const std::shared_ptr<Database>& db, const std::string& table_name, Int Value::* id_ptr)
+    AutoincrementSet<Value, Int> makeAutoincrementSet(const std::shared_ptr<Database>& db, const std::string& table_name, Int Value::* id_ptr)
     {
         using namespace sqlite;
 
         AutoincrementTableInstantiator<Value, Int> instantiator(db, table_name, id_ptr);
 
-        instantiator.create(std::ref(*db));
+        instantiator.create(*db);
 
         return instantiator.makeSet();
     }

@@ -1,13 +1,16 @@
 #include "DbContainer.h"
+
 #include "SQLiteWrapper/Bind.h"
 #include "SQLiteWrapper/Get.h"
 #include "SQLiteWrapper/Scalar.h"
-
-#include <vector>
-#include <optional>
+#include "SQLiteWrapper/TransactionGuard.h"
 
 #include "Awl/IntRange.h"
 #include "Awl/StdConsole.h"
+
+#include <format>
+#include <vector>
+#include <optional>
 
 using namespace swtest;
 
@@ -37,12 +40,12 @@ namespace
         AWL_REFLECT(dt, exchangeId, marketId, buy, sell)
     };
 
-    PricePair MakePricePair(size_t i)
+    PricePair makePricePair(size_t i)
     {
         return PricePair{ Clock::now(), static_cast<double>(i), static_cast<double>(i) * 0.99 };
     }
 
-    MarketPricePair MakeMarketPricePair(size_t i)
+    MarketPricePair makeMarketPricePair(size_t i)
     {
         return MarketPricePair{ Clock::now(), static_cast<int64_t>(i % 100), static_cast<int64_t>(i % 1000),
             static_cast<double>(i), static_cast<double>(i) * 0.99};
@@ -50,7 +53,7 @@ namespace
 
     const std::string tableName = "prices";
 
-    std::string MakeTableName(std::optional<size_t> i)
+    std::string makeTableName(std::optional<size_t> i)
     {
         std::ostringstream out;
 
@@ -65,9 +68,9 @@ namespace
     }
 
     template <class Price = PricePair>
-    void CreateTable(Database & db, std::optional<size_t> i = {})
+    void createTable(Database & db, std::optional<size_t> i = {})
     {
-        sqlite::TableBuilder<Price> builder(MakeTableName(i), true);
+        sqlite::TableBuilder<Price> builder(makeTableName(i), true);
 
         builder.setColumnConstraint(&Price::dt, "INTEGER NOT NULL PRIMARY KEY");
 
@@ -75,37 +78,38 @@ namespace
     }
 
     template <class Price = PricePair>
-    Statement MakeInsertStatement(Database & db, std::optional<size_t> i = {})
+    Statement makeInsertStatement(Database & db, std::optional<size_t> i = {})
     {
-        return Statement(db, buildParameterizedInsertQuery<Price>(MakeTableName(i)));
+        return Statement(db, buildParameterizedInsertQuery<Price>(makeTableName(i)));
     }
 
-    size_t GetCount(Database & db, std::optional<size_t> i = {})
+    size_t getCount(Database & db, std::optional<size_t> i = {})
     {
-        Statement s(db, (awl::aformat() << "SELECT count(*) FROM " << MakeTableName(i) << ";"));
+        Statement s(db, std::format("SELECT count(*) FROM {};", makeTableName(i)));
         int count;
         sqlite::selectScalar(s, count);
         return static_cast<size_t>(count);
     }
 
-    inline void CheckCount(Database & db, size_t expected_count, std::optional<size_t> i = {})
+    inline void checkCount(Database & db, size_t expected_count, std::optional<size_t> i = {})
     {
-        AWL_ASSERT_EQUAL(expected_count, GetCount(db, i));
+        AWL_ASSERT_EQUAL(expected_count, getCount(db, i));
     }
 
-    void PrintStat(const awl::testing::TestContext & context, const awl::StopWatch & sw, size_t batch_index, size_t batch_size)
+    void printStat(const awl::testing::TestContext & context, const awl::StopWatch & sw, size_t batch_index, size_t batch_size)
     {
         const float seconds = sw.elapsedSeconds<float>();
 
-        context.logger->debug(awl::format() << batch_size << _T(" / ") << (batch_index + 1) * batch_size << _T(" rows have been inserted within ") <<
-            std::fixed << std::setprecision(2) << seconds <<
-            _T(" seconds, speed: ") <<
-            std::fixed << std::setprecision(2) << batch_size / seconds <<
-            _T(" rows per second."));
+        context.logger->debug(
+            _T("{} / {} rows have been inserted within {:.2f} seconds, speed: {:.2f} rows per second."),
+            batch_size,
+            (batch_index + 1) * batch_size,
+            seconds,
+            batch_size / seconds);
     }
 }
 
-//--output all --filter InsertPrice_Test --batch_count 1000000 --batch_size 1000000 --transaction --synchronous FULL --journal_mode TRUNCATE
+//--output=all --filter=InsertPrice_Test --batch_count=1000000 --batch_size=1000000 --transaction --synchronous=FULL --journal_mode=TRUNCATE
 AWL_TEST(InsertPrice)
 {
     AWL_ATTRIBUTE(size_t, batch_count, 10);
@@ -116,9 +120,9 @@ AWL_TEST(InsertPrice)
     Database & db = c.db();
 
     {
-        CreateTable(db);
+        createTable(db);
 
-        Statement s = MakeInsertStatement(db);
+        Statement s = makeInsertStatement(db);
 
         for (size_t batch_index = 0; batch_index < batch_count; ++batch_index)
         {
@@ -131,13 +135,13 @@ AWL_TEST(InsertPrice)
                     {
                         const size_t i = batch_index * batch_size + local_index;
 
-                        sqlite::bind(s, 0, MakePricePair(i));
+                        sqlite::bind(s, 0, makePricePair(i));
 
                         s.select();
                         
-                        //if (!s.tryexec())
+                        //if (!s.tryExec())
                         //{
-                        //    context.logger->debug(awl::format() << _T("Insertion error: ") << awl::FromACString(db.GetLastError()));
+                        //    context.logger->debug(_T("Insertion error: {}"), awl::FromACString(db.GetLastError()));
                         //}
 
                         s.reset();
@@ -146,7 +150,11 @@ AWL_TEST(InsertPrice)
 
                 if (transaction)
                 {
-                    db.tryRun(func);
+                    sqlite::TransactionGuard transaction_guard(c._db);
+
+                    func();
+
+                    transaction_guard.commit();
                 }
                 else
                 {
@@ -154,16 +162,16 @@ AWL_TEST(InsertPrice)
                 }
             }
 
-            PrintStat(context, sw, batch_index, batch_size);
+            printStat(context, sw, batch_index, batch_size);
         }
     }
 
-    CheckCount(db, batch_size * batch_count);
+    checkCount(db, batch_size * batch_count);
 }
 
-//--output all --filter InsertMarketPrice_Test --batch_count 1000000 --batch_size 1000000 --transaction --use_index --synchronous FULL --journal_mode TRUNCATE
-//--output all --filter InsertMarketPrice_Test --batch_count 1000 --batch_size 1000000 --transaction
-//--output all --filter InsertMarketPrice_Test --batch_count 1000 --batch_size 1000 --transaction --use_index
+//--output=all --filter=InsertMarketPrice_Test --batch_count=1000000 --batch_size=1000000 --transaction --use_index --synchronous=FULL --journal_mode=TRUNCATE
+//--output=all --filter=InsertMarketPrice_Test --batch_count=1000 --batch_size=1000000 --transaction
+//--output=all --filter=InsertMarketPrice_Test --batch_count=1000 --batch_size=1000 --transaction --use_index
 AWL_TEST(InsertMarketPrice)
 {
     AWL_ATTRIBUTE(size_t, batch_count, 10);
@@ -175,17 +183,17 @@ AWL_TEST(InsertMarketPrice)
     Database & db = c.db();
 
     {
-        CreateTable<MarketPricePair>(db);
+        createTable<MarketPricePair>(db);
 
         const bool index_exists = db.indexExists("i_exchange");
 
-        context.logger->debug(awl::format() << _T("The number of rows: ") << GetCount(db));
+        context.logger->debug(_T("The number of rows: {}"), getCount(db));
 
         if (use_index)
         {
             if (index_exists)
             {
-                context.logger->debug(awl::format() << _T("The indices already exist."));
+                context.logger->debug(_T("The indices already exist."));
             }
             else
             {
@@ -194,9 +202,7 @@ AWL_TEST(InsertMarketPrice)
                 db.exec("CREATE INDEX i_exchange ON prices(exchangeId)");
                 db.exec("CREATE INDEX i_market ON prices(marketId)");
 
-                context.logger->debug(awl::format() << _T("The indices have been create within ") <<
-                    std::fixed << std::setprecision(2) << sw.elapsedSeconds<float>()
-                    << _T(" seconds."));
+                context.logger->debug(_T("The indices have been create within {:.2f} seconds."), sw.elapsedSeconds<float>());
             }
         }
         else
@@ -206,15 +212,15 @@ AWL_TEST(InsertMarketPrice)
                 db.exec("DROP INDEX i_exchange");
                 db.exec("DROP INDEX i_market");
 
-                context.logger->debug(awl::format() << _T("The indices have been dropped."));
+                context.logger->debug(_T("The indices have been dropped."));
             }
             else
             {
-                context.logger->debug(awl::format() << _T("The indices do not exist."));
+                context.logger->debug(_T("The indices do not exist."));
             }
         }
 
-        Statement s = MakeInsertStatement<MarketPricePair>(db);
+        Statement s = makeInsertStatement<MarketPricePair>(db);
 
         for (size_t batch_index = 0; batch_index < batch_count; ++batch_index)
         {
@@ -227,13 +233,13 @@ AWL_TEST(InsertMarketPrice)
                     {
                         const size_t i = batch_index * batch_size + local_index;
 
-                        sqlite::bind(s, 0, MakeMarketPricePair(i));
+                        sqlite::bind(s, 0, makeMarketPricePair(i));
 
                         s.select();
 
-                        //if (!s.tryexec())
+                        //if (!s.tryExec())
                         //{
-                        //    context.logger->debug(awl::format() << _T("Insertion error: ") << awl::FromACString(db.GetLastError()));
+                        //    context.logger->debug(_T("Insertion error: {}"), awl::FromACString(db.GetLastError()));
                         //}
 
                         s.reset();
@@ -242,7 +248,11 @@ AWL_TEST(InsertMarketPrice)
 
                 if (transaction)
                 {
-                    db.tryRun(func);
+                    sqlite::TransactionGuard transaction_guard(c._db);
+
+                    func();
+
+                    transaction_guard.commit();
                 }
                 else
                 {
@@ -250,11 +260,11 @@ AWL_TEST(InsertMarketPrice)
                 }
             }
 
-            PrintStat(context, sw, batch_index, batch_size);
+            printStat(context, sw, batch_index, batch_size);
         }
     }
 
-    CheckCount(db, batch_size * batch_count);
+    checkCount(db, batch_size * batch_count);
 }
 
 AWL_TEST(Mars)
@@ -267,11 +277,11 @@ AWL_TEST(Mars)
     DbContainer c(context);
     Database & db = c.db();
 
-    db.exec(awl::aformat() << "PRAGMA synchronous = " << awl::toAString(synchronous) << ";");
-    db.exec(awl::aformat() << "PRAGMA journal_mode = " << awl::toAString(journal_mode) << ";");
+    db.exec(std::format("PRAGMA synchronous = {};", awl::toAString(synchronous)));
+    db.exec(std::format("PRAGMA journal_mode = {};", awl::toAString(journal_mode)));
 
     {
-        CreateTable(db);
+        createTable(db);
 
         std::vector<Statement> v;
         v.reserve(batch_size);
@@ -280,7 +290,7 @@ AWL_TEST(Mars)
         {
             static_cast<void>(local_index);
 
-            v.push_back(MakeInsertStatement(db));
+            v.push_back(makeInsertStatement(db));
         }
 
         for (size_t batch_index = 0; batch_index < batch_count; ++batch_index)
@@ -293,19 +303,19 @@ AWL_TEST(Mars)
 
                 const size_t i = batch_index * batch_size + local_index;
 
-                sqlite::bind(s, 0, MakePricePair(i));
+                sqlite::bind(s, 0, makePricePair(i));
                 s.select();
                 s.reset();
             }
 
-            PrintStat(context, sw, batch_index, batch_size);
+            printStat(context, sw, batch_index, batch_size);
         }
     }
 
-    CheckCount(db, batch_size * batch_count);
+    checkCount(db, batch_size * batch_count);
 }
 
-//--output all --filter MarsMt_Test --batch_count 1000000 --batch_size 1000 --transaction --synchronous OFF  --journal_mode TRUNCATE
+//--output=all --filter=MarsMt_Test --batch_count=1000000 --batch_size=1000 --transaction --synchronous=OFF  --journal_mode=TRUNCATE
 AWL_TEST(MarsMt)
 {
     AWL_ATTRIBUTE(size_t, batch_count, 10);
@@ -318,7 +328,7 @@ AWL_TEST(MarsMt)
         //Create the tables first to prevent "database schema has changed" error.
         for (size_t i : awl::make_count(batch_size))
         {
-            CreateTable(db, i);
+            createTable(db, i);
         }
 
         std::vector<Statement> v;
@@ -326,7 +336,7 @@ AWL_TEST(MarsMt)
 
         for (size_t i : awl::make_count(batch_size))
         {
-            v.push_back(MakeInsertStatement(db, i));
+            v.push_back(makeInsertStatement(db, i));
         }
 
         for (size_t batch_index : awl::make_count(batch_count))
@@ -341,7 +351,7 @@ AWL_TEST(MarsMt)
 
                 try
                 {
-                    sqlite::bind(s, 0, MakePricePair(i));
+                    sqlite::bind(s, 0, makePricePair(i));
                     s.select();
                     s.reset();
                 }
@@ -352,13 +362,13 @@ AWL_TEST(MarsMt)
                 }
             }
 
-            PrintStat(context, sw, batch_index, batch_size);
+            printStat(context, sw, batch_index, batch_size);
         }
     }
 
     for (size_t local_index = 0; local_index < batch_size; ++local_index)
     {
-        CheckCount(db, batch_count, local_index);
+        checkCount(db, batch_count, local_index);
     }
 }
 
@@ -404,7 +414,7 @@ AWL_TEST(MarketInfo)
 
         const std::string query = builder.create();
 
-        context.logger->debug(awl::format() << awl::fromAString(query));
+        context.logger->debug(_T("{}"), query);
 
         db.exec(query);
     }
@@ -421,7 +431,7 @@ AWL_TEST(MarketInfo)
     {
         const std::string query = sqlite::buildParameterizedInsertQuery<MarketInfo>(table_name);
         
-        context.logger->debug(awl::format() << awl::fromAString(query));
+        context.logger->debug(_T("{}"), query);
 
         sqlite::Statement insert_statement = sqlite::Statement(db, query);
 
@@ -434,11 +444,11 @@ AWL_TEST(MarketInfo)
     {
         const std::string query = sqlite::buildTrivialSelectQuery<MarketInfo>(table_name);
 
-        context.logger->debug(awl::format() << awl::fromAString(query));
+        context.logger->debug(_T("{}"), query);
 
         sqlite::Statement select_statement = sqlite::Statement(db, query);
 
-        AWL_ASSERT(select_statement.Next());
+        AWL_ASSERT(select_statement.next());
 
         MarketInfo mi_actual;
 
@@ -450,11 +460,11 @@ AWL_TEST(MarketInfo)
     {
         const std::string query = buildParameterizedUpdateQuery<MarketInfo>(table_name, value_filter, key_filter);
 
-        context.logger->debug(awl::format() << awl::fromAString(query));
+        context.logger->debug(_T("{}"), query);
 
         sqlite::Statement update_statement = sqlite::Statement(db, query);
 
-        context.logger->debug(awl::format() << awl::fromAString(query));
+        context.logger->debug(_T("{}"), query);
 
         if (whole_record)
         {
@@ -473,13 +483,13 @@ AWL_TEST(MarketInfo)
     {
         const std::string query = sqlite::buildParameterizedSelectQuery<MarketInfo>(table_name, value_filter, key_filter);
 
-        context.logger->debug(awl::format() << awl::fromAString(query));
+        context.logger->debug(_T("{}"), query);
 
         sqlite::Statement select_statement = sqlite::Statement(db, query);
 
         sqlite::bind(select_statement, 0, mi_sample.id);
 
-        AWL_ASSERT(select_statement.Next());
+        AWL_ASSERT(select_statement.next());
 
         Precision actual;
 
@@ -511,15 +521,13 @@ AWL_EXAMPLE(Console)
             awl::StopWatch sw;
 
             Statement s(db, aline);
-            s.Next();
+            s.next();
 
-        context.logger->debug(awl::format() << _T("The query has taken ") <<
-            std::fixed << std::setprecision(6) << sw.elapsedSeconds<float>()
-            << _T(" seconds."));
+        context.logger->debug(_T("The query has taken {:.6f} seconds."), sw.elapsedSeconds<float>());
         }
         catch (const SQLiteException & e)
         {
-            context.logger->debug(awl::format() << e.message() << _T(" [") << _T("]"));
+            context.logger->debug(_T("{} []"), e.message());
         }
     }
 }

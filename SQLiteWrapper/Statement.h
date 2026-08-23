@@ -5,14 +5,12 @@
 #include "SQLiteWrapper/Exception.h"
 
 #include "Awl/TupleHelpers.h"
-#include "Awl/QuickList.h"
 
 #include <stdint.h>
 #include <type_traits>
 #include <vector>
 #include <limits>
 #include <chrono>
-#include <any>
 
 namespace sqlite
 {
@@ -36,26 +34,15 @@ namespace sqlite
         Statement& operator = (const Statement&) = delete;
 
         Statement(Statement&& other) : 
-            m_stmt(std::move(other.m_stmt)),
-            usedValues(std::move(other.usedValues)),
-            freeValues(std::move(other.freeValues))
+            _stmt(std::move(other._stmt))
         {
-            other.m_stmt = nullptr;
-
-            assert(other.usedValues.empty());
-            assert(other.freeValues.empty());
+            other._stmt = nullptr;
         }
 
         Statement& operator = (Statement&& other)
         {
-            m_stmt = other.m_stmt;
-            other.m_stmt = nullptr;
-
-            usedValues = std::move(other.usedValues);
-            freeValues = std::move(other.freeValues);
-
-            assert(other.usedValues.empty());
-            assert(other.freeValues.empty());
+            _stmt = other._stmt;
+            other._stmt = nullptr;
 
             return *this;
         }
@@ -63,13 +50,11 @@ namespace sqlite
         ~Statement()
         {
             close();
-
-            clearFreeValues();
         }
 
-        bool Isopen() const
+        bool isOpen() const
         {
-            return m_stmt != nullptr;
+            return _stmt != nullptr;
         }
         
         void open(Database& db, const char* query);
@@ -81,50 +66,54 @@ namespace sqlite
 
         void close()
         {
-            if (Isopen())
+            if (isOpen())
             {
-                sqlite3_finalize(m_stmt);
+                sqlite3_finalize(_stmt);
 
-                m_stmt = nullptr;
+                _stmt = nullptr;
             }
         }
 
         void bindNull(size_t col)
         {
-            Checkbind(sqlite3_bind_null(m_stmt, from0To1(col)));
+            checkBind(sqlite3_bind_null(_stmt, from0To1(col)));
         }
 
         void bindInt(size_t col, int val)
         {
-            Checkbind(sqlite3_bind_int(m_stmt, from0To1(col), val));
+            checkBind(sqlite3_bind_int(_stmt, from0To1(col), val));
         }
 
         void bindInt64(size_t col, sqlite3_int64 val)
         {
-            Checkbind(sqlite3_bind_int64(m_stmt, from0To1(col), val));
+            checkBind(sqlite3_bind_int64(_stmt, from0To1(col), val));
         }
 
         void bindDouble(size_t col, double val)
         {
-            Checkbind(sqlite3_bind_double(m_stmt, from0To1(col), val));
+            checkBind(sqlite3_bind_double(_stmt, from0To1(col), val));
         }
 
         void bindText(size_t col, const char * val)
         {
             // SQLITE_STATIC: the caller must keep val alive until the statement is executed.
-            Checkbind(sqlite3_bind_text(m_stmt, from0To1(col), val, -1, nullptr));
+            checkBind(sqlite3_bind_text(_stmt, from0To1(col), val, -1, nullptr));
+        }
+
+        void bindTextCopy(size_t col, const char* val)
+        {
+            // For computed strings whose temporary storage cannot outlive sqlite3_step().
+            checkBind(sqlite3_bind_text(_stmt, from0To1(col), val, -1, SQLITE_TRANSIENT));
         }
 
         void bindBlob(size_t col, const std::vector<uint8_t>& v)
         {
-            Checkbind(sqlite3_bind_blob(m_stmt, from0To1(col), v.data(), static_cast<int>(v.size()), SQLITE_STATIC));
+            checkBind(sqlite3_bind_blob(_stmt, from0To1(col), v.data(), static_cast<int>(v.size()), SQLITE_STATIC));
         }
 
-        bool Next()
+        bool next()
         {
-            const int rc = sqlite3_step(m_stmt);
-
-            clearUsedValues();
+            const int rc = sqlite3_step(_stmt);
             
             switch (rc)
             {
@@ -138,15 +127,13 @@ namespace sqlite
             raiseError(rc, "Error while iterating over a record set.");
         }
 
-        bool tryexec()
+        bool tryExec()
         {
-            const int rc = sqlite3_step(m_stmt);
-
-            clearUsedValues();
+            const int rc = sqlite3_step(_stmt);
 
             if (rc != SQLITE_DONE)
             {
-                sqlite3_reset(m_stmt);
+                sqlite3_reset(_stmt);
 
                 //It does not return SQLITE_CONSTRAINT.
                 if (rc != SQLITE_ERROR)
@@ -164,17 +151,17 @@ namespace sqlite
 
         void select()
         {
-            Internalexec(false);
+            internalExec(false);
         }
 
         void exec()
         {
-            Internalexec(true);
+            internalExec(true);
         }
 
         void reset()
         {
-            const int rc = sqlite3_reset(m_stmt);
+            const int rc = sqlite3_reset(_stmt);
 
             if (rc != SQLITE_OK)
             {
@@ -184,7 +171,7 @@ namespace sqlite
 
         void clearBindings()
         {
-            const int rc = sqlite3_clear_bindings(m_stmt);
+            const int rc = sqlite3_clear_bindings(_stmt);
 
             if (rc != SQLITE_OK)
             {
@@ -221,21 +208,21 @@ namespace sqlite
         {
             assert(isInt(col));
 
-            return sqlite3_column_int(m_stmt, from0To0(col));
+            return sqlite3_column_int(_stmt, from0To0(col));
         }
 
         sqlite3_int64 int64Value(size_t col) const
         {
             assert(isInt(col));
 
-            return sqlite3_column_int64(m_stmt, from0To0(col));
+            return sqlite3_column_int64(_stmt, from0To0(col));
         }
 
         double doubleValue(size_t col) const
         {
             assert(isFloat(col));
 
-            return sqlite3_column_double(m_stmt, from0To0(col));
+            return sqlite3_column_double(_stmt, from0To0(col));
         }
 
         const char * textValue(size_t col) const
@@ -243,7 +230,7 @@ namespace sqlite
             // Empty string is not Null.
             assert(isText(col));
 
-            return reinterpret_cast<const char *>(sqlite3_column_text(m_stmt, from0To0(col)));
+            return reinterpret_cast<const char *>(sqlite3_column_text(_stmt, from0To0(col)));
         }
 
         const std::vector<uint8_t> blobValue(size_t col) const
@@ -251,9 +238,9 @@ namespace sqlite
             //When we insert an empty std::vector it becomes Null.
             assert(isNull(col) || isBlob(col));
 
-            const size_t size = static_cast<size_t>(sqlite3_column_bytes(m_stmt, from0To0(col)));
+            const size_t size = static_cast<size_t>(sqlite3_column_bytes(_stmt, from0To0(col)));
             
-            const uint8_t* buffer = reinterpret_cast<const uint8_t*>(sqlite3_column_blob(m_stmt, from0To0(col)));
+            const uint8_t* buffer = reinterpret_cast<const uint8_t*>(sqlite3_column_blob(_stmt, from0To0(col)));
 
             return std::vector<uint8_t>(buffer, buffer + size);
         }
@@ -262,75 +249,18 @@ namespace sqlite
 
         [[noreturn]] void raiseError(std::string message);
 
-        template <class T>
-        const T& saveConvertedValue(T val)
-        {
-            std::unique_ptr<Any> p_any;
-            
-            if (freeValues.empty())
-            {
-                p_any = makeAny(val);
-            }
-            else
-            {
-                p_any.reset(freeValues.pop_back());
-
-                p_any->val.emplace<T>(std::move(val));
-            }
-
-            usedValues.push_back(p_any.release());
-
-            T* p_saved_val = std::any_cast<T>(&usedValues.back()->val);
-
-            return *p_saved_val;
-        }
-
     private:
 
-        struct Any : public awl::quick_link
+        void internalExec(bool auto_reset)
         {
-            Any(std::any v) : val(v) {}
-            
-            std::any val;
-        };
-
-        using AnyList = awl::quick_list<Any>;
-
-        template <class T>
-        std::unique_ptr<Any> makeAny(T val)
-        {
-            return std::make_unique<Any>(std::any(std::move(val)));
-        }
-
-        void clearUsedValues()
-        {
-            freeValues.push_back(usedValues);
-
-            assert(usedValues.empty());
-        }
-
-        void clearFreeValues()
-        {
-            assert(usedValues.empty());
-
-            while (!freeValues.empty())
-            {
-                delete freeValues.pop_back();
-            }
-        }
-
-        void Internalexec(bool auto_reset)
-        {
-            const int rc = sqlite3_step(m_stmt);
-
-            clearUsedValues();
+            const int rc = sqlite3_step(_stmt);
 
             if (rc != SQLITE_DONE)
             {
                 if (auto_reset)
                 {
                     //If the query failed sqlite3_reset also returns an error, but we ignore it.
-                    sqlite3_reset(m_stmt);
+                    sqlite3_reset(_stmt);
                 }
 
                 raiseError(rc, "Error while executing a statement.");
@@ -345,7 +275,7 @@ namespace sqlite
             }
         }
 
-        void Checkbind(int rc)
+        void checkBind(int rc)
         {
             if (rc != SQLITE_OK)
             {
@@ -356,7 +286,7 @@ namespace sqlite
         //The index is zero-based.
         int columnType(size_t col) const
         {
-            const int column_type = sqlite3_column_type(m_stmt, from0To0(col));
+            const int column_type = sqlite3_column_type(_stmt, from0To0(col));
 
             return column_type;
         }
@@ -379,18 +309,6 @@ namespace sqlite
             return static_cast<size_t>(col - 1);
         }
 
-        //const char * GetLastError() const
-        //{
-        //    assert(Isopen());
-        //    
-        //    sqlite3 * db = sqlite3_db_handle(m_stmt);
-
-        //    return sqlite3_errmsg(db);
-        //}
-
-        sqlite3_stmt * m_stmt = nullptr;
-
-        AnyList usedValues;
-        AnyList freeValues;
+        sqlite3_stmt * _stmt = nullptr;
     };
 }

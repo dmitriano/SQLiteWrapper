@@ -1,4 +1,5 @@
 #include "DbContainer.h"
+
 #include "SQLiteWrapper/Bind.h"
 #include "SQLiteWrapper/Get.h"
 
@@ -189,7 +190,7 @@ namespace
 namespace
 {
     template <class User>
-    void CreateTableRecursiveTest(const awl::testing::TestContext & context, const char * name, bool header)
+    void createTableRecursiveTest(const awl::testing::TestContext & context, const char * name, bool header)
     {
         DbContainer c(context);
         Database & db = c.db();
@@ -209,7 +210,7 @@ namespace
 
         const std::string query = builder.build();
 
-        context.logger->debug(awl::format() << awl::fromAString(query));
+        context.logger->debug(_T("{}"), query);
 
         db.exec(query);
     }
@@ -221,7 +222,7 @@ AWL_TEST(DatabaseTest)
     
     DbContainer c(context);
 
-    c.FillDatabase();
+    c.fillDatabase();
 
     Database & db = c.db();
 
@@ -238,7 +239,7 @@ AWL_TEST(SimpleQueryTest)
 
     DbContainer c(context);
 
-    c.FillDatabase();
+    c.fillDatabase();
 
     Database & db = c.db();
 
@@ -246,12 +247,12 @@ AWL_TEST(SimpleQueryTest)
 
     size_t count = 0;
 
-    while (rs.Next())
+    while (rs.next())
     {
         ++count;
     }
 
-    AWL_ASSERT_EQUAL(c.m_ages.size(), count);
+    AWL_ASSERT_EQUAL(c._ages.size(), count);
 }
 
 AWL_TEST(WhereTest)
@@ -260,19 +261,19 @@ AWL_TEST(WhereTest)
 
     DbContainer c(context);
 
-    c.FillDatabase();
+    c.fillDatabase();
 
     Database & db = c.db();
 
     Statement rs(db, "select FirstName, Age from myTable where Age <= ?");
 
-    std::sort(c.m_ages.begin(), c.m_ages.end());
+    std::sort(c._ages.begin(), c._ages.end());
 
-    size_t i = c.m_ages.size() / 2;
+    size_t i = c._ages.size() / 2;
 
-    const size_t val = c.m_ages[i];
+    const size_t val = c._ages[i];
 
-    while (i < c.m_ages.size() - 1 && c.m_ages[i + 1] == val)
+    while (i < c._ages.size() - 1 && c._ages[i + 1] == val)
     {
         ++i;
     }
@@ -281,7 +282,7 @@ AWL_TEST(WhereTest)
 
     size_t count = 0;
 
-    while (rs.Next())
+    while (rs.next())
     {
         AWL_ASSERT(rs.isText(0));
         AWL_ASSERT_FALSE(rs.isNull(0));
@@ -295,7 +296,7 @@ AWL_TEST(WhereTest)
         size_t age;
         sqlite::get(rs, 1, age);
 
-        AWL_ASSERT_EQUAL(c.m_ages[count], age);
+        AWL_ASSERT_EQUAL(c._ages[count], age);
 
         ++count;
     }
@@ -316,7 +317,7 @@ AWL_TEST(CreateTableTestWithRowId)
 
     const std::string query = builder.create();
 
-    context.logger->debug(awl::format() << awl::fromAString(query));
+    context.logger->debug(_T("{}"), query);
 
     db.exec(query);
 }
@@ -332,7 +333,7 @@ AWL_TEST(CreateTableWithoutRowIdTest)
 
     const std::string query = builder.create();
 
-    context.logger->debug(awl::format() << awl::fromAString(query));
+    context.logger->debug(_T("{}"), query);
 
     db.exec(query);
 }
@@ -348,13 +349,13 @@ AWL_TEST(CreateTableWithMulticolumnPKTest)
 
     const std::string query = builder.create();
 
-    context.logger->debug(awl::format() << awl::fromAString(query));
+    context.logger->debug(_T("{}"), query);
 
     db.exec(query);
 }
 
 AWL_TEST(CreateTableRecursiveTest)
 {
-    CreateTableRecursiveTest<UniqueUser>(context, "UniqueUser", true);
-    CreateTableRecursiveTest<UniqueUser1>(context, "UniqueUser1", false);
+    createTableRecursiveTest<UniqueUser>(context, "UniqueUser", true);
+    createTableRecursiveTest<UniqueUser1>(context, "UniqueUser1", false);
 }

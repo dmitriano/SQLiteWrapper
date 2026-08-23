@@ -1,7 +1,5 @@
 #pragma once
 
-#include "Awl/LegacyFormat.h"
-
 #include "SQLiteWrapper/TableBuilder.h"
 #include "SQLiteWrapper/QueryBuilder.h"
 #include "SQLiteWrapper/Statement.h"
@@ -31,23 +29,22 @@ namespace sqlite
 
     public:
 
-        MapStorage(sqlite::Database& db, std::string table_name) : m_db(db), tableName(table_name)
-        {
-        }
+        MapStorage(sqlite::Database& db, std::string table_name) : _db(db), tableName(table_name)
+        {}
 
-        void CreateTable()
+        void createTable()
         {
-            if (!m_db.tableExists(tableName))
+            if (!_db.tableExists(tableName))
             {
                 sqlite::TableBuilder<Record> builder(tableName);
 
                 builder.setColumnConstraint(&Record::id, "INTEGER NOT NULL PRIMARY KEY");
 
-                m_db.exec(builder.create());
+                _db.exec(builder.create());
             }
         }
 
-        void Prepare()
+        void prepare()
         {
             sqlite::IndexFilter id_filter{ 0 };
 
@@ -58,11 +55,11 @@ namespace sqlite
                 value_filter.insert(i);
             }
 
-            insertStatement = sqlite::Statement(m_db, sqlite::buildParameterizedInsertQuery<Record>(tableName));
+            insertStatement = sqlite::Statement(_db, sqlite::buildParameterizedInsertQuery<Record>(tableName));
 
-            updateStatement = sqlite::Statement(m_db, sqlite::buildParameterizedUpdateQuery<Record>(tableName, value_filter, id_filter));
+            updateStatement = sqlite::Statement(_db, sqlite::buildParameterizedUpdateQuery<Record>(tableName, value_filter, id_filter));
 
-            selectStatement = sqlite::Statement(m_db, sqlite::buildParameterizedSelectQuery<Record>(tableName, value_filter, id_filter));
+            selectStatement = sqlite::Statement(_db, sqlite::buildParameterizedSelectQuery<Record>(tableName, value_filter, id_filter));
         }
 
         void insert(const Key& id, const Value& val)
@@ -77,7 +74,7 @@ namespace sqlite
         {
             sqlite::bind(selectStatement, 0, id);
 
-            const bool exists = selectStatement.Next();
+            const bool exists = selectStatement.next();
             
             if (exists)
             {
@@ -99,7 +96,7 @@ namespace sqlite
 
     private:
 
-        sqlite::Database& m_db;
+        sqlite::Database& _db;
         
         std::string tableName;
 

@@ -13,15 +13,15 @@ namespace sqlite
 
         IndexFilter() = default;
 
-        IndexFilter(std::initializer_list<size_t> init) : m_v(init) {}
+        IndexFilter(std::initializer_list<size_t> init) : _v(init) {}
 
-        iterator begin() const { return m_v.begin(); }
+        iterator begin() const { return _v.begin(); }
 
-        iterator end() const { return m_v.end(); }
+        iterator end() const { return _v.end(); }
 
         bool contains(size_t val) const
         {
-            return std::find(m_v.begin(), m_v.end(), val) != m_v.end();
+            return std::find(_v.begin(), _v.end(), val) != _v.end();
         }
 
         void insert(size_t val)
@@ -31,16 +31,16 @@ namespace sqlite
                 throw std::runtime_error("Duplicated index.");
             }
 
-            m_v.push_back(val);
+            _v.push_back(val);
         }
 
         bool erase(size_t val)
         {
-            auto i = std::find(m_v.begin(), m_v.end(), val);
+            auto i = std::find(_v.begin(), _v.end(), val);
 
-            if (i != m_v.end())
+            if (i != _v.end())
             {
-                m_v.erase(i);
+                _v.erase(i);
 
                 return true;
             }
@@ -48,29 +48,29 @@ namespace sqlite
             return false;
         }
 
-        size_t size() const { return m_v.size(); }
+        size_t size() const { return _v.size(); }
 
         bool empty() const
         {
-            return m_v.empty();
+            return _v.empty();
         }
 
         size_t index_of(size_t val) const
         {
-            auto i = std::find(m_v.begin(), m_v.end(), val);
+            auto i = std::find(_v.begin(), _v.end(), val);
 
-            if (i == m_v.end())
+            if (i == _v.end())
             {
                 throw std::runtime_error("Element not found.");
             }
 
-            return i - m_v.begin();
+            return i - _v.begin();
         }
 
     private:
 
         // The vector should not be sorted.
         // The elements should stay in the order we added them in, see Set::bindKey.
-        std::vector<size_t> m_v;
+        std::vector<size_t> _v;
     };
 }

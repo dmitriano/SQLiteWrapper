@@ -5,7 +5,6 @@
 #include "SQLiteWrapper/Element.h"
 #include "SQLiteWrapper/AutoincrementSet.h"
 
-#include "Awl/LegacyFormat.h"
 #include "Awl/Observer.h"
 
 #include <memory>
@@ -26,13 +25,11 @@ namespace sqlite
         AutoincrementTableInstantiator(const std::shared_ptr<Database>& db, std::string table_name, Int Value::* id_ptr,
             std::function<void(TableBuilder<Value>&)> add_constraints = {})
         :
-            m_db(db),
+            _db(db),
             tableName(std::move(table_name)),
             idPtr(id_ptr),
             addConstraints(std::move(add_constraints))
-        {
-            m_db->subscribe(this);
-        }
+        {}
 
         AutoincrementTableInstantiator(std::string table_name, Int Value::* id_ptr,
             std::function<void(TableBuilder<Value>&)> add_constraints = {})
@@ -40,13 +37,10 @@ namespace sqlite
             tableName(std::move(table_name)),
             idPtr(id_ptr),
             addConstraints(std::move(add_constraints))
-        {
-        }
+        {}
 
-        void create(DatabaseRef db_ref) override
+        void create(Database& db) override
         {
-            Database& db = db_ref.get();
-
             if (!db.tableExists(tableName))
             {
                 TableBuilder<Record> builder(tableName);
@@ -63,7 +57,7 @@ namespace sqlite
 
                 const std::string query = builder.create();
 
-                db.logger().debug(awl::format() << "Creating table '" << tableName << "': \n" << query);
+                db.logger()->debug(_T("Creating table '{}': \n{}"), tableName, query);
 
                 db.exec(query);
 
@@ -71,14 +65,12 @@ namespace sqlite
             }
             else
             {
-                db.logger().debug(awl::format() << "Table '" << tableName << "' already exists.");
+                db.logger()->debug(_T("Table '{}' already exists."), tableName);
             }
         }
 
-        void deleteElement(DatabaseRef db_ref) override
+        void drop(Database& db) override
         {
-            Database& db = db_ref.get();
-
             db.dropTable(tableName);
         }
 
@@ -86,9 +78,9 @@ namespace sqlite
 
         SetType makeSet() const
         {
-            assert(m_db != nullptr);
+            assert(_db != nullptr);
 
-            return makeSet(m_db);
+            return makeSet(_db);
         }
 
         SetType makeSet(const std::shared_ptr<Database>& db) const
@@ -98,7 +90,7 @@ namespace sqlite
 
     private:
 
-        std::shared_ptr<Database> m_db;
+        std::shared_ptr<Database> _db;
 
         const std::string tableName;
 

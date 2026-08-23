@@ -1,4 +1,5 @@
 #include "DbContainer.h"
+
 #include "SQLiteWrapper/Bind.h"
 #include "SQLiteWrapper/Get.h"
 
@@ -16,10 +17,10 @@ AWL_TEST(GetbindNull)
 {
     DbContainer c(context);
 
-    c.m_db->exec(create_query);
+    c._db->exec(create_query);
 
     {
-        sqlite::Statement insert_statement(*c.m_db, insert_query);
+        sqlite::Statement insert_statement(*c._db, insert_query);
 
         // Empty string is not Null.
         insert_statement.bindText(0, "");
@@ -34,9 +35,9 @@ AWL_TEST(GetbindNull)
     }
 
     {
-        sqlite::Statement select_statement(*c.m_db, select_query);
+        sqlite::Statement select_statement(*c._db, select_query);
 
-        AWL_ASSERT(select_statement.Next());
+        AWL_ASSERT(select_statement.next());
 
         AWL_ASSERT(!select_statement.isNull(0));
         AWL_ASSERT(select_statement.isText(0));
@@ -55,7 +56,7 @@ AWL_TEST(GetbindNull)
             AWL_ASSERT(blob.empty());
         }
 
-        AWL_ASSERT(select_statement.Next());
+        AWL_ASSERT(select_statement.next());
 
         AWL_ASSERT(select_statement.isNull(0));
         AWL_ASSERT(!select_statement.isText(0));
@@ -74,13 +75,13 @@ AWL_TEST(GetBindOptional)
 {
     DbContainer c(context);
 
-    c.m_db->exec(create_query);
+    c._db->exec(create_query);
 
     const std::optional<std::string> sample_text = "a";
     const std::optional<std::string> null_text;
 
     {
-        sqlite::Statement insert_statement(*c.m_db, insert_query);
+        sqlite::Statement insert_statement(*c._db, insert_query);
 
         sqlite::bind(insert_statement, 0, sample_text);
 
@@ -92,9 +93,9 @@ AWL_TEST(GetBindOptional)
     }
 
     {
-        sqlite::Statement select_statement(*c.m_db, select_query);
+        sqlite::Statement select_statement(*c._db, select_query);
 
-        AWL_ASSERT(select_statement.Next());
+        AWL_ASSERT(select_statement.next());
 
         {
             std::optional<std::string> text;
@@ -102,7 +103,7 @@ AWL_TEST(GetBindOptional)
             AWL_ASSERT(text == sample_text);
         }
 
-        AWL_ASSERT(select_statement.Next());
+        AWL_ASSERT(select_statement.next());
 
         {
             std::optional<std::string> text;

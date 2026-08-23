@@ -8,6 +8,7 @@
 
 #include "Awl/IntRange.h"
 
+#include <format>
 #include <string>
 
 using namespace swtest;
@@ -59,7 +60,7 @@ AWL_TEST(RowIdRawQueries)
     }
     
     {
-        sqlite::Statement st(db, awl::aformat() << "INSERT INTO " << table_name << " (name, state) VALUES (?2, ?3);");
+        sqlite::Statement st(db, std::format("INSERT INTO {} (name, state) VALUES (?2, ?3);", table_name));
 
         sqlite::bind(st, 1, bots[1].name);
         sqlite::bind(st, 2, bots[2].state);
@@ -68,9 +69,9 @@ AWL_TEST(RowIdRawQueries)
     }
 
     {
-        sqlite::Statement st(db, awl::aformat() << "SELECT rowId, name, state FROM " << table_name << ";");
+        sqlite::Statement st(db, std::format("SELECT rowId, name, state FROM {};", table_name));
 
-        while (st.Next())
+        while (st.next())
         {
             Bot bot;
 
@@ -78,7 +79,7 @@ AWL_TEST(RowIdRawQueries)
             sqlite::get(st, 1, bot.name);
             sqlite::get(st, 2, bot.state);
 
-            context.logger->debug(awl::format() << bot.botId << ", " << awl::fromAString(bot.name) << ", " << bot.state.size());
+            context.logger->debug(_T("{}, {}, {}"), bot.botId, bot.name, bot.state.size());
         }
     }
 }
@@ -87,9 +88,9 @@ AWL_TEST(RowIdRaw)
 {
     DbContainer c(context);
 
-    c.m_db->exec("CREATE TABLE raw_bots (name TEXT NOT NULL COLLATE NOCASE, state BLOB);");
+    c._db->exec("CREATE TABLE raw_bots (name TEXT NOT NULL COLLATE NOCASE, state BLOB);");
 
-    sqlite::Statement insert_statement(*c.m_db, "INSERT INTO raw_bots (name, state) VALUES (?1, ?3);");
+    sqlite::Statement insert_statement(*c._db, "INSERT INTO raw_bots (name, state) VALUES (?1, ?3);");
 
     insert_statement.bindText(0, "BTCUSDT");
     insert_statement.bindBlob(2, { 0, 1, 3 });
@@ -103,7 +104,7 @@ AWL_TEST(RowIdSet)
     
     DbContainer c(context);
 
-    auto set = MakeAutoincrementSet(c.m_db, table_name, &Bot::botId);
+    auto set = makeAutoincrementSet(c._db, table_name, &Bot::botId);
 
     for (Bot& bot : bots)
     {
@@ -198,7 +199,7 @@ AWL_TEST(RowIdSequence)
 
     DbContainer c(context);
 
-    auto set = MakeAutoincrementSet(c.m_db, table_name, &Bot::botId);
+    auto set = makeAutoincrementSet(c._db, table_name, &Bot::botId);
 
     for (size_t i = 0; i < bots.size(); ++i)
     {
@@ -211,5 +212,32 @@ AWL_TEST(RowIdSequence)
         set.insert(bots[i]);
 
         AWL_ASSERT_EQUAL(static_cast<sqlite::RowId>(i) * 2 + 2, bots[i].botId);
+    }
+}
+
+AWL_TEST(RowIdSetClear)
+{
+    const std::string table_name = "bots";
+
+    DbContainer c(context);
+
+    auto set = makeAutoincrementSet(c._db, table_name, &Bot::botId);
+
+    for (Bot& bot : bots)
+    {
+        set.insert(bot);
+    }
+
+    AWL_ASSERT_EQUAL(static_cast<std::ranges::range_difference_t<decltype(set)>>(bots.size()), std::ranges::distance(set));
+
+    set.clear();
+
+    AWL_ASSERT(set.empty());
+
+    for (const Bot& bot : bots)
+    {
+        Bot actual;
+
+        AWL_ASSERT(!set.find(bot.botId, actual));
     }
 }

@@ -7,11 +7,11 @@
 #include "SQLiteWrapper/Statement.h"
 #include "SQLiteWrapper/QueryBuilder.h"
 
-#include "Awl/LegacyFormat.h"
 #include "Awl/Observer.h"
 
 #include <memory>
 #include <cassert>
+#include <sstream>
 
 namespace sqlite
 {
@@ -27,34 +27,29 @@ namespace sqlite
     public:
 
         IndexInstantiator(const std::shared_ptr<Database>& db, std::string table_name, std::string index_name, PtrTuple id_ptrs, bool unique = false) :
-            m_db(db),
+            _db(db),
             tableName(std::move(table_name)),
             indexName(std::move(index_name)),
             idPtrs(id_ptrs),
-            m_unique(unique)
-        {
-            m_db->subscribe(this);
-        }
+            _unique(unique)
+        {}
 
         IndexInstantiator(std::string table_name, std::string index_name, PtrTuple id_ptrs, bool unique = false) :
             tableName(std::move(table_name)),
             indexName(std::move(index_name)),
             idPtrs(id_ptrs),
-            m_unique(unique)
-        {
-        }
+            _unique(unique)
+        {}
 
-        void create(DatabaseRef db_ref) override
+        void create(Database& db) override
         {
-            Database& db = db_ref.get();
-
             if (!db.indexExists(indexName))
             {
                 std::ostringstream out;
 
                 out << "CREATE ";
                 
-                if (m_unique)
+                if (_unique)
                 {
                     out << "UNIQUE ";
                 }
@@ -73,7 +68,7 @@ namespace sqlite
 
                 const std::string query = out.str();
 
-                db.logger().debug(awl::format() << "Creating index '" << indexName << "': \n" << query);
+                db.logger()->debug(_T("Creating index '{}': \n{}"), indexName, query);
 
                 db.exec(query);
 
@@ -81,22 +76,20 @@ namespace sqlite
             }
             else
             {
-                db.logger().debug(awl::format() << "Index '" << indexName << "' already exists.");
+                db.logger()->debug(_T("Index '{}' already exists."), indexName);
             }
         }
 
-        void deleteElement(DatabaseRef db_ref) override
+        void drop(Database& db) override
         {
-            Database& db = db_ref.get();
-
             db.dropIndex(indexName);
         }
 
         Statement makeSelectStatement() const
         {
-            assert(m_db != nullptr);
+            assert(_db != nullptr);
 
-            return makeSelectStatement(*m_db);
+            return makeSelectStatement(*_db);
         }
 
         Statement makeSelectStatement(Database& db) const
@@ -104,21 +97,21 @@ namespace sqlite
             // Where clause with sequential indices.
             const std::string query = buildParameterizedSelectQuery<Record>(tableName, {}, helpers::findTransparentFieldIndices(idPtrs), true);
 
-            db.logger().debug(awl::format() << "'" << indexName << "' IndexInstantiator select query: " << query);
+            db.logger()->debug(_T("'{}' IndexInstantiator select query: {}"), indexName, query);
 
             return Statement(db, query);
         }
 
     private:
 
-        std::shared_ptr<Database> m_db;
+        std::shared_ptr<Database> _db;
 
         const std::string tableName;
         const std::string indexName;
 
         const PtrTuple idPtrs;
 
-        const bool m_unique;
+        const bool _unique;
     };
 }
 

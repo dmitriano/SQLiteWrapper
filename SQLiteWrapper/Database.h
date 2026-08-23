@@ -2,25 +2,28 @@
 
 #include "sqlite3.h"
 
-#include "SQLiteWrapper/Types.h"
 #include "SQLiteWrapper/Exception.h"
-#include "SQLiteWrapper/Element.h"
 #include "SQLiteWrapper/Statement.h"
+#include "SQLiteWrapper/Types.h"
 
-#include "Awl/LegacyFormat.h"
-#include "Awl/Observable.h"
-#include "Awl/ScopeGuard.h"
-#include "Awl/Logger.h"
+#include "Awl/ILogger.h"
+
+#include <format>
+#include <memory>
+#include <stdexcept>
 
 namespace sqlite
 {
-    class Database : public awl::Observable<Element, Database>
+    class TransactionGuard;
+
+    class Database
     {
     public:
         
-        Database(awl::Logger& logger) : m_logger(logger) {}
+        explicit Database(std::shared_ptr<awl::ILogger> logger) : _logger(std::move(logger))
+        {}
         
-        Database(const char * fileName, awl::Logger& logger) : Database(logger)
+        Database(const char * fileName, std::shared_ptr<awl::ILogger> logger) : Database(std::move(logger))
         {
             open(fileName);
         }
@@ -35,16 +38,17 @@ namespace sqlite
         Database& operator = (const Database&) = delete;
 
         Database(Database&& other) :
-            m_logger(other.m_logger),
-            m_db(std::move(other.m_db))
+            _logger(std::move(other._logger)),
+            _db(std::move(other._db))
         {
-            other.m_db = nullptr;
+            other._db = nullptr;
         }
 
         Database& operator = (Database && other)
         {
-            m_db = other.m_db;
-            other.m_db = nullptr;
+            _logger = std::move(other._logger);
+            _db = other._db;
+            other._db = nullptr;
             return *this;
         }
 
@@ -52,95 +56,9 @@ namespace sqlite
 
         void close();
 
-        void clear()
-        {
-            notify(&Element::deleteElement, std::ref(*this));
-        }
-
-        void beginTransaction()
-        {
-            exec("BEGIN;");
-        }
-
-        void commit()
-        {
-            exec("COMMIT;");
-        }
-
-        void rollback()
-        {
-            exec("ROLLBACK;");
-        }
-
-        // Begin transaction
-        void savePoint(const char* savepoint)
-        {
-            exec(awl::aformat() << "SAVEPOINT " << savepoint << ";");
-        }
-
-        // Commit changes.
-        void release(const char* savepoint)
-        {
-            exec(awl::aformat() << "RELEASE " << savepoint << ";");
-        }
-
-        void rollbackTo(const char* savepoint)
-        {
-            exec(awl::aformat() << "ROLLBACK TO " << savepoint << ";");
-        }
-
-        // The BEGIN command only works if the transaction stack is empty.
-        template <class Func>
-        void tryOutermost(Func && func)
-        {
-            beginTransaction();
-            
-            try
-            {
-                func();
-            }
-            catch (const std::exception &)
-            {
-                rollback();
-
-                throw;
-            }
-
-            commit();
-        }
-
-        // A thrown exception causes rollback.
-        template <class Func>
-        void tryRun(Func&& func, std::string savepoint = {})
-        {
-            ++m_transactionLevel;
-
-            auto guard = awl::make_scope_guard([this] { --m_transactionLevel; });
-
-            if (savepoint.empty())
-            {
-                savepoint = awl::aformat() << "sp" << m_transactionLevel;
-            }
-
-            savePoint(savepoint.c_str());
-
-            try
-            {
-                func();
-            }
-            catch (const std::exception&)
-            {
-                rollbackTo(savepoint.c_str());
-
-                throw;
-            }
-
-            release(savepoint.c_str());
-        }
-
         int execRaw(const char* query, char** errmsg = nullptr)
         {
-            return sqlite3_exec(m_db, query, nullptr, 0, errmsg);
+            return sqlite3_exec(_db, query, nullptr, 0, errmsg);
         }
 
         void execRaw(const std::string& query, char** errmsg = nullptr)
@@ -154,6 +72,14 @@ namespace sqlite
         }
         
         void exec(const char * query);
+
+        void setJournalMode(const std::string& journal_mode);
+
+        void setCacheSize(int cache_size);
+
+        void setForeignKeys(bool enabled);
+
+        void setPageSize(size_t page_size);
 
         bool tableExists(const char * name);
 
@@ -185,18 +111,18 @@ namespace sqlite
 
         void createFunction(const char* zFunc, int nArg, void (*xSFunc)(sqlite3_context*, int, sqlite3_value**))
         {
-            const int rc = sqlite3_create_function(m_db, zFunc, nArg, SQLITE_UTF8, NULL, xSFunc, NULL, NULL);
+            const int rc = sqlite3_create_function(_db, zFunc, nArg, SQLITE_UTF8, NULL, xSFunc, NULL, NULL);
 
             if (rc != SQLITE_OK)
             {
-                raiseError(m_db, rc, awl::aformat() << "Can't create function '" << zFunc << "'");
+                raiseError(_db, rc, std::format("Can't create function '{}'", zFunc));
             }
         }
 
         //Returns the number of rows modified, inserted or deleted by the most recently completed INSERT, UPDATE or DELETE statement.
         int affectedCount() const
         {
-            return sqlite3_changes(m_db);
+            return sqlite3_changes(_db);
         }
 
         void ensureAffected(int expected)
@@ -205,18 +131,18 @@ namespace sqlite
 
             if (count != expected)
             {
-                throw SQLiteException(0, awl::aformat() << count << " rows have been affected, but expected " << expected << ".");
+                throw SQLiteException(0, std::format("{} rows have been affected, but expected {}.", count, expected));
             }
         }
 
         RowId lastRowId() const
         {
-            return sqlite3_last_insert_rowid(m_db);
+            return sqlite3_last_insert_rowid(_db);
         }
 
-        awl::Logger& logger()
+        const std::shared_ptr<awl::ILogger>& logger() const
         {
-            return m_logger;
+            return _logger;
         }
 
         // Should be called after CREATE TABLE.
@@ -228,6 +154,23 @@ namespace sqlite
 
     private:
 
+        // Begin transaction
+        void savePoint(const char* savepoint)
+        {
+            exec(std::format("SAVEPOINT {};", savepoint));
+        }
+
+        // Commit changes.
+        void release(const char* savepoint)
+        {
+            exec(std::format("RELEASE {};", savepoint));
+        }
+
+        void rollbackTo(const char* savepoint)
+        {
+            exec(std::format("ROLLBACK TO {};", savepoint));
+        }
+
         [[noreturn]]
         static void raiseError(sqlite3* db, int code, std::string message);
 
@@ -237,16 +180,17 @@ namespace sqlite
             raiseError(db, 0, message);
         }
 
-        std::reference_wrapper<awl::Logger> m_logger;
+        std::shared_ptr<awl::ILogger> _logger;
 
-        sqlite3 * m_db = nullptr;
+        sqlite3 * _db = nullptr;
 
-        std::size_t m_transactionLevel = 0u;
+        std::size_t _transactionLevel = 0u;
 
         Statement tableExistsStatement;
         Statement indexExistsStatement;
 
         friend Statement;
+        friend TransactionGuard;
     };
 }
 

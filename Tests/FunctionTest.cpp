@@ -1,4 +1,5 @@
 #include "DbContainer.h"
+
 #include "SQLiteWrapper/Bind.h"
 #include "SQLiteWrapper/Get.h"
 #include "SQLiteWrapper/QueryBuilder.h"
@@ -6,6 +7,7 @@
 
 #include "Awl/IntRange.h"
 
+#include <format>
 #include <string>
 
 using namespace swtest;
@@ -31,7 +33,7 @@ namespace
 
     const std::string tableName = "log_messages";
 
-    void CreateTable(Database & db)
+    void createTable(Database & db)
     {
         sqlite::TableBuilder<Log> builder(tableName, true);
 
@@ -40,7 +42,7 @@ namespace
         db.exec(builder.create());
     }
 
-    Statement MakeInsertStatement(Database & db)
+    Statement makeInsertStatement(Database & db)
     {
         return Statement(db, buildParameterizedInsertQuery<Log>(tableName));
     }
@@ -90,32 +92,32 @@ namespace
         }
     }
 
-    void CheckCount(Database& db, int expected = 1)
+    void checkCount(Database& db, int expected = 1)
     {
-        sqlite::Statement s(db, awl::aformat() << "SELECT COUNT(*) FROM " << tableName << ";");
+        sqlite::Statement s(db, std::format("SELECT COUNT(*) FROM {};", tableName));
 
         int count;
         sqlite::selectScalar(s, count);
         AWL_ASSERT(count == expected);
     }
 
-    void CheckSample(sqlite::Statement & s)
+    void checkSample(sqlite::Statement & s)
     {
-        AWL_ASSERT(s.Next());
+        AWL_ASSERT(s.next());
 
         Log log;
         sqlite::get(s, 0, log);
 
         AWL_ASSERT(log == logSample);
 
-        AWL_ASSERT(!s.Next());
+        AWL_ASSERT(!s.next());
     }
     
-    void CheckSample(Database& db)
+    void checkSample(Database& db)
     {
         QueryBuilder<Log> builder;
 
-        builder.Startselect(tableName);
+        builder.startSelect(tableName);
 
         builder.addTerminator();
 
@@ -123,13 +125,13 @@ namespace
 
         sqlite::Statement s(db, query);
 
-        CheckSample(s);
+        checkSample(s);
     }
 
-    void InsertSamples(Database& db, const std::vector<Log> & samples)
+    void insertSamples(Database& db, const std::vector<Log> & samples)
     {
         {
-            Statement s = MakeInsertStatement(db);
+            Statement s = makeInsertStatement(db);
 
             for (auto& log : samples)
             {
@@ -139,13 +141,13 @@ namespace
             }
         }
 
-        CheckCount(db, static_cast<int>(samples.size()));
+        checkCount(db, static_cast<int>(samples.size()));
     }
 
-    void InsertSample(Database& db)
+    void insertSample(Database& db)
     {
         {
-            Statement s = MakeInsertStatement(db);
+            Statement s = makeInsertStatement(db);
 
             //It can't be a temporary.
             sqlite::bind(s, 0, logSample);
@@ -153,9 +155,9 @@ namespace
             s.select();
         }
 
-        CheckCount(db);
+        checkCount(db);
 
-        CheckSample(db);
+        checkSample(db);
     }
 }
 
@@ -169,17 +171,17 @@ AWL_TEST(TrivialFunction)
     {
         sqlite::Statement s(db, "SELECT firstchar('abc');");
 
-        AWL_ASSERT(s.Next());
+        AWL_ASSERT(s.next());
         AWL_ASSERT(std::strcmp(s.textValue(0), "a") == 0);
-        AWL_ASSERT(!s.Next());
+        AWL_ASSERT(!s.next());
     }
 
     {
         sqlite::Statement s(db, "SELECT firstchar('');");
 
-        AWL_ASSERT(s.Next());
+        AWL_ASSERT(s.next());
         AWL_ASSERT(s.isNull(0));
-        AWL_ASSERT(!s.Next());
+        AWL_ASSERT(!s.next());
     }
 
     try
@@ -198,24 +200,24 @@ AWL_TEST(TableFunction)
     DbContainer c(context);
     Database& db = c.db();
 
-    CreateTable(db);
+    createTable(db);
 
-    InsertSample(db);
+    insertSample(db);
 
     db.createFunction("firstchar", 1, &firstchar);
 
     {
-        sqlite::Statement s(db, awl::aformat() << "SELECT firstchar(""message"") FROM " << tableName << ";");
+        sqlite::Statement s(db, std::format("SELECT firstchar(message) FROM {};", tableName));
 
-        AWL_ASSERT(s.Next());
+        AWL_ASSERT(s.next());
         AWL_ASSERT(std::strcmp(s.textValue(0), "a") == 0);
-        AWL_ASSERT(!s.Next());
+        AWL_ASSERT(!s.next());
     }
 
     {
         QueryBuilder<Log> builder;
 
-        builder.Startselect(tableName);
+        builder.startSelect(tableName);
 
         builder << " WHERE firstchar(""message"") = 'a'";
 
@@ -225,7 +227,7 @@ AWL_TEST(TableFunction)
 
         sqlite::Statement s(db, query);
 
-        CheckSample(s);
+        checkSample(s);
     }
 }
 
@@ -234,7 +236,7 @@ AWL_TEST(ViewFunction)
     DbContainer c(context);
     Database& db = c.db();
 
-    CreateTable(db);
+    createTable(db);
 
     db.createFunction("filter", 1, &filter);
 
@@ -249,7 +251,7 @@ AWL_TEST(ViewFunction)
         Log{now + d * 2, "debug", "third"}
     };
 
-    InsertSamples(db, samples);
+    insertSamples(db, samples);
 
     const std::string view_name = "log_view";
 
@@ -258,7 +260,7 @@ AWL_TEST(ViewFunction)
 
         builder.createView(view_name);
         
-        builder.Startselect(tableName);
+        builder.startSelect(tableName);
 
         builder << " WHERE filter(""category"")";
 
@@ -269,7 +271,7 @@ AWL_TEST(ViewFunction)
         db.exec(query);
     }
 
-    sqlite::Statement count_statement(db, awl::aformat() << "SELECT COUNT(*) FROM " << view_name << ";");
+    sqlite::Statement count_statement(db, std::format("SELECT COUNT(*) FROM {};", view_name));
 
     auto check_category = [&](std::string category, int expected)
     {

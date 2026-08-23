@@ -1,8 +1,5 @@
 #pragma once
 
-#include "Awl/LegacyFormat.h"
-#include "Awl/Separator.h"
-
 #include "SQLiteWrapper/Helpers.h"
 #include "SQLiteWrapper/TableBuilder.h"
 #include "SQLiteWrapper/QueryBuilder.h"
@@ -11,6 +8,8 @@
 #include "SQLiteWrapper/Get.h"
 #include "SQLiteWrapper/Updater.h"
 #include "SQLiteWrapper/Iterator.h"
+
+#include "Awl/Separator.h"
 
 #include <deque>
 #include <limits>
@@ -32,7 +31,7 @@ namespace sqlite
     public:
 
         Set(const std::shared_ptr<Database>& db, std::string table_name, PtrTuple id_ptrs) :
-            m_db(db),
+            _db(db),
             tableName(std::move(table_name)),
             idPtrs(std::move(id_ptrs)),
             idIndices(findKeyIndices())
@@ -51,6 +50,8 @@ namespace sqlite
 
             deleteStatement = makeStatement("delete", buildParameterizedDeleteQuery<Record>(tableName, idIndices));
 
+            clearStatement = makeStatement("clear", buildTrivialDeleteQuery<Record>(tableName));
+
             iterateStatement = makeStatement("iterate", buildTrivialSelectQuery<Value>(tableName));
         }
 
@@ -66,6 +67,7 @@ namespace sqlite
             updateStatement.close();
             selectStatement.close();
             deleteStatement.close();
+            clearStatement.close();
             iterateStatement.close();
         }
 
@@ -79,6 +81,11 @@ namespace sqlite
             return IteratorSentinel<Value>{};
         }
 
+        bool empty()
+        {
+            return begin() == end();
+        }
+
         void insert(const Value& val)
         {
             bindInsertFields(insertStatement, val);
@@ -90,7 +97,7 @@ namespace sqlite
         {
             bindInsertFields(insertStatement, val);
 
-            return insertStatement.tryexec();
+            return insertStatement.tryExec();
         }
 
         bool find(Value& val)
@@ -113,7 +120,7 @@ namespace sqlite
 
             updateStatement.exec();
 
-            m_db->ensureAffected(1);
+            _db->ensureAffected(1);
         }
 
         template <class... Field>
@@ -123,7 +130,7 @@ namespace sqlite
 
             Statement stmt = makeStatement("update", buildParameterizedUpdateQuery<Record>(tableName, value_filter, idIndices));
 
-            return Updater<Record>(*m_db, std::move(stmt), idIndices, value_filter);
+            return Updater<Record>(*_db, std::move(stmt), idIndices, value_filter);
         }
 
         void tryDeleteRecord(const KeyTuple& ids)
@@ -137,7 +144,7 @@ namespace sqlite
         {
             tryDeleteRecord(ids);
 
-            m_db->ensureAffected(1);
+            _db->ensureAffected(1);
         }
 
         void tryDeleteRecord(const Value& val)
@@ -151,7 +158,12 @@ namespace sqlite
         {
             tryDeleteRecord(val);
 
-            m_db->ensureAffected(1);
+            _db->ensureAffected(1);
+        }
+
+        void clear()
+        {
+            clearStatement.exec();
         }
 
     private:
@@ -215,7 +227,7 @@ namespace sqlite
 
         bool selectValue(Value& val)
         {
-            const bool exists = selectStatement.Next();
+            const bool exists = selectStatement.next();
 
             if (exists)
             {
@@ -229,12 +241,12 @@ namespace sqlite
 
         Statement makeStatement(const std::string log_prefix, const std::string& query) const
         {
-            m_db->logger().debug(awl::format() << "Set " << log_prefix << ": " << query);
+            _db->logger()->debug(_T("Set {}: {}"), log_prefix, query);
 
-            return Statement(*m_db, query);
+            return Statement(*_db, query);
         };
 
-        std::shared_ptr<Database> m_db;
+        std::shared_ptr<Database> _db;
 
         // Used by createUpdater
         const std::string tableName;
@@ -247,6 +259,7 @@ namespace sqlite
         Statement updateStatement;
         Statement selectStatement;
         Statement deleteStatement;
+        Statement clearStatement;
         Statement iterateStatement;
     };
 }

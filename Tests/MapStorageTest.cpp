@@ -1,12 +1,11 @@
 #include "DbContainer.h"
-
 #include "Tests/Experimental/MapStorage.h"
-
-#include <vector>
-#include <optional>
 
 #include "Awl/IntRange.h"
 #include "Awl/StdConsole.h"
+
+#include <vector>
+#include <optional>
 
 using namespace swtest;
 
@@ -39,8 +38,8 @@ AWL_TEST(MapStorage)
     DbContainer c(context);
 
     sqlite::MapStorage<std::string, MarketInfo> ms(c.db(), "market_info");
-    ms.CreateTable();
-    ms.Prepare();
+    ms.createTable();
+    ms.prepare();
 
     Precision precision_sample{ 1, 2, 3, 4 };
     Precision precision_result{ 5, 6, 7, 8 };

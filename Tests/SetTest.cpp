@@ -4,7 +4,6 @@
 
 #include "SQLiteWrapper/Set.h"
 
-
 #include "Awl/IntRange.h"
 #include "Awl/StdConsole.h"
 
@@ -28,7 +27,7 @@ AWL_TEST(SetStorageMarket)
 {
     DbContainer c(context);
 
-    auto ms = makeSet(c.m_db, "markets", std::make_tuple(&Market::id));
+    auto ms = makeSet(c._db, "markets", std::make_tuple(&Market::id));
 
     Precision precision_sample{ 1, 2, 3, 4 };
     Precision precision_result{ 5, 6, 7, 8 };
@@ -36,9 +35,9 @@ AWL_TEST(SetStorageMarket)
     const std::string id = "abc";
     const std::string wrong_id = "xyz";
 
-    Market m_sample{ {}, id, precision_sample };
-    Market m_wrong_sample{ {}, wrong_id, precision_sample };
-    Market m_result{ {}, id, precision_result };
+    Market sample{ {}, id, precision_sample };
+    Market wrong_sample{ {}, wrong_id, precision_sample };
+    Market result{ {}, id, precision_result };
 
     auto assert_does_not_exist = [&ms, &wrong_id]()
     {
@@ -58,18 +57,18 @@ AWL_TEST(SetStorageMarket)
 
     assert_does_not_exist();
 
-    ms.insert(m_sample);
+    ms.insert(sample);
 
     assert_does_not_exist();
-    assert_exists(id, m_sample);
+    assert_exists(id, sample);
 
-    ms.update(m_result);
+    ms.update(result);
 
     assert_does_not_exist();
-    assert_exists(id, m_result);
+    assert_exists(id, result);
 
-    ms.insert(m_wrong_sample);
-    assert_exists(wrong_id, m_wrong_sample);
+    ms.insert(wrong_sample);
+    assert_exists(wrong_id, wrong_sample);
 }
 
 namespace
@@ -150,7 +149,7 @@ AWL_TEST(SetStorageOrder)
 {
     DbContainer c(context);
 
-    auto storage = makeSet(c.m_db, "orders", std::make_tuple(&Order::marketId, &Order::id));
+    auto storage = makeSet(c._db, "orders", std::make_tuple(&Order::marketId, &Order::id));
 
     {
         Order order;
@@ -293,7 +292,7 @@ AWL_TEST(SetStorageOrder)
 
 namespace
 {
-    void CheckMax(sqlite::Database& db, const std::string& market_id, OrderId expected_max_id)
+    void checkMax(sqlite::Database& db, const std::string& market_id, OrderId expected_max_id)
     {
         const char max_query[] = "SELECT MAX(id) FROM orders WHERE marketId=?;";
 
@@ -304,7 +303,7 @@ namespace
 
             OrderId max_db_id = -1;
 
-            if (!rs.Next())
+            if (!rs.next())
             {
                 rs.raiseError("An empty recordset when a scalar is expected.");
             }
@@ -323,24 +322,49 @@ AWL_TEST(SetStorageMax)
 {
     DbContainer c(context);
 
-    auto storage = makeSet(c.m_db, "orders", std::make_tuple(&Order::marketId, &Order::id));
+    auto storage = makeSet(c._db, "orders", std::make_tuple(&Order::marketId, &Order::id));
 
-    CheckMax(c.db(), btc_market_id, -1);
+    checkMax(c.db(), btc_market_id, -1);
 
     storage.insert(btc_order1);
     storage.insert(btc_order2);
     storage.insert(trx_order1);
 
-    CheckMax(c.db(), btc_market_id, 2);
+    checkMax(c.db(), btc_market_id, 2);
 
-    CheckMax(c.db(), trx_market_id, 1);
+    checkMax(c.db(), trx_market_id, 1);
+}
+
+AWL_TEST(SetStorageClear)
+{
+    DbContainer c(context);
+
+    auto storage = makeSet(c._db, "orders", std::make_tuple(&Order::marketId, &Order::id));
+
+    storage.insert(btc_order1);
+    storage.insert(btc_order2);
+    storage.insert(trx_order1);
+
+    AWL_ASSERT_EQUAL(3u, std::ranges::distance(storage));
+
+    storage.clear();
+
+    AWL_ASSERT(storage.empty());
+
+    {
+        Order order;
+
+        AWL_ASSERT(!storage.find(btc_key1, order));
+        AWL_ASSERT(!storage.find(btc_key2, order));
+        AWL_ASSERT(!storage.find(trx_key1, order));
+    }
 }
 
 AWL_TEST(OrderStorageGetBind2)
 {
     DbContainer c(context);
 
-    auto storage = makeSet(c.m_db, "orders", std::make_tuple(&v2::Order::accountType, &v2::Order::marketId, &v2::Order::id));
+    auto storage = makeSet(c._db, "orders", std::make_tuple(&v2::Order::accountType, &v2::Order::marketId, &v2::Order::id));
 
     using TestOrderKey = std::tuple<v2::AccountType, std::string, data::OrderId>;
 
@@ -380,7 +404,7 @@ AWL_TEST(OrderStorageGetBind2)
 
     const std::vector<v2::Order> sample_v{ sample_order };
 
-    context.logger->debug(awl::format() << "Inserting order: " << sample_order.id);
+    context.logger->debug(_T("Inserting order: {}"), sample_order.id);
 
     storage.insert(sample_order);
 
@@ -390,18 +414,18 @@ AWL_TEST(OrderStorageGetBind2)
 
     AWL_ASSERT(std::ranges::equal(storage, sample_v));
 
-    context.logger->debug(awl::format() << count << " orders:");
+    context.logger->debug(_T("{} orders:"), count);
 
     for (const v2::Order& order : storage)
     {
-        context.logger->debug(awl::format() << "Order: " << order.id);
+        context.logger->debug(_T("Order: {}"), order.id);
     }
 
     v2::Order found_order;
 
     AWL_ASSERT(storage.find(btc_key, found_order));
 
-    context.logger->debug(awl::format() << "Loaded order: " << awl::format::endl << found_order.id);
+    context.logger->debug(_T("Loaded order: \n{}"), found_order.id);
 
     AWL_ASSERT(found_order == sample_order);
 
@@ -412,7 +436,7 @@ AWL_TEST(OrderStorageGetBind3)
 {
     DbContainer c(context);
 
-    auto storage = makeSet(c.m_db, "orders", std::make_tuple(&v3::Order::accountType, &v3::Order::marketId, &v3::Order::id));
+    auto storage = makeSet(c._db, "orders", std::make_tuple(&v3::Order::accountType, &v3::Order::marketId, &v3::Order::id));
 
     using TestOrderKey = std::tuple<v3::AccountType, std::string, data::OrderId>;
 
@@ -444,7 +468,7 @@ AWL_TEST(OrderStorageGetBind3)
 
     const std::vector<v3::Order> sample_v{ sample_order };
 
-    context.logger->debug(awl::format() << "Inserting order: " << sample_order.id);
+    context.logger->debug(_T("Inserting order: {}"), sample_order.id);
 
     storage.insert(sample_order);
 
@@ -454,18 +478,18 @@ AWL_TEST(OrderStorageGetBind3)
 
     AWL_ASSERT(std::ranges::equal(storage, sample_v));
 
-    context.logger->debug(awl::format() << count << " orders:");
+    context.logger->debug(_T("{} orders:"), count);
 
     for (const v3::Order& order : storage)
     {
-        context.logger->debug(awl::format() << "Order: " << order.id);
+        context.logger->debug(_T("Order: {}"), order.id);
     }
 
     v3::Order found_order;
 
     AWL_ASSERT(storage.find(btc_key, found_order));
 
-    context.logger->debug(awl::format() << "Loaded order: " << awl::format::endl << found_order.id);
+    context.logger->debug(_T("Loaded order: \n{}"), found_order.id);
 
     AWL_ASSERT(found_order == sample_order);
 
@@ -476,7 +500,7 @@ AWL_TEST(OrderStorageGetBind3a)
 {
     DbContainer c(context);
 
-    auto storage = makeSet(c.m_db, "orders", std::make_tuple(&v3::Order::marketId, &v3::Order::id));
+    auto storage = makeSet(c._db, "orders", std::make_tuple(&v3::Order::marketId, &v3::Order::id));
 
     using TestOrderKey = std::tuple<std::string, data::OrderId>;
 
@@ -508,7 +532,7 @@ AWL_TEST(OrderStorageGetBind3a)
 
     const std::vector<v3::Order> sample_v{ sample_order };
 
-    context.logger->debug(awl::format() << "Inserting order: " << sample_order.id);
+    context.logger->debug(_T("Inserting order: {}"), sample_order.id);
 
     storage.insert(sample_order);
 
@@ -518,18 +542,18 @@ AWL_TEST(OrderStorageGetBind3a)
 
     AWL_ASSERT(std::ranges::equal(storage, sample_v));
 
-    context.logger->debug(awl::format() << count << " orders:");
+    context.logger->debug(_T("{} orders:"), count);
 
     for (const v3::Order& order : storage)
     {
-        context.logger->debug(awl::format() << "Order: " << order.id);
+        context.logger->debug(_T("Order: {}"), order.id);
     }
 
     v3::Order found_order;
 
     AWL_ASSERT(storage.find(btc_key, found_order));
 
-    context.logger->debug(awl::format() << "Loaded order: " << awl::format::endl << found_order.id);
+    context.logger->debug(_T("Loaded order: \n{}"), found_order.id);
 
     AWL_ASSERT(found_order == sample_order);
 
@@ -570,7 +594,7 @@ AWL_TEST(OrderStorageGetBind3b)
 {
     DbContainer c(context);
 
-    auto storage = makeSet(c.m_db, "orders", std::make_tuple(&v3::Order::accountType));
+    auto storage = makeSet(c._db, "orders", std::make_tuple(&v3::Order::accountType));
 
     using TestOrderKey = std::tuple<v3::AccountType>;
 
@@ -580,7 +604,7 @@ AWL_TEST(OrderStorageGetBind3b)
 
     const std::vector<v3::Order> sample_v{ sample_order };
 
-    context.logger->debug(awl::format() << "Inserting order: " << sample_order.id);
+    context.logger->debug(_T("Inserting order: {}"), sample_order.id);
 
     storage.insert(sample_order);
 
@@ -590,18 +614,18 @@ AWL_TEST(OrderStorageGetBind3b)
 
     AWL_ASSERT(std::ranges::equal(storage, sample_v));
 
-    context.logger->debug(awl::format() << count << " orders:");
+    context.logger->debug(_T("{} orders:"), count);
 
     for (const v3::Order& order : storage)
     {
-        context.logger->debug(awl::format() << "Order: " << order.id);
+        context.logger->debug(_T("Order: {}"), order.id);
     }
 
     v3::Order found_order;
 
     AWL_ASSERT(storage.find(btc_key, found_order));
 
-    context.logger->debug(awl::format() << "Loaded order: " << awl::format::endl << found_order.id);
+    context.logger->debug(_T("Loaded order: \n{}"), found_order.id);
 
     AWL_ASSERT(found_order == sample_order);
 
@@ -612,7 +636,7 @@ AWL_TEST(OrderStorageGetBind3c)
 {
     DbContainer c(context);
 
-    auto storage = makeSet(c.m_db, "orders", std::make_tuple(&v3::Order::accountType, &v3::Order::marketId));
+    auto storage = makeSet(c._db, "orders", std::make_tuple(&v3::Order::accountType, &v3::Order::marketId));
 
     using TestOrderKey = std::tuple<v3::AccountType, std::string>;
 
@@ -622,7 +646,7 @@ AWL_TEST(OrderStorageGetBind3c)
 
     const std::vector<v3::Order> sample_v{ sample_order };
 
-    context.logger->debug(awl::format() << "Inserting order: " << sample_order.id);
+    context.logger->debug(_T("Inserting order: {}"), sample_order.id);
 
     storage.insert(sample_order);
 
@@ -632,18 +656,18 @@ AWL_TEST(OrderStorageGetBind3c)
 
     AWL_ASSERT(std::ranges::equal(storage, sample_v));
 
-    context.logger->debug(awl::format() << count << " orders:");
+    context.logger->debug(_T("{} orders:"), count);
 
     for (const v3::Order& order : storage)
     {
-        context.logger->debug(awl::format() << "Order: " << order.id);
+        context.logger->debug(_T("Order: {}"), order.id);
     }
 
     v3::Order found_order;
 
     AWL_ASSERT(storage.find(btc_key, found_order));
 
-    context.logger->debug(awl::format() << "Loaded order: " << awl::format::endl << found_order.id);
+    context.logger->debug(_T("Loaded order: \n{}"), found_order.id);
 
     AWL_ASSERT(found_order == sample_order);
 
@@ -654,7 +678,7 @@ AWL_TEST(OrderStorageGetBind3d)
 {
     DbContainer c(context);
 
-    auto storage = makeSet(c.m_db, "orders", std::make_tuple(&v3::Order::marketId, &v3::Order::accountType));
+    auto storage = makeSet(c._db, "orders", std::make_tuple(&v3::Order::marketId, &v3::Order::accountType));
 
     using TestOrderKey = std::tuple<std::string, v3::AccountType>;
 
@@ -664,7 +688,7 @@ AWL_TEST(OrderStorageGetBind3d)
 
     const std::vector<v3::Order> sample_v{ sample_order };
 
-    context.logger->debug(awl::format() << "Inserting order: " << sample_order.id);
+    context.logger->debug(_T("Inserting order: {}"), sample_order.id);
 
     storage.insert(sample_order);
 
@@ -674,18 +698,18 @@ AWL_TEST(OrderStorageGetBind3d)
 
     AWL_ASSERT(std::ranges::equal(storage, sample_v));
 
-    context.logger->debug(awl::format() << count << " orders:");
+    context.logger->debug(_T("{} orders:"), count);
 
     for (const v3::Order& order : storage)
     {
-        context.logger->debug(awl::format() << "Order: " << order.id);
+        context.logger->debug(_T("Order: {}"), order.id);
     }
 
     v3::Order found_order;
 
     AWL_ASSERT(storage.find(btc_key, found_order));
 
-    context.logger->debug(awl::format() << "Loaded order: " << awl::format::endl << found_order.id);
+    context.logger->debug(_T("Loaded order: \n{}"), found_order.id);
 
     AWL_ASSERT(found_order == sample_order);
 
@@ -728,15 +752,16 @@ AWL_TEST(OrderStorageGetBind5)
 {
     DbContainer c(context);
 
-    auto storage = makeSet(c.m_db, "orders", std::make_tuple(&v5::Order::exchangeId, &v5::Order::marketId, &v5::Order::accountType));
+    auto storage = makeSet(c._db, "orders", std::make_tuple(&v5::Order::exchangeId, &v5::Order::marketId, &v5::Order::accountType));
 
     const v5::Order sample_order = makeSampleOrder5();
 
     const std::vector<v5::Order> sample_v{ sample_order };
 
-    context.logger->debug(awl::format() << "Inserting order: " << sample_order.id);
+    context.logger->debug(_T("Inserting order: {}"), sample_order.id);
 
     storage.insert(sample_order);
 
     AWL_ASSERT(std::ranges::equal(storage, sample_v));
 }
+

@@ -1,8 +1,8 @@
 #pragma once
 
 #include "Awl/Exception.h"
-#include "Awl/LegacyFormat.h"
 
+#include <format>
 #include <typeinfo>
 
 namespace sqlite
@@ -13,28 +13,28 @@ namespace sqlite
 
         explicit SQLiteException(std::string message) : SQLiteException(0, std::move(message)) {}
         
-        SQLiteException(int code, std::string message) : m_code(code), m_Message(std::move(message)) {}
+        SQLiteException(int code, std::string message) : _code(code), _message(std::move(message)) {}
 
         const char* what() const throw() override
         {
-            return m_Message.c_str();
+            return _message.c_str();
         }
 
         awl::String message() const override
         {
-            return (awl::format() << _T("SQlite error code: ") << m_code << _T(", ") << awl::fromAString(m_Message));
+            return std::format(_T("SQlite error code: {}, {}"), _code, awl::fromAString(_message));
         }
 
         int code() const
         {
-            return m_code;
+            return _code;
         }
 
     private:
 
-        const int m_code;
+        const int _code;
 
-        const std::string m_Message;
+        const std::string _message;
     };
 }
 

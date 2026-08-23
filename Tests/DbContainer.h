@@ -6,8 +6,6 @@
 #include "Awl/StopWatch.h"
 #include "Awl/Random.h"
 #include "Awl/Reflection.h"
-#include "Awl/LegacyFormat.h"
-
 #include "Awl/Testing/UnitTest.h"
 
 #include <vector>
@@ -25,42 +23,42 @@ namespace swtest
     {
     public:
 
-        DbContainer(awl::Logger& logger)
+        explicit DbContainer(std::shared_ptr<awl::ILogger> logger)
         {
-            RemoveFile();
-            m_db = std::make_shared<Database>(fileName, logger);
+            removeFile();
+            _db = std::make_shared<Database>(fileName, std::move(logger));
         }
 
-        DbContainer(const awl::testing::TestContext& context) : DbContainer(*context.logger)
+        DbContainer(const awl::testing::TestContext& context) : DbContainer(context.logger)
         {
-            SetAttributes(context);
+            setAttributes(context);
         }
 
         ~DbContainer()
         {
-            m_db->close();
-            RemoveFile();
+            _db->close();
+            removeFile();
         }
 
         Database& db()
         {
-            return *m_db;
+            return *_db;
         }
 
         //Inserts 1000 row by default.
-        void FillDatabase(size_t batchCount = 20, size_t transactionCount = 10);
+        void fillDatabase(size_t batchCount = 20, size_t transactionCount = 10);
 
-        void SetAttributes(const awl::testing::TestContext & context);
+        void setAttributes(const awl::testing::TestContext & context);
 
-        std::shared_ptr<Database> m_db;
+        std::shared_ptr<Database> _db;
 
-        std::vector<size_t> m_ages;
+        std::vector<size_t> _ages;
 
-        bool m_insertWithBinding = true;
+        bool _insertWithBinding = true;
 
     private:
 
-        void RemoveFile() const
+        void removeFile() const
         {
             std::filesystem::remove(fileName);
         }

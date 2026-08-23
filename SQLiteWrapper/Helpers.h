@@ -5,7 +5,6 @@
 
 #include "Awl/Reflection.h"
 #include "Awl/TupleHelpers.h"
-#include "Awl/LegacyFormat.h"
 #include "Awl/BitMap.h"
 #include "Awl/Separator.h"
 
@@ -15,6 +14,7 @@
 #include <optional>
 #include <string>
 #include <set>
+#include <sstream>
 
 namespace sqlite
 {
@@ -134,7 +134,7 @@ namespace sqlite::helpers
         {
             using FieldType = std::remove_reference_t<std::tuple_element_t<fieldIndex, Tie>>;
 
-            if constexpr (awl::is_reflectable_v<FieldType>)
+            if constexpr (awl::reflectable<FieldType>)
             {
                 const auto& member_names = T::member_names();
 
@@ -214,7 +214,7 @@ namespace sqlite::helpers
         {
             using FieldType = std::remove_reference_t<std::tuple_element_t<fieldIndex, Tie>>;
 
-            if constexpr (awl::is_reflectable_v<FieldType>)
+            if constexpr (awl::reflectable<FieldType>)
             {
                 count += fieldCount<FieldType>();
             }
@@ -242,7 +242,7 @@ namespace sqlite::helpers
         {
             using FieldType = std::remove_reference_t<decltype(field)>;
 
-            if constexpr (awl::is_reflectable_v<FieldType>)
+            if constexpr (awl::reflectable<FieldType>)
             {
                 count += fieldCount<FieldType>();
             }
@@ -270,12 +270,51 @@ namespace sqlite::helpers
     {
         IndexFilter indices;
 
-        awl::for_each(field_ptrs, [&indices](auto& field_ptr)
+        auto add_indices = [&indices]<class Struct, class T>(T Struct::* fieldPtr)
         {
-            const size_t index = helpers::findTransparentFieldIndex(field_ptr);
+            Struct instance = {};
 
-            indices.insert(index);
-        });
+            size_t count = 0;
+            bool found = false;
+
+            awl::for_each(instance.as_tuple(), [fieldPtr, &instance, &indices, &count, &found](auto& field)
+            {
+                using FieldType = std::remove_reference_t<decltype(field)>;
+
+                if constexpr (std::is_same_v<FieldType, T>)
+                {
+                    if (&field == &(instance.*fieldPtr))
+                    {
+                        found = true;
+
+                        if constexpr (awl::reflectable<FieldType>)
+                        {
+                            for (size_t index = count; index < count + fieldCount<FieldType>(); ++index)
+                            {
+                                indices.insert(index);
+                            }
+                        }
+                        else
+                        {
+                            indices.insert(count);
+                        }
+                    }
+                }
+
+                if constexpr (awl::reflectable<FieldType>)
+                {
+                    count += fieldCount<FieldType>();
+                }
+                else
+                {
+                    ++count;
+                }
+            });
+
+            assert(found);
+        };
+
+        awl::for_each(field_ptrs, add_indices);
 
         return indices;
     }
@@ -292,7 +331,7 @@ namespace sqlite::helpers
         {
             using FieldType = std::remove_reference_t<std::tuple_element_t<fieldIndex, Tie>>;
 
-            if constexpr (awl::is_reflectable_v<FieldType>)
+            if constexpr (awl::reflectable<FieldType>)
             {
                 return findFieldIndex<FieldType, Tuple, level_index>(t);
             }
@@ -317,7 +356,7 @@ namespace sqlite::helpers
         {
             using FieldType = std::remove_reference_t<decltype(field)>;
 
-            if constexpr (awl::is_reflectable_v<FieldType>)
+            if constexpr (awl::reflectable<FieldType>)
             {
                 count += forEachFieldValueImpl(field, func, start_index + count);
             }
