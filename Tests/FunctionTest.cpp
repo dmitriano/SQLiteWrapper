@@ -117,7 +117,7 @@ namespace
     {
         QueryBuilder<Log> builder;
 
-        builder.Startselect(tableName);
+        builder.startSelect(tableName);
 
         builder.addTerminator();
 
@@ -217,7 +217,7 @@ AWL_TEST(TableFunction)
     {
         QueryBuilder<Log> builder;
 
-        builder.Startselect(tableName);
+        builder.startSelect(tableName);
 
         builder << " WHERE firstchar(""message"") = 'a'";
 
@@ -260,7 +260,7 @@ AWL_TEST(ViewFunction)
 
         builder.createView(view_name);
         
-        builder.Startselect(tableName);
+        builder.startSelect(tableName);
 
         builder << " WHERE filter(""category"")";
 

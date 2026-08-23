@@ -16,16 +16,16 @@ namespace sqlite
     {
     public:
 
-        void Startselect(const std::string& table_name, const OptionalIndexFilter& filter = {})
+        void startSelect(const std::string& table_name, const OptionalIndexFilter& filter = {})
         {
             FieldListBuilder<Struct> builder = makeFieldBuilder();
 
             builder.setFilter(filter);
 
-            Startselect(table_name, builder);
+            startSelect(table_name, builder);
         }
 
-        void Startselect(const std::string& table_name, FieldListBuilder<Struct>& builder)
+        void startSelect(const std::string& table_name, FieldListBuilder<Struct>& builder)
         {
             _out << "SELECT ";
 
@@ -34,7 +34,7 @@ namespace sqlite
             _out << " FROM " << table_name;
         }
 
-        void Startinsert(const std::string& table_name, const OptionalIndexFilter& filter = {})
+        void startInsert(const std::string& table_name, const OptionalIndexFilter& filter = {})
         {
             _out << "INSERT INTO " << table_name << " (";
 
@@ -43,14 +43,14 @@ namespace sqlite
             _out << ") VALUES";
         }
 
-        void Startupdate(const std::string& table_name, const OptionalIndexFilter& filter = {})
+        void startUpdate(const std::string& table_name, const OptionalIndexFilter& filter = {})
         {
             _out << "UPDATE " << table_name << " SET ";
 
             addFieldNames(filter, { FieldOption::Parametized });
         }
 
-        void StartdeleteElement(const std::string& table_name)
+        void startDeleteElement(const std::string& table_name)
         {
             _out << "DELETE FROM " << table_name;
         }
@@ -183,7 +183,7 @@ namespace sqlite
     {
         QueryBuilder<Struct> builder;
 
-        builder.Startselect(table_name);
+        builder.startSelect(table_name);
 
         builder.addTerminator();
 
@@ -196,7 +196,7 @@ namespace sqlite
     {
         QueryBuilder<Struct> builder;
 
-        builder.Startselect(table_name, select_fields);
+        builder.startSelect(table_name, select_fields);
 
         if (where_fields)
         {
@@ -231,7 +231,7 @@ namespace sqlite
             field_builder.setFilter(right_filter);
             field_builder.table_name = right_table_name;
 
-            builder.Startselect(left_table_name, field_builder);
+            builder.startSelect(left_table_name, field_builder);
         }
 
         builder.addLeftJoinOn(right_table_name);
@@ -271,7 +271,7 @@ namespace sqlite
     {
         QueryBuilder<Struct> builder;
 
-        builder.Startinsert(table_name, filter);
+        builder.startInsert(table_name, filter);
         
         builder.addParameters(filter);
 
@@ -285,7 +285,7 @@ namespace sqlite
     {
         QueryBuilder<Struct> builder;
 
-        builder.Startupdate(table_name, set_fields);
+        builder.startUpdate(table_name, set_fields);
 
         if (where_fields)
         {
@@ -304,7 +304,7 @@ namespace sqlite
     {
         QueryBuilder<Struct> builder;
 
-        builder.StartdeleteElement(table_name);
+        builder.startDeleteElement(table_name);
 
         builder.addWhere();
 
@@ -320,7 +320,7 @@ namespace sqlite
     {
         QueryBuilder<Struct> builder;
 
-        builder.StartdeleteElement(table_name);
+        builder.startDeleteElement(table_name);
 
         builder.addTerminator();
 
