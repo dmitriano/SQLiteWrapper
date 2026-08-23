@@ -25,19 +25,19 @@ namespace swtest
 
         explicit DbContainer(std::shared_ptr<awl::ILogger> logger)
         {
-            RemoveFile();
+            removeFile();
             _db = std::make_shared<Database>(fileName, std::move(logger));
         }
 
         DbContainer(const awl::testing::TestContext& context) : DbContainer(context.logger)
         {
-            SetAttributes(context);
+            setAttributes(context);
         }
 
         ~DbContainer()
         {
             _db->close();
-            RemoveFile();
+            removeFile();
         }
 
         Database& db()
@@ -46,9 +46,9 @@ namespace swtest
         }
 
         //Inserts 1000 row by default.
-        void FillDatabase(size_t batchCount = 20, size_t transactionCount = 10);
+        void fillDatabase(size_t batchCount = 20, size_t transactionCount = 10);
 
-        void SetAttributes(const awl::testing::TestContext & context);
+        void setAttributes(const awl::testing::TestContext & context);
 
         std::shared_ptr<Database> _db;
 
@@ -58,7 +58,7 @@ namespace swtest
 
     private:
 
-        void RemoveFile() const
+        void removeFile() const
         {
             std::filesystem::remove(fileName);
         }

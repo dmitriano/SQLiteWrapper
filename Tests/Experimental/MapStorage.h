@@ -32,7 +32,7 @@ namespace sqlite
         MapStorage(sqlite::Database& db, std::string table_name) : _db(db), tableName(table_name)
         {}
 
-        void CreateTable()
+        void createTable()
         {
             if (!_db.tableExists(tableName))
             {
@@ -44,7 +44,7 @@ namespace sqlite
             }
         }
 
-        void Prepare()
+        void prepare()
         {
             sqlite::IndexFilter id_filter{ 0 };
 

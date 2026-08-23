@@ -13,7 +13,7 @@ namespace swtest
     using namespace sqlite;
 
     //Inserts 1000 row by default.
-    void DbContainer::FillDatabase(size_t batchCount, size_t transactionCount)
+    void DbContainer::fillDatabase(size_t batchCount, size_t transactionCount)
     {
         //db().exec("PRAGMA synchronous = OFF;");
 
@@ -93,7 +93,7 @@ namespace swtest
         }
     }
 
-    void DbContainer::SetAttributes(const awl::testing::TestContext & context)
+    void DbContainer::setAttributes(const awl::testing::TestContext & context)
     {
         AWL_ATTRIBUTE(awl::String, synchronous, _T("FULL"));
         AWL_ATTRIBUTE(awl::String, journal_mode, _T("DELETE"));

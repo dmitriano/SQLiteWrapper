@@ -7,7 +7,7 @@ using namespace sqlite;
 
 [[noreturn]] void Statement::raiseError(int code, std::string message)
 {
-    assert(Isopen());
+    assert(isOpen());
 
     sqlite3 * db = sqlite3_db_handle(_stmt);
 

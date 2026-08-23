@@ -292,7 +292,7 @@ AWL_TEST(SetStorageOrder)
 
 namespace
 {
-    void CheckMax(sqlite::Database& db, const std::string& market_id, OrderId expected_max_id)
+    void checkMax(sqlite::Database& db, const std::string& market_id, OrderId expected_max_id)
     {
         const char max_query[] = "SELECT MAX(id) FROM orders WHERE marketId=?;";
 
@@ -324,15 +324,15 @@ AWL_TEST(SetStorageMax)
 
     auto storage = makeSet(c._db, "orders", std::make_tuple(&Order::marketId, &Order::id));
 
-    CheckMax(c.db(), btc_market_id, -1);
+    checkMax(c.db(), btc_market_id, -1);
 
     storage.insert(btc_order1);
     storage.insert(btc_order2);
     storage.insert(trx_order1);
 
-    CheckMax(c.db(), btc_market_id, 2);
+    checkMax(c.db(), btc_market_id, 2);
 
-    CheckMax(c.db(), trx_market_id, 1);
+    checkMax(c.db(), trx_market_id, 1);
 }
 
 AWL_TEST(SetStorageClear)

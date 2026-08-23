@@ -190,7 +190,7 @@ namespace
 namespace
 {
     template <class User>
-    void CreateTableRecursiveTest(const awl::testing::TestContext & context, const char * name, bool header)
+    void createTableRecursiveTest(const awl::testing::TestContext & context, const char * name, bool header)
     {
         DbContainer c(context);
         Database & db = c.db();
@@ -222,7 +222,7 @@ AWL_TEST(DatabaseTest)
     
     DbContainer c(context);
 
-    c.FillDatabase();
+    c.fillDatabase();
 
     Database & db = c.db();
 
@@ -239,7 +239,7 @@ AWL_TEST(SimpleQueryTest)
 
     DbContainer c(context);
 
-    c.FillDatabase();
+    c.fillDatabase();
 
     Database & db = c.db();
 
@@ -261,7 +261,7 @@ AWL_TEST(WhereTest)
 
     DbContainer c(context);
 
-    c.FillDatabase();
+    c.fillDatabase();
 
     Database & db = c.db();
 
@@ -356,6 +356,6 @@ AWL_TEST(CreateTableWithMulticolumnPKTest)
 
 AWL_TEST(CreateTableRecursiveTest)
 {
-    CreateTableRecursiveTest<UniqueUser>(context, "UniqueUser", true);
-    CreateTableRecursiveTest<UniqueUser1>(context, "UniqueUser1", false);
+    createTableRecursiveTest<UniqueUser>(context, "UniqueUser", true);
+    createTableRecursiveTest<UniqueUser1>(context, "UniqueUser1", false);
 }

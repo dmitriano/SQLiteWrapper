@@ -104,7 +104,7 @@ AWL_TEST(RowIdSet)
     
     DbContainer c(context);
 
-    auto set = MakeAutoincrementSet(c._db, table_name, &Bot::botId);
+    auto set = makeAutoincrementSet(c._db, table_name, &Bot::botId);
 
     for (Bot& bot : bots)
     {
@@ -199,7 +199,7 @@ AWL_TEST(RowIdSequence)
 
     DbContainer c(context);
 
-    auto set = MakeAutoincrementSet(c._db, table_name, &Bot::botId);
+    auto set = makeAutoincrementSet(c._db, table_name, &Bot::botId);
 
     for (size_t i = 0; i < bots.size(); ++i)
     {
@@ -221,7 +221,7 @@ AWL_TEST(RowIdSetClear)
 
     DbContainer c(context);
 
-    auto set = MakeAutoincrementSet(c._db, table_name, &Bot::botId);
+    auto set = makeAutoincrementSet(c._db, table_name, &Bot::botId);
 
     for (Bot& bot : bots)
     {

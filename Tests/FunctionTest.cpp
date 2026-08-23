@@ -33,7 +33,7 @@ namespace
 
     const std::string tableName = "log_messages";
 
-    void CreateTable(Database & db)
+    void createTable(Database & db)
     {
         sqlite::TableBuilder<Log> builder(tableName, true);
 
@@ -42,7 +42,7 @@ namespace
         db.exec(builder.create());
     }
 
-    Statement MakeInsertStatement(Database & db)
+    Statement makeInsertStatement(Database & db)
     {
         return Statement(db, buildParameterizedInsertQuery<Log>(tableName));
     }
@@ -92,7 +92,7 @@ namespace
         }
     }
 
-    void CheckCount(Database& db, int expected = 1)
+    void checkCount(Database& db, int expected = 1)
     {
         sqlite::Statement s(db, std::format("SELECT COUNT(*) FROM {};", tableName));
 
@@ -101,7 +101,7 @@ namespace
         AWL_ASSERT(count == expected);
     }
 
-    void CheckSample(sqlite::Statement & s)
+    void checkSample(sqlite::Statement & s)
     {
         AWL_ASSERT(s.next());
 
@@ -113,7 +113,7 @@ namespace
         AWL_ASSERT(!s.next());
     }
     
-    void CheckSample(Database& db)
+    void checkSample(Database& db)
     {
         QueryBuilder<Log> builder;
 
@@ -125,13 +125,13 @@ namespace
 
         sqlite::Statement s(db, query);
 
-        CheckSample(s);
+        checkSample(s);
     }
 
-    void InsertSamples(Database& db, const std::vector<Log> & samples)
+    void insertSamples(Database& db, const std::vector<Log> & samples)
     {
         {
-            Statement s = MakeInsertStatement(db);
+            Statement s = makeInsertStatement(db);
 
             for (auto& log : samples)
             {
@@ -141,13 +141,13 @@ namespace
             }
         }
 
-        CheckCount(db, static_cast<int>(samples.size()));
+        checkCount(db, static_cast<int>(samples.size()));
     }
 
-    void InsertSample(Database& db)
+    void insertSample(Database& db)
     {
         {
-            Statement s = MakeInsertStatement(db);
+            Statement s = makeInsertStatement(db);
 
             //It can't be a temporary.
             sqlite::bind(s, 0, logSample);
@@ -155,9 +155,9 @@ namespace
             s.select();
         }
 
-        CheckCount(db);
+        checkCount(db);
 
-        CheckSample(db);
+        checkSample(db);
     }
 }
 
@@ -200,9 +200,9 @@ AWL_TEST(TableFunction)
     DbContainer c(context);
     Database& db = c.db();
 
-    CreateTable(db);
+    createTable(db);
 
-    InsertSample(db);
+    insertSample(db);
 
     db.createFunction("firstchar", 1, &firstchar);
 
@@ -227,7 +227,7 @@ AWL_TEST(TableFunction)
 
         sqlite::Statement s(db, query);
 
-        CheckSample(s);
+        checkSample(s);
     }
 }
 
@@ -236,7 +236,7 @@ AWL_TEST(ViewFunction)
     DbContainer c(context);
     Database& db = c.db();
 
-    CreateTable(db);
+    createTable(db);
 
     db.createFunction("filter", 1, &filter);
 
@@ -251,7 +251,7 @@ AWL_TEST(ViewFunction)
         Log{now + d * 2, "debug", "third"}
     };
 
-    InsertSamples(db, samples);
+    insertSamples(db, samples);
 
     const std::string view_name = "log_view";
 

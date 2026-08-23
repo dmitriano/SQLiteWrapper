@@ -83,7 +83,7 @@ bool Database::tableExists(const char * name)
     int exists;
 
     // Creating a table invaidates prepared statements.
-    if (!tableExistsStatement.Isopen())
+    if (!tableExistsStatement.isOpen())
     {
         tableExistsStatement.open(*this, "SELECT count(*) FROM sqlite_master WHERE type='table' AND name=?;");
     }
@@ -116,7 +116,7 @@ bool Database::indexExists(const char * name)
 {
     int exists;
 
-    if (!indexExistsStatement.Isopen())
+    if (!indexExistsStatement.isOpen())
     {
         indexExistsStatement.open(*this, "SELECT count(*) FROM sqlite_master WHERE type='index' AND name=?;");
     }

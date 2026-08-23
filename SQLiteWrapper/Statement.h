@@ -52,7 +52,7 @@ namespace sqlite
             close();
         }
 
-        bool Isopen() const
+        bool isOpen() const
         {
             return _stmt != nullptr;
         }
@@ -66,7 +66,7 @@ namespace sqlite
 
         void close()
         {
-            if (Isopen())
+            if (isOpen())
             {
                 sqlite3_finalize(_stmt);
 

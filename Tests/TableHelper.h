@@ -19,7 +19,7 @@ namespace swtest
     }
 
     template <class Value, class Int> requires std::is_integral_v<Int>
-    AutoincrementSet<Value, Int> MakeAutoincrementSet(const std::shared_ptr<Database>& db, const std::string& table_name, Int Value::* id_ptr)
+    AutoincrementSet<Value, Int> makeAutoincrementSet(const std::shared_ptr<Database>& db, const std::string& table_name, Int Value::* id_ptr)
     {
         using namespace sqlite;
 
