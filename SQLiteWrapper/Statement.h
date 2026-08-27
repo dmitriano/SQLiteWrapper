@@ -7,7 +7,6 @@
 #include "Awl/TupleHelpers.h"
 
 #include <cstddef>
-#include <stdint.h>
 #include <type_traits>
 #include <vector>
 #include <limits>
@@ -105,11 +104,6 @@ namespace sqlite
         {
             // For computed strings whose temporary storage cannot outlive sqlite3_step().
             checkBind(sqlite3_bind_text(_stmt, from0To1(col), val, -1, SQLITE_TRANSIENT));
-        }
-
-        void bindBlob(size_t col, const std::vector<uint8_t>& v)
-        {
-            checkBind(sqlite3_bind_blob(_stmt, from0To1(col), v.data(), static_cast<int>(v.size()), SQLITE_STATIC));
         }
 
         void bindBlob(size_t col, const std::vector<std::byte>& v)
@@ -239,19 +233,7 @@ namespace sqlite
             return reinterpret_cast<const char *>(sqlite3_column_text(_stmt, from0To0(col)));
         }
 
-        const std::vector<uint8_t> blobValue(size_t col) const
-        {
-            //When we insert an empty std::vector it becomes Null.
-            assert(isNull(col) || isBlob(col));
-
-            const size_t size = static_cast<size_t>(sqlite3_column_bytes(_stmt, from0To0(col)));
-            
-            const uint8_t* buffer = reinterpret_cast<const uint8_t*>(sqlite3_column_blob(_stmt, from0To0(col)));
-
-            return std::vector<uint8_t>(buffer, buffer + size);
-        }
-
-        const std::vector<std::byte> byteBlobValue(size_t col) const
+        const std::vector<std::byte> blobValue(size_t col) const
         {
             //When we insert an empty std::vector it becomes Null.
             assert(isNull(col) || isBlob(col));

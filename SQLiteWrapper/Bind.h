@@ -118,11 +118,6 @@ namespace sqlite
         bind(st, col, static_cast<std::underlying_type_t<T>>(val));
     }
 
-    inline void bind(Statement& st, size_t col, const std::vector<uint8_t>& val)
-    {
-        st.bindBlob(col, val);
-    }
-
     inline void bind(Statement& st, size_t col, const std::vector<std::byte>& val)
     {
         st.bindBlob(col, val);

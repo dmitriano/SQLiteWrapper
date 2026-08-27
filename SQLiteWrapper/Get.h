@@ -118,14 +118,9 @@ namespace sqlite
         val = static_cast<T>(under_val);
     }
 
-    inline void get(Statement& st, size_t col, std::vector<uint8_t>& val)
-    {
-        val = st.blobValue(col);
-    }
-
     inline void get(Statement& st, size_t col, std::vector<std::byte>& val)
     {
-        val = st.byteBlobValue(col);
+        val = st.blobValue(col);
     }
 
     template <class T>

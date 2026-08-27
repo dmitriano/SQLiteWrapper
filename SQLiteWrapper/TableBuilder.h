@@ -86,9 +86,7 @@ namespace sqlite
             
             constexpr bool is_text = is_text_type_v<DataType>;
 
-            constexpr bool is_blob =
-                std::is_same_v<DataType, std::vector<uint8_t>> ||
-                std::is_same_v<DataType, std::vector<std::byte>>;
+            constexpr bool is_blob = std::is_same_v<DataType, std::vector<std::byte>>;
 
             if constexpr (is_text)
             {
