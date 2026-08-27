@@ -6,6 +6,7 @@
 
 #include "Awl/TupleHelpers.h"
 
+#include <cstddef>
 #include <stdint.h>
 #include <type_traits>
 #include <vector>
@@ -107,6 +108,11 @@ namespace sqlite
         }
 
         void bindBlob(size_t col, const std::vector<uint8_t>& v)
+        {
+            checkBind(sqlite3_bind_blob(_stmt, from0To1(col), v.data(), static_cast<int>(v.size()), SQLITE_STATIC));
+        }
+
+        void bindBlob(size_t col, const std::vector<std::byte>& v)
         {
             checkBind(sqlite3_bind_blob(_stmt, from0To1(col), v.data(), static_cast<int>(v.size()), SQLITE_STATIC));
         }
@@ -243,6 +249,18 @@ namespace sqlite
             const uint8_t* buffer = reinterpret_cast<const uint8_t*>(sqlite3_column_blob(_stmt, from0To0(col)));
 
             return std::vector<uint8_t>(buffer, buffer + size);
+        }
+
+        const std::vector<std::byte> byteBlobValue(size_t col) const
+        {
+            //When we insert an empty std::vector it becomes Null.
+            assert(isNull(col) || isBlob(col));
+
+            const size_t size = static_cast<size_t>(sqlite3_column_bytes(_stmt, from0To0(col)));
+
+            const std::byte* buffer = reinterpret_cast<const std::byte*>(sqlite3_column_blob(_stmt, from0To0(col)));
+
+            return std::vector<std::byte>(buffer, buffer + size);
         }
 
         [[noreturn]] void raiseError(int code, std::string message);

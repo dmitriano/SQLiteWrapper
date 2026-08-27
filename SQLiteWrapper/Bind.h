@@ -7,6 +7,7 @@
 #include "Awl/TupleHelpers.h"
 #include "Awl/Decimal.h"
 
+#include <cstddef>
 #include <stdint.h>
 #include <type_traits>
 #include <limits>
@@ -118,6 +119,11 @@ namespace sqlite
     }
 
     inline void bind(Statement& st, size_t col, const std::vector<uint8_t>& val)
+    {
+        st.bindBlob(col, val);
+    }
+
+    inline void bind(Statement& st, size_t col, const std::vector<std::byte>& val)
     {
         st.bindBlob(col, val);
     }

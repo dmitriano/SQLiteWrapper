@@ -3,6 +3,7 @@
 #include "SQLiteWrapper/Helpers.h"
 #include "SQLiteWrapper/Types.h"
 
+#include <cstddef>
 #include <sstream>
 
 namespace sqlite
@@ -85,7 +86,9 @@ namespace sqlite
             
             constexpr bool is_text = is_text_type_v<DataType>;
 
-            constexpr bool is_blob = std::is_same_v<DataType, std::vector<uint8_t>>;
+            constexpr bool is_blob =
+                std::is_same_v<DataType, std::vector<uint8_t>> ||
+                std::is_same_v<DataType, std::vector<std::byte>>;
 
             if constexpr (is_text)
             {

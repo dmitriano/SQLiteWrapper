@@ -8,6 +8,7 @@
 
 #include "Awl/IntRange.h"
 
+#include <cstddef>
 #include <string>
 
 using namespace swtest;
@@ -18,7 +19,7 @@ namespace
     {
         int id;
         std::string name;
-        std::vector<uint8_t> state;
+        std::vector<std::byte> state;
 
         AWL_REFLECT(id, name, state)
     };
@@ -30,12 +31,12 @@ namespace
     const std::vector<Bot> bots =
     {
         { 1, "BTC_USDT", {} },
-        { 2, "XRP_USDT", {1u, 2u, 3u, 4u, 5u, 6u} },
-        { 3, "ETH_USDT", {7u, 8u, 9u} }
+        { 2, "XRP_USDT", { std::byte{ 1 }, std::byte{ 2 }, std::byte{ 3 }, std::byte{ 4 }, std::byte{ 5 }, std::byte{ 6 } } },
+        { 3, "ETH_USDT", { std::byte{ 7 }, std::byte{ 8 }, std::byte{ 9 } } }
     };
 
-    const Bot bot1{ 1, "DASH_USDT", {1u, 2u, 3u, 4u, 5u, 6u} };
-    const Bot bot2{ 2, "XRP_USDT", {1u, 2u} };
+    const Bot bot1{ 1, "DASH_USDT", { std::byte{ 1 }, std::byte{ 2 }, std::byte{ 3 }, std::byte{ 4 }, std::byte{ 5 }, std::byte{ 6 } } };
+    const Bot bot2{ 2, "XRP_USDT", { std::byte{ 1 }, std::byte{ 2 } } };
 }
 
 AWL_TEST(Blob)

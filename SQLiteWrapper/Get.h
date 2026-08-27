@@ -7,6 +7,7 @@
 #include "Awl/TupleHelpers.h"
 #include "Awl/Decimal.h"
 
+#include <cstddef>
 #include <stdint.h>
 #include <type_traits>
 #include <limits>
@@ -120,6 +121,11 @@ namespace sqlite
     inline void get(Statement& st, size_t col, std::vector<uint8_t>& val)
     {
         val = st.blobValue(col);
+    }
+
+    inline void get(Statement& st, size_t col, std::vector<std::byte>& val)
+    {
+        val = st.byteBlobValue(col);
     }
 
     template <class T>
