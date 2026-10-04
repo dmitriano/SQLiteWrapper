@@ -1,31 +1,38 @@
-cmake_minimum_required (VERSION 3.6.2)
-project (SQLiteWrapperTest)
+cmake_minimum_required(VERSION 3.24.2...4.4.3)
 
-set(
-    AWL_ROOT_DIR
-    "${CMAKE_SOURCE_DIR}/lib/Awl"
-    CACHE PATH "Path to Awl root directory"
-)
+project(SQLiteWrapper LANGUAGES C CXX)
 
-set(SQLITE_SRC_DIR $ENV{SQLITE_SRC_DIR})
-
-if(NOT EXISTS "${SQLITE_SRC_DIR}/sqlite3.h")
-    message( FATAL_ERROR "SQLite sources not found in ${SQLITE_SRC_DIR}" )
+if(NOT TARGET AWL::Core)
+    if(EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/lib/Awl/CMakeLists.txt")
+        set(awl_default "${CMAKE_CURRENT_SOURCE_DIR}/lib/Awl")
+    else()
+        set(awl_default "${CMAKE_CURRENT_SOURCE_DIR}/../Awl")
+    endif()
+    set(AWL_ROOT_DIR "${awl_default}" CACHE PATH "Path to AWL root directory")
+    set(AWL_FIND_QT OFF)
+    set(AWL_STATIC_RUNTIME ON)
+    set(AWL_ANSI_CMD_CHAR ON)
+    set(AWL_BUILD_TESTS OFF)
+    include("${AWL_ROOT_DIR}/CMake/AwlConfig.cmake")
+    add_subdirectory("${AWL_ROOT_DIR}" "${CMAKE_CURRENT_BINARY_DIR}/awl")
 endif()
 
-include(${AWL_ROOT_DIR}/CMake/AwlConfig.cmake)
+set(SQLITE_SRC_DIR "$ENV{SQLITE_SRC_DIR}" CACHE PATH "SQLite amalgamation sources")
+if(NOT EXISTS "${SQLITE_SRC_DIR}/sqlite3.c" OR NOT EXISTS "${SQLITE_SRC_DIR}/sqlite3.h")
+    message(FATAL_ERROR "Set SQLITE_SRC_DIR to a directory containing sqlite3.c and sqlite3.h")
+endif()
+file(GLOB wrapper_sources CONFIGURE_DEPENDS "SQLiteWrapper/*.cpp" "SQLiteWrapper/*.h")
+add_library(SQLiteWrapper STATIC ${wrapper_sources} "${SQLITE_SRC_DIR}/sqlite3.c")
+add_library(SQLiteWrapper::SQLiteWrapper ALIAS SQLiteWrapper)
+target_include_directories(SQLiteWrapper PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}" "${SQLITE_SRC_DIR}")
+target_compile_definitions(SQLiteWrapper PRIVATE SQLITE_THREADSAFE=1)
+target_link_libraries(SQLiteWrapper PUBLIC AWL::Core)
+awl_apply_compiler_options(SQLiteWrapper)
 
-set(AWL_FIND_QT OFF)
-set(AWL_STATIC_RUNTIME ON)
-set(AWL_COMPILE_MAIN ON)
-
-file(GLOB_RECURSE CPP_FILES
-  ${SQLITE_SRC_DIR}/*.h ${SQLITE_SRC_DIR}/sqlite3.c
-  ${CMAKE_SOURCE_DIR}/SQLiteWrapper/*.h ${CMAKE_SOURCE_DIR}/SQLiteWrapper/*.cpp
-  ${CMAKE_SOURCE_DIR}/Tests/*.h ${CMAKE_SOURCE_DIR}/Tests/*.cpp)
-
-add_executable(${PROJECT_NAME} ${CPP_FILES})
-
-target_include_directories(${PROJECT_NAME} PRIVATE ${CMAKE_SOURCE_DIR} ${SQLITE_SRC_DIR})
-
-include(${AWL_ROOT_DIR}/CMake/AwlLink.cmake)
+option(SQLITE_WRAPPER_BUILD_TESTS "Build SQLiteWrapper tests" ${PROJECT_IS_TOP_LEVEL})
+if(SQLITE_WRAPPER_BUILD_TESTS)
+    file(GLOB_RECURSE test_sources CONFIGURE_DEPENDS "Tests/*.cpp" "Tests/*.h")
+    add_executable(SQLiteWrapperTest ${test_sources})
+    target_link_libraries(SQLiteWrapperTest PRIVATE SQLiteWrapper::SQLiteWrapper AWL::TestMain)
+    awl_apply_compiler_options(SQLiteWrapperTest)
+endif()

@@ -1,6 +1,26 @@
 # SQLiteWrapper
 An experimental C++ wrapper for SQLite or a template metaprogramming-based home made ORM with some kind of a Code-First approach that allows to generate database table definitions from C++ structures, insert/update/delete/query the data without dealing with column names or column indices and iterating over the recordsets with standard C++ iterators.
 
+## CMake library target
+
+`SQLiteWrapper::SQLiteWrapper` links AWL and compiles the wrapper implementations
+and `sqlite3.c` once per configuration in the build tree. Set `SQLITE_SRC_DIR` to
+the SQLite amalgamation directory (`sqlite3.c` and `sqlite3.h`). Header paths and
+AWL's public usage requirements are propagated to consumers.
+
+```cmake
+# Configure/add AWL first when multiple dependencies share it.
+set(SQLITE_WRAPPER_BUILD_TESTS OFF)
+add_subdirectory(path/to/SQLiteWrapper sqlite-wrapper)
+target_link_libraries(MyProgram PRIVATE SQLiteWrapper::SQLiteWrapper)
+```
+
+An existing `AWL::Core` is reused. Standalone builds configure AWL from
+`AWL_ROOT_DIR` (the bundled checkout, or the adjacent AWL directory). The checkout
+must provide the new AWL library targets. `SQLITE_WRAPPER_BUILD_TESTS` defaults to
+ON for standalone builds and OFF as a subproject. `SQLiteWrapperTest` contains
+only test sources and links the wrapper library and `AWL::TestMain`.
+
 ## Examples
 
 - [BlobTest.cpp](https://github.com/dmitriano/SQLiteWrapper/blob/main/Tests/BlobTest.cpp) is a very simple example of working with a database table as with `std::set` and working with a column of type BLOB.
@@ -37,8 +57,8 @@ Assuming that you cloned the repository into `D:/dev/repos/SQLiteWrapper`, downl
 
 or
 
-    msbuild SQLiteWrapperTest.sln /p:Configuration=Debug /p:Platform=x64
-    msbuild SQLiteWrapperTest.sln /p:Configuration=RelWithDebInfo /p:Platform=x64
+    cmake --build . --config Debug
+    cmake --build . --config RelWithDebInfo
 
     Debug\SQLiteWrapperTest.exe
     RelWithDebInfo\SQLiteWrapperTest.exe
