@@ -22,22 +22,22 @@ namespace
 
     struct PricePair
     {
-        TimePoint dt;
+        TimePoint time;
         double buy;
         double sell;
 
-        AWL_REFLECT(dt, buy, sell)
+        AWL_REFLECT(time, buy, sell)
     };
 
     struct MarketPricePair
     {
-        TimePoint dt;
+        TimePoint time;
         int64_t exchangeId;
         int64_t marketId;
         double buy;
         double sell;
 
-        AWL_REFLECT(dt, exchangeId, marketId, buy, sell)
+        AWL_REFLECT(time, exchangeId, marketId, buy, sell)
     };
 
     PricePair makePricePair(size_t i)
@@ -72,7 +72,7 @@ namespace
     {
         sqlite::TableBuilder<Price> builder(makeTableName(i), true);
 
-        builder.setColumnConstraint(&Price::dt, "INTEGER NOT NULL PRIMARY KEY");
+        builder.setColumnConstraint(&Price::time, "INTEGER NOT NULL PRIMARY KEY");
 
         db.exec(builder.create());
     }
