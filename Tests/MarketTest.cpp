@@ -22,22 +22,22 @@ namespace
 
     struct PricePair
     {
-        TimePoint dt;
+        TimePoint time;
         double buy;
         double sell;
 
-        AWL_REFLECT(dt, buy, sell)
+        AWL_REFLECT(time, buy, sell)
     };
 
     struct MarketPricePair
     {
-        TimePoint dt;
+        TimePoint time;
         int64_t exchangeId;
         int64_t marketId;
         double buy;
         double sell;
 
-        AWL_REFLECT(dt, exchangeId, marketId, buy, sell)
+        AWL_REFLECT(time, exchangeId, marketId, buy, sell)
     };
 
     PricePair makePricePair(size_t i)
@@ -72,7 +72,7 @@ namespace
     {
         sqlite::TableBuilder<Price> builder(makeTableName(i), true);
 
-        builder.setColumnConstraint(&Price::dt, "INTEGER NOT NULL PRIMARY KEY");
+        builder.setColumnConstraint(&Price::time, "INTEGER NOT NULL PRIMARY KEY");
 
         db.exec(builder.create());
     }
@@ -414,7 +414,7 @@ AWL_TEST(MarketInfo)
 
         const std::string query = builder.create();
 
-        context.logger->debug(_T("{}"), query);
+        context.logger->trace(_T("{}"), query);
 
         db.exec(query);
     }
@@ -431,7 +431,7 @@ AWL_TEST(MarketInfo)
     {
         const std::string query = sqlite::buildParameterizedInsertQuery<MarketInfo>(table_name);
         
-        context.logger->debug(_T("{}"), query);
+        context.logger->trace(_T("{}"), query);
 
         sqlite::Statement insert_statement = sqlite::Statement(db, query);
 
@@ -444,7 +444,7 @@ AWL_TEST(MarketInfo)
     {
         const std::string query = sqlite::buildTrivialSelectQuery<MarketInfo>(table_name);
 
-        context.logger->debug(_T("{}"), query);
+        context.logger->trace(_T("{}"), query);
 
         sqlite::Statement select_statement = sqlite::Statement(db, query);
 
@@ -460,11 +460,11 @@ AWL_TEST(MarketInfo)
     {
         const std::string query = buildParameterizedUpdateQuery<MarketInfo>(table_name, value_filter, key_filter);
 
-        context.logger->debug(_T("{}"), query);
+        context.logger->trace(_T("{}"), query);
 
         sqlite::Statement update_statement = sqlite::Statement(db, query);
 
-        context.logger->debug(_T("{}"), query);
+        context.logger->trace(_T("{}"), query);
 
         if (whole_record)
         {
@@ -483,7 +483,7 @@ AWL_TEST(MarketInfo)
     {
         const std::string query = sqlite::buildParameterizedSelectQuery<MarketInfo>(table_name, value_filter, key_filter);
 
-        context.logger->debug(_T("{}"), query);
+        context.logger->trace(_T("{}"), query);
 
         sqlite::Statement select_statement = sqlite::Statement(db, query);
 

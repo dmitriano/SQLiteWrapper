@@ -1,7 +1,53 @@
 # SQLiteWrapper
 An experimental C++ wrapper for SQLite or a template metaprogramming-based home made ORM with some kind of a Code-First approach that allows to generate database table definitions from C++ structures, insert/update/delete/query the data without dealing with column names or column indices and iterating over the recordsets with standard C++ iterators.
 
+## CMake library target
+
+`SQLiteWrapper::SQLiteWrapper` links AWL and compiles the wrapper implementations
+and `sqlite3.c` once per configuration in the build tree. Set `SQLITE_SRC_DIR` to
+the SQLite amalgamation directory (`sqlite3.c` and `sqlite3.h`). Header paths and
+AWL's public usage requirements are propagated to consumers.
+
+```cmake
+# Configure/add AWL first when multiple dependencies share it.
+set(SQLITE_WRAPPER_BUILD_TESTS OFF)
+add_subdirectory(path/to/SQLiteWrapper sqlite-wrapper)
+target_link_libraries(MyProgram PRIVATE SQLiteWrapper::SQLiteWrapper)
+```
+
+An existing `AWL::Core` is reused. Standalone builds configure AWL from
+`AWL_ROOT_DIR` (the bundled checkout, or the adjacent AWL directory). The checkout
+must provide the new AWL library targets. `SQLITE_WRAPPER_BUILD_TESTS` defaults to
+ON for standalone builds and OFF as a subproject. `SQLiteWrapperTest` contains
+only test sources and links the wrapper library and `AWL::TestMain`.
+
 ## Examples
+
+### Named ID sequences
+
+`SequenceTable` stores named counters in one `sequences` table. Create the schema
+before using the table, then ensure each named sequence exists:
+
+```cpp
+sqlite::SequenceTable::createScheme().create(*db);
+sqlite::SequenceTable sequences(db);
+sequences.createSequence("orders");
+const int64_t id = sequences.nextId("orders"); // 1 on the first call
+```
+
+`createSequence(name, initial_value)` leaves existing values unchanged. The initial
+value must be nonnegative and defaults to zero; the first ID is initial_value + 1.
+`nextId` atomically increments and returns a signed 64-bit ID using
+`UPDATE ... RETURNING` (SQLite 3.35 or later). Unknown or exhausted sequences throw
+`SQLiteException`. Committed counters survive reopening the database.
+Both SQL statements are prepared in the constructor and reused on subsequent calls,
+including after SQL errors. Create the schema before constructing `SequenceTable`.
+
+Operations are synchronous and create no workers. Serialize use of a shared
+database connection; separate connections can advance the same counter concurrently,
+subject to SQLite's locking/busy policy. Calls participate in an enclosing transaction:
+rolling it back also rolls back the increment, so that ID may be issued again.
+Use autocommit or commit before publishing an ID when reuse must be prevented.
 
 - [BlobTest.cpp](https://github.com/dmitriano/SQLiteWrapper/blob/main/Tests/BlobTest.cpp) is a very simple example of working with a database table as with `std::set` and working with a column of type BLOB.
 - [SetTest.cpp](https://github.com/dmitriano/SQLiteWrapper/blob/main/Tests/SetTest.cpp) is an example of using composite keys and nested structures.
@@ -37,8 +83,8 @@ Assuming that you cloned the repository into `D:/dev/repos/SQLiteWrapper`, downl
 
 or
 
-    msbuild SQLiteWrapperTest.sln /p:Configuration=Debug /p:Platform=x64
-    msbuild SQLiteWrapperTest.sln /p:Configuration=RelWithDebInfo /p:Platform=x64
+    cmake --build . --config Debug
+    cmake --build . --config RelWithDebInfo
 
     Debug\SQLiteWrapperTest.exe
     RelWithDebInfo\SQLiteWrapperTest.exe

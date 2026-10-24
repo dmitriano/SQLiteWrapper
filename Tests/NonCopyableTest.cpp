@@ -8,6 +8,7 @@
 
 #include "Awl/IntRange.h"
 
+#include <cstddef>
 #include <string>
 
 using namespace swtest;
@@ -81,12 +82,12 @@ namespace
     {
         sqlite::RowId botId;
         std::string name;
-        std::vector<uint8_t> state;
+        std::vector<std::byte> state;
         Nc nc;
 
         Bot() = default;
         
-        Bot(sqlite::RowId rid, std::string n, std::vector<uint8_t> s, Nc c) :
+        Bot(sqlite::RowId rid, std::string n, std::vector<std::byte> s, Nc c) :
             botId(std::move(rid)), name(std::move(n)), state(std::move(s)), nc(std::move(c))
         {}
 

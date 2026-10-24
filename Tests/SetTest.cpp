@@ -192,22 +192,18 @@ AWL_TEST(SetStorageOrder)
     storage.update(btc_order1_updated);
 
     {
-        Order order =
-        {
-            btc_market_id,
-            std::get<1>(btc_key1)
-        };
+        Order order{};
+        order.marketId = btc_market_id;
+        order.id = std::get<1>(btc_key1);
 
         AWL_ASSERT(storage.find(order));
         AWL_ASSERT(order == btc_order1_updated);
     }
 
     {
-        Order order =
-        {
-            btc_market_id,
-            std::get<1>(btc_key2)
-        };
+        Order order{};
+        order.marketId = btc_market_id;
+        order.id = std::get<1>(btc_key2);
 
         AWL_ASSERT(storage.find(order));
         AWL_ASSERT(order == btc_order2);

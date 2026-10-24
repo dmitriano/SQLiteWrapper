@@ -20,11 +20,11 @@ namespace
 
     struct Log
     {
-        TimePoint dt;
+        TimePoint time;
         std::string category;
         std::string message;
 
-        AWL_REFLECT(dt, category, message)
+        AWL_REFLECT(time, category, message)
     };
 
     AWL_MEMBERWISE_EQUATABLE(Log);
@@ -37,7 +37,7 @@ namespace
     {
         sqlite::TableBuilder<Log> builder(tableName, true);
 
-        builder.setColumnConstraint(&Log::dt, "INTEGER NOT NULL PRIMARY KEY");
+        builder.setColumnConstraint(&Log::time, "INTEGER NOT NULL PRIMARY KEY");
 
         db.exec(builder.create());
     }

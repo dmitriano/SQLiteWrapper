@@ -1,5 +1,6 @@
 #pragma once
 
+#include "SQLiteWrapper/Database.h"
 #include "SQLiteWrapper/Helpers.h"
 #include "SQLiteWrapper/TableBuilder.h"
 #include "SQLiteWrapper/QueryBuilder.h"
@@ -241,7 +242,7 @@ namespace sqlite
 
         Statement makeStatement(const std::string log_prefix, const std::string& query) const
         {
-            _db->logger()->debug(_T("Set {}: {}"), log_prefix, query);
+            _db->logger()->trace(_T("Set {}: {}"), log_prefix, query);
 
             return Statement(*_db, query);
         };

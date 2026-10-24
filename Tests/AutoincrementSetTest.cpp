@@ -8,6 +8,7 @@
 
 #include "Awl/IntRange.h"
 
+#include <cstddef>
 #include <format>
 #include <string>
 
@@ -19,7 +20,7 @@ namespace
     {
         sqlite::RowId botId;
         std::string name;
-        std::vector<uint8_t> state;
+        std::vector<std::byte> state;
 
         AWL_REFLECT(name, botId, state)
     };
@@ -31,12 +32,12 @@ namespace
     std::vector<Bot> bots =
     {
         { 0, "BTC_USDT", {} },
-        { 0, "XRP_USDT", {1u, 2u, 3u, 4u, 5u, 6u} },
-        { 0, "ETH_USDT", {7u, 8u, 9u} }
+        { 0, "XRP_USDT", { std::byte{ 1 }, std::byte{ 2 }, std::byte{ 3 }, std::byte{ 4 }, std::byte{ 5 }, std::byte{ 6 } } },
+        { 0, "ETH_USDT", { std::byte{ 7 }, std::byte{ 8 }, std::byte{ 9 } } }
     };
 
-    Bot bot1{ 0, "DASH_USDT", {1u, 2u, 3u, 4u, 5u, 6u} };
-    Bot bot2{ 0, "XRP_USDT", {1u, 2u} };
+    Bot bot1{ 0, "DASH_USDT", { std::byte{ 1 }, std::byte{ 2 }, std::byte{ 3 }, std::byte{ 4 }, std::byte{ 5 }, std::byte{ 6 } } };
+    Bot bot2{ 0, "XRP_USDT", { std::byte{ 1 }, std::byte{ 2 } } };
 }
 
 AWL_TEST(RowIdRawQueries)
@@ -93,7 +94,7 @@ AWL_TEST(RowIdRaw)
     sqlite::Statement insert_statement(*c._db, "INSERT INTO raw_bots (name, state) VALUES (?1, ?3);");
 
     insert_statement.bindText(0, "BTCUSDT");
-    insert_statement.bindBlob(2, { 0, 1, 3 });
+    insert_statement.bindBlob(2, std::vector<std::byte>{ std::byte{ 0 }, std::byte{ 1 }, std::byte{ 3 } });
 
     insert_statement.exec();
 }
@@ -178,7 +179,7 @@ AWL_TEST(RowIdSet)
         }
 
         {
-            const std::vector<uint8_t> state = { 33u, 35u };
+            const std::vector<std::byte> state = { std::byte{ 33 }, std::byte{ 35 } };
 
             up.update(std::make_tuple(bot2.botId), std::make_tuple(state));
 

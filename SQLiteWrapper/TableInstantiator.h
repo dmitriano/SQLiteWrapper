@@ -57,7 +57,7 @@ namespace sqlite
 
                 const std::string query = builder.create();
 
-                db.logger()->debug(_T("Creating table '{}': \n{}"), tableName, query);
+                db.logger()->trace(_T("Creating table '{}': \n{}"), tableName, query);
 
                 db.exec(query);
 

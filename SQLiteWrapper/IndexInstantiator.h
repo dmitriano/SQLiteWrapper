@@ -68,7 +68,7 @@ namespace sqlite
 
                 const std::string query = out.str();
 
-                db.logger()->debug(_T("Creating index '{}': \n{}"), indexName, query);
+                db.logger()->trace(_T("Creating index '{}': \n{}"), indexName, query);
 
                 db.exec(query);
 
@@ -97,7 +97,7 @@ namespace sqlite
             // Where clause with sequential indices.
             const std::string query = buildParameterizedSelectQuery<Record>(tableName, {}, helpers::findTransparentFieldIndices(idPtrs), true);
 
-            db.logger()->debug(_T("'{}' IndexInstantiator select query: {}"), indexName, query);
+            db.logger()->trace(_T("'{}' IndexInstantiator select query: {}"), indexName, query);
 
             return Statement(db, query);
         }

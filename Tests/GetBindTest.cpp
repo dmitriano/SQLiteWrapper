@@ -3,6 +3,8 @@
 #include "SQLiteWrapper/Bind.h"
 #include "SQLiteWrapper/Get.h"
 
+#include <cstddef>
+
 using namespace swtest;
 
 namespace
@@ -24,7 +26,7 @@ AWL_TEST(GetbindNull)
 
         // Empty string is not Null.
         insert_statement.bindText(0, "");
-        insert_statement.bindBlob(1, {});
+        insert_statement.bindBlob(1, std::vector<std::byte>{});
 
         insert_statement.exec();
 
@@ -51,7 +53,7 @@ AWL_TEST(GetbindNull)
         }
 
         {
-            std::vector<uint8_t> blob;
+            std::vector<std::byte> blob;
             sqlite::get(select_statement, 1, blob);
             AWL_ASSERT(blob.empty());
         }
@@ -64,7 +66,7 @@ AWL_TEST(GetbindNull)
         AWL_ASSERT(!select_statement.isBlob(1));
 
         {
-            std::vector<uint8_t> blob;
+            std::vector<std::byte> blob;
             sqlite::get(select_statement, 1, blob);
             AWL_ASSERT(blob.empty());
         }

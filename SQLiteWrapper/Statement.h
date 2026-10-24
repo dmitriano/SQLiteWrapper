@@ -6,7 +6,7 @@
 
 #include "Awl/TupleHelpers.h"
 
-#include <stdint.h>
+#include <cstddef>
 #include <type_traits>
 #include <vector>
 #include <limits>
@@ -106,7 +106,7 @@ namespace sqlite
             checkBind(sqlite3_bind_text(_stmt, from0To1(col), val, -1, SQLITE_TRANSIENT));
         }
 
-        void bindBlob(size_t col, const std::vector<uint8_t>& v)
+        void bindBlob(size_t col, const std::vector<std::byte>& v)
         {
             checkBind(sqlite3_bind_blob(_stmt, from0To1(col), v.data(), static_cast<int>(v.size()), SQLITE_STATIC));
         }
@@ -159,11 +159,13 @@ namespace sqlite
             internalExec(true);
         }
 
-        void reset()
+        // After a reported step error, reset still resets the statement but repeats
+        // that error code. Cleanup can disable the check to preserve the original error.
+        void reset(bool check_error = true)
         {
             const int rc = sqlite3_reset(_stmt);
 
-            if (rc != SQLITE_OK)
+            if (check_error && rc != SQLITE_OK)
             {
                 raiseError(rc, "Error while resetting a statement.");
             }
@@ -233,16 +235,16 @@ namespace sqlite
             return reinterpret_cast<const char *>(sqlite3_column_text(_stmt, from0To0(col)));
         }
 
-        const std::vector<uint8_t> blobValue(size_t col) const
+        const std::vector<std::byte> blobValue(size_t col) const
         {
             //When we insert an empty std::vector it becomes Null.
             assert(isNull(col) || isBlob(col));
 
             const size_t size = static_cast<size_t>(sqlite3_column_bytes(_stmt, from0To0(col)));
-            
-            const uint8_t* buffer = reinterpret_cast<const uint8_t*>(sqlite3_column_blob(_stmt, from0To0(col)));
 
-            return std::vector<uint8_t>(buffer, buffer + size);
+            const std::byte* buffer = reinterpret_cast<const std::byte*>(sqlite3_column_blob(_stmt, from0To0(col)));
+
+            return std::vector<std::byte>(buffer, buffer + size);
         }
 
         [[noreturn]] void raiseError(int code, std::string message);

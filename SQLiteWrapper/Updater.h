@@ -1,5 +1,6 @@
 #pragma once
 
+#include "SQLiteWrapper/Database.h"
 #include "SQLiteWrapper/TableBuilder.h"
 #include "SQLiteWrapper/QueryBuilder.h"
 #include "SQLiteWrapper/Statement.h"

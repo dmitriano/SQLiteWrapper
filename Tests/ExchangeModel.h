@@ -10,12 +10,12 @@ namespace exchange::data
 {
     using Decimal = awl::decimal<uint64_t, 4>;
     
-    constexpr Decimal operator"" _d(const char* str, std::size_t len)
+    constexpr Decimal operator""_d(const char* str, std::size_t len)
     {
         return Decimal(std::string_view(str, len));
     }
 
-    constexpr Decimal operator"" _d(const wchar_t* str, std::size_t len)
+    constexpr Decimal operator""_d(const wchar_t* str, std::size_t len)
     {
         return Decimal(std::wstring_view(str, len));
     }
